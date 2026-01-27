@@ -15,6 +15,12 @@ export default function Header() {
           <Link href="/games" style={styles.link}>
             Games
           </Link>
+          <Link href="/privacy" style={styles.link}>
+            Privacy
+          </Link>
+          <Link href="/contact" style={styles.link}>
+            Contact
+          </Link>
         </nav>
       </div>
     </header>
@@ -34,6 +40,8 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: "12px",
+    flexWrap: "wrap",
   },
   brand: {
     fontSize: "20px",
@@ -43,11 +51,12 @@ const styles = {
   },
   nav: {
     display: "flex",
-    gap: "16px",
+    gap: "14px",
+    flexWrap: "wrap",
   },
   link: {
     color: "#cbd5e1",
     textDecoration: "none",
-    fontSize: "16px",
+    fontSize: "14px",
   },
 };

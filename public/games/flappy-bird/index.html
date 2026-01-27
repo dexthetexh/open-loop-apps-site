@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Flappy Bird (Open Loop Apps)</title>
+    <style>
+      body { margin:0; font-family: system-ui, Arial; background:#020617; color:#e5e7eb; }
+      .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+      .card { border:1px solid #1e293b; border-radius: 12px; padding:16px; background:#0b1220; }
+      button { padding:10px 14px; border-radius:10px; border:0; background:#2563eb; color:white; font-weight:700; cursor:pointer; }
+      canvas { width:100%; max-width: 420px; border:1px solid #1e293b; border-radius:12px; background:#0b1220; display:block; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Flappy Bird (Open Loop Apps)</h1>
+      <div class="card">
+        <p>
+          This is the stable standalone entrypoint for Flappy Bird. Replace <code>app.js</code> with your compiled build when ready.
+        </p>
+        <canvas id="c" width="420" height="520"></canvas>
+        <p><button id="b">Tap / Click to Flap</button></p>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

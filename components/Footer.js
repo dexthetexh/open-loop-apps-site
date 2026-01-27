@@ -15,6 +15,12 @@ export default function Footer() {
           <Link href="/games" style={styles.link}>
             Games
           </Link>
+          <Link href="/privacy" style={styles.link}>
+            Privacy
+          </Link>
+          <Link href="/contact" style={styles.link}>
+            Contact
+          </Link>
         </div>
       </div>
     </footer>
@@ -44,6 +50,7 @@ const styles = {
   links: {
     display: "flex",
     gap: "14px",
+    flexWrap: "wrap",
   },
   link: {
     color: "#cbd5e1",
