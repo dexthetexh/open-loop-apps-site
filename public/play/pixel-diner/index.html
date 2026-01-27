@@ -1,166 +1,582 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Pixel Diner · Open Loop Apps</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Pixel Diner" />
+  <meta name="description" content="Fast-paced pixelated cooking game - Match orders, beat the clock!" />
 
-  <meta name="application-name" content="Pixel Diner" />
-  <meta name="author" content="Open Loop Apps" />
-  <meta name="description" content="Pixel Diner — fast sessions, clean loops, offline-first." />
-  <meta name="color-scheme" content="dark light" />
+  <!-- Same “icon” approach as your version: data-URI manifest with emoji SVG icons -->
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlBpeGVsIERpbmVyIiwKICAic2hvcnRfbmFtZSI6ICJEaW5lciIsCiAgImRlc2NyaXB0aW9uIjogIkZhc3QtcGFjZWQgcGl4ZWxhdGVkIGNvb2tpbmcgZ2FtZSIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzFhMWEyZSIsCiAgInRoZW1lX2NvbG9yIjogIiMxYTFhMmUiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCclM0UlM0NyZWN0IHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyBmaWxsPSclMjMxYTFhMmUnLyUzRSUzQ3RleHQgeD0nNTAnIHk9JzU1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyUzRSVGMCU5RiU4RCU5NCUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIGZpbGw9JyUyMzFhMWEyZScvJTNFJTNDdGV4dCB4PSc1MCcgeT0nNTUnIGZvbnQtc2l6ZT0nNTAnIHRleHQtYW5jaG9yPSdtaWRkbGUnJTNFJUYwJTlGJThEJTk0JTNDJTJGdGV4dCUzRSUzQyUyRnN2ZyUzRSIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=" />
+
+  <title>Pixel Diner - Cook Fast!</title>
 
   <style>
-    :root{
-      --bg:#020617; --panel:#0b1220; --border:#1e293b;
-      --text:#e5e7eb; --muted:#94a3b8; --accent:#f59e0b;
-      --good:#22c55e; --bad:#ef4444;
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-    body{min-height:100svh;display:flex;justify-content:center;align-items:flex-start}
-    .app{width:100%;max-width:980px;padding:20px}
-    header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-    .title{font-size:22px;font-weight:800;letter-spacing:.3px;margin:0}
-    .subtitle{font-size:13px;color:var(--muted);margin:2px 0 0 0}
-    .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .hud{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-bottom:12px}
-    .hud strong{color:var(--text)}
-    .canvasWrap{display:flex;justify-content:center}
-    canvas{
-      width:100%;max-width:420px;aspect-ratio:3/4;
-      background:#050a16;border:1px solid var(--border);
-      border-radius:12px;display:block;touch-action:manipulation
+
+    :root {
+      --pixel-bg: #1a1a2e;
+      --pixel-surface: #16213e;
+      --pixel-accent: #ff6b6b;
+      --pixel-success: #51cf66;
+      --pixel-warning: #ffd43b;
+      --pixel-text: #f0f0f0;
+      --pixel-shadow: rgba(0, 0, 0, 0.6);
     }
-    .controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
-    button{appearance:none;border:none;border-radius:12px;padding:12px 18px;font-weight:800;background:var(--accent);color:#000;cursor:pointer}
-    button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
-    .help{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5}
-    footer{margin-top:18px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-    footer span{white-space:nowrap}
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: var(--pixel-bg);
+      color: var(--pixel-text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      touch-action: manipulation;
+    }
+
+    /* Animated background scanlines */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 107, 107, 0.03) 2px,
+          rgba(255, 107, 107, 0.03) 4px
+        );
+      animation: scanlines 8s linear infinite;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 480px;
+      max-height: 100vh;
+      background: var(--pixel-surface);
+      box-shadow: 0 0 60px var(--pixel-shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Install Prompt */
+    .install-prompt {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--pixel-accent);
+      border: 4px solid var(--pixel-bg);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 2000;
+      box-shadow: 0 4px 20px var(--pixel-shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .install-prompt.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .install-text {
+      font-size: 8px;
+      color: var(--pixel-text);
+    }
+
+    .install-btn {
+      background: var(--pixel-success);
+      border: 2px solid var(--pixel-bg);
+      color: var(--pixel-text);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 7px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .install-close {
+      background: transparent;
+      border: none;
+      color: var(--pixel-text);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--pixel-bg);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 4px solid var(--pixel-accent);
+      box-shadow: 0 4px 0 var(--pixel-shadow);
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .title {
+      font-size: 11px;
+      color: var(--pixel-accent);
+      text-shadow: 2px 2px 0 var(--pixel-shadow);
+      white-space: nowrap;
+    }
+
+    .score-display {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      min-width: 160px;
+    }
+
+    .score {
+      font-size: 14px;
+      color: var(--pixel-warning);
+      text-shadow: 2px 2px 0 var(--pixel-shadow);
+    }
+
+    .daily {
+      font-size: 6px;
+      color: var(--pixel-success);
+      opacity: 0.9;
+    }
+
+    .combo {
+      font-size: 7px;
+      color: var(--pixel-success);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+    }
+
+    .combo.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Order Display */
+    .order-area {
+      padding: 16px;
+      background: rgba(255, 107, 107, 0.1);
+      border-bottom: 4px solid var(--pixel-bg);
+      flex-shrink: 0;
+    }
+
+    .order-label {
+      font-size: 7px;
+      color: var(--pixel-accent);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .current-order {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      min-height: 60px;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--pixel-bg);
+      border: 3px solid var(--pixel-accent);
+      animation: orderPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes orderPop {
+      0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .order-emoji {
+      font-size: 24px;
+      filter: drop-shadow(2px 2px 0 var(--pixel-shadow));
+    }
+
+    .order-text {
+      font-size: 8px;
+      color: var(--pixel-text);
+    }
+
+    .timer-bar {
+      height: 6px;
+      background: var(--pixel-bg);
+      margin-top: 10px;
+      border: 2px solid var(--pixel-accent);
+      overflow: hidden;
+    }
+
+    .timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pixel-success), var(--pixel-warning), var(--pixel-accent));
+      transition: width 0.05s linear;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    /* Cooking Station */
+    .cooking-station {
+      flex: 1;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      align-content: start;
+    }
+
+    .ingredient {
+      aspect-ratio: 1;
+      background: var(--pixel-bg);
+      border: 4px solid var(--pixel-accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.1s;
+      position: relative;
+      touch-action: manipulation;
+    }
+
+    .ingredient:active {
+      transform: scale(0.92);
+      border-color: var(--pixel-success);
+    }
+
+    @media (hover: hover) {
+      .ingredient:hover {
+        background: rgba(255, 107, 107, 0.2);
+      }
+    }
+
+    .ingredient-emoji {
+      font-size: 32px;
+      filter: drop-shadow(2px 2px 0 var(--pixel-shadow));
+      pointer-events: none;
+    }
+
+    .ingredient-name {
+      font-size: 6px;
+      color: var(--pixel-text);
+      text-align: center;
+      line-height: 1.3;
+      pointer-events: none;
+    }
+
+    /* Feedback animations */
+    @keyframes correct { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+    @keyframes wrong { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+    .ingredient.correct {
+      animation: correct 0.3s;
+      border-color: var(--pixel-success);
+      background: rgba(81, 207, 102, 0.3);
+    }
+
+    .ingredient.wrong {
+      animation: wrong 0.3s;
+      border-color: var(--pixel-accent);
+      background: rgba(255, 107, 107, 0.3);
+    }
+
+    /* Game Over Screen */
+    .game-over {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(26, 26, 46, 0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .game-over.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .game-over-title {
+      font-size: 18px;
+      color: var(--pixel-accent);
+      text-shadow: 3px 3px 0 var(--pixel-shadow);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .final-score {
+      font-size: 28px;
+      color: var(--pixel-warning);
+      text-shadow: 3px 3px 0 var(--pixel-shadow);
+    }
+
+    .high-score {
+      font-size: 9px;
+      color: var(--pixel-success);
+    }
+
+    .stats {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .stat-item {
+      font-size: 7px;
+      color: var(--pixel-text);
+      text-align: center;
+    }
+
+    .restart-btn {
+      margin-top: 16px;
+      padding: 14px 28px;
+      background: var(--pixel-accent);
+      border: 4px solid var(--pixel-bg);
+      color: var(--pixel-text);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-shadow: 2px 2px 0 var(--pixel-shadow);
+      touch-action: manipulation;
+    }
+
+    .restart-btn:active {
+      transform: scale(0.95);
+      background: var(--pixel-success);
+    }
+
+    /* Start Screen */
+    .start-screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--pixel-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      z-index: 200;
+      padding: 20px;
+    }
+
+    .start-screen.hidden {
+      display: none;
+    }
+
+    .game-title {
+      font-size: 22px;
+      color: var(--pixel-accent);
+      text-shadow: 4px 4px 0 var(--pixel-shadow);
+      text-align: center;
+      line-height: 1.6;
+      animation: titleFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes titleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .instructions {
+      font-size: 7px;
+      color: var(--pixel-text);
+      text-align: center;
+      line-height: 2;
+      max-width: 280px;
+    }
+
+    .start-btn {
+      padding: 18px 36px;
+      background: var(--pixel-success);
+      border: 4px solid var(--pixel-bg);
+      color: var(--pixel-text);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-shadow: 2px 2px 0 var(--pixel-shadow);
+      animation: btnPulse 2s ease-in-out infinite;
+      touch-action: manipulation;
+    }
+
+    @keyframes btnPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .start-btn:active {
+      transform: scale(0.95);
+      background: var(--pixel-warning);
+    }
+
+    /* Particle effect */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 20px;
+      animation: particleFloat 1s forwards;
+      z-index: 1001;
+    }
+
+    @keyframes particleFloat {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-80px) scale(0.5); }
+    }
+
+    /* Loading screen */
+    .loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--pixel-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      transition: opacity 0.3s;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-text {
+      font-size: 10px;
+      color: var(--pixel-accent);
+      animation: pulse 1.5s infinite;
+    }
+
+    @media (max-height: 700px) {
+      .game-title { font-size: 18px; }
+      .start-btn { font-size: 11px; padding: 14px 28px; }
+      .instructions { font-size: 6px; }
+    }
+
+    @media (max-width: 360px) {
+      .ingredient-emoji { font-size: 28px; }
+      .ingredient-name { font-size: 5px; }
+      .order-emoji { font-size: 20px; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <header>
-      <div>
-        <h1 class="title">Pixel Diner</h1>
-        <p class="subtitle">Open Loop Apps • Offline • Standalone</p>
-      </div>
-      <div class="subtitle">v1.0.0</div>
-    </header>
-
-    <section class="panel">
-      <div class="hud">
-        <div>Orders: <strong id="orders">0</strong></div>
-        <div>Streak: <strong id="streak">0</strong></div>
-        <div>Status: <strong id="status">Ready</strong></div>
-      </div>
-
-      <div class="canvasWrap">
-        <canvas id="game" width="360" height="480" aria-label="Pixel Diner game canvas"></canvas>
-      </div>
-
-      <div class="controls">
-        <button id="serve">Serve</button>
-        <button id="reset" class="secondary">Reset</button>
-      </div>
-
-      <div class="help">Tap the canvas (or press Space) to serve. Keep your streak alive.</div>
-    </section>
-
-    <footer>
-      <span>© <span id="year"></span> Open Loop Apps</span>
-      <span>No accounts • No tracking</span>
-    </footer>
+  <div class="loading" id="loading">
+    <div class="loading-text">LOADING...</div>
   </div>
 
-  <script>
-    const c = document.getElementById("game");
-    const ctx = c.getContext("2d", { alpha: false });
+  <div class="install-prompt" id="installPrompt">
+    <span class="install-text">INSTALL APP?</span>
+    <button class="install-btn" id="installBtn">YES</button>
+    <button class="install-close" id="installClose">✕</button>
+  </div>
 
-    const ordersEl = document.getElementById("orders");
-    const streakEl = document.getElementById("streak");
-    const statusEl = document.getElementById("status");
-    const serveBtn = document.getElementById("serve");
-    const resetBtn = document.getElementById("reset");
-    const yearEl = document.getElementById("year");
-    yearEl.textContent = String(new Date().getFullYear());
+  <div class="game-container">
+    <!-- Start Screen -->
+    <div class="start-screen" id="startScreen">
+      <div class="game-title">PIXEL<br>DINER</div>
+      <div class="instructions">
+        TAP INGREDIENTS<br>
+        MATCH THE ORDER<br>
+        BEAT THE CLOCK!
+      </div>
+      <button class="start-btn" id="startBtn">START</button>
+    </div>
 
-    let orders = 0;
-    let streak = 0;
+    <!-- Game Header -->
+    <div class="header">
+      <div class="title">PIXEL DINER</div>
+      <div class="score-display">
+        <div class="score" id="score">0</div>
+        <div class="daily" id="dailyBest">DAILY: 0</div>
+        <div class="combo" id="combo">COMBO x0</div>
+      </div>
+    </div>
 
-    function setStatus(s) { statusEl.textContent = s; }
+    <!-- Order Display -->
+    <div class="order-area">
+      <div class="order-label">🔔 CURRENT ORDER 🔔</div>
+      <div class="current-order" id="currentOrder"></div>
+      <div class="timer-bar">
+        <div class="timer-fill" id="timerFill"></div>
+      </div>
+    </div>
 
-    function draw() {
-      // bg
-      ctx.fillStyle = "#0b1220";
-      ctx.fillRect(0, 0, c.width, c.height);
+    <!-- Cooking Station -->
+    <div class="cooking-station" id="cookingStation"></div>
 
-      // counter
-      ctx.fillStyle = "#111827";
-      ctx.fillRect(40, 310, 280, 46);
+    <!-- Game Over Screen -->
+    <div class="game-over" id="gameOver">
+      <div class="game-over-title">GAME OVER</div>
+      <div class="final-score" id="finalScore">0</div>
+      <div class="high-score" id="highScore">HIGH: 0</div>
+      <div class="high-score" id="dailyOver">DAILY: 0</div>
+      <div class="stats">
+        <div class="stat-item">ORDERS: <span id="ordersServed">0</span></div>
+        <div class="stat-item">BEST COMBO: <span id="bestCombo">0</span></div>
+      </div>
+      <button class="restart-btn" id="restartBtn">PLAY AGAIN</button>
+    </div>
+  </div>
 
-      // plate
-      ctx.fillStyle = "#e5e7eb";
-      ctx.beginPath();
-      ctx.arc(180, 210, 44, 0, Math.PI * 2);
-      ctx.fill();
-
-      // order card
-      ctx.fillStyle = "#1e293b";
-      ctx.fillRect(70, 90, 220, 70);
-      ctx.strokeStyle = "#334155";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(70, 90, 220, 70);
-
-      ctx.fillStyle = "#e5e7eb";
-      ctx.font = "800 18px system-ui";
-      ctx.fillText("Order Up!", 135, 120);
-
-      ctx.fillStyle = "rgba(229,231,235,.85)";
-      ctx.font = "600 12px system-ui";
-      ctx.fillText("Tap to serve → keep streak", 104, 145);
-
-      // pixel accents
-      ctx.fillStyle = "#f59e0b";
-      for (let i = 0; i < 18; i++) {
-        ctx.fillRect(25 + i * 18, 26, 3, 3);
-      }
-    }
-
-    function serve() {
-      orders += 1;
-      streak += 1;
-      ordersEl.textContent = String(orders);
-      streakEl.textContent = String(streak);
-      setStatus("Served");
-      draw();
-    }
-
-    function reset() {
-      orders = 0;
-      streak = 0;
-      ordersEl.textContent = "0";
-      streakEl.textContent = "0";
-      setStatus("Ready");
-      draw();
-    }
-
-    // Input
-    serveBtn.addEventListener("click", serve);
-    resetBtn.addEventListener("click", reset);
-    c.addEventListener("pointerdown", (e) => { e.preventDefault(); serve(); });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Space") {
-        e.preventDefault();
-        serve();
-      }
-    });
-
-    reset();
-  </script>
+  <script src="./pixel-diner.js" defer></script>
 </body>
 </html>
