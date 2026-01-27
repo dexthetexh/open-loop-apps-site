@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pixel Diner · Open Loop Apps</title>
+
+  <meta name="application-name" content="Pixel Diner" />
+  <meta name="author" content="Open Loop Apps" />
+  <meta name="description" content="Pixel Diner — fast sessions, clean loops, offline-first." />
+  <meta name="color-scheme" content="dark light" />
+
+  <style>
+    :root{
+      --bg:#020617; --panel:#0b1220; --border:#1e293b;
+      --text:#e5e7eb; --muted:#94a3b8; --accent:#f59e0b;
+      --good:#22c55e; --bad:#ef4444;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+    body{min-height:100svh;display:flex;justify-content:center;align-items:flex-start}
+    .app{width:100%;max-width:980px;padding:20px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .title{font-size:22px;font-weight:800;letter-spacing:.3px;margin:0}
+    .subtitle{font-size:13px;color:var(--muted);margin:2px 0 0 0}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .hud{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-bottom:12px}
+    .hud strong{color:var(--text)}
+    .canvasWrap{display:flex;justify-content:center}
+    canvas{
+      width:100%;max-width:420px;aspect-ratio:3/4;
+      background:#050a16;border:1px solid var(--border);
+      border-radius:12px;display:block;touch-action:manipulation
+    }
+    .controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+    button{appearance:none;border:none;border-radius:12px;padding:12px 18px;font-weight:800;background:var(--accent);color:#000;cursor:pointer}
+    button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .help{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5}
+    footer{margin-top:18px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    footer span{white-space:nowrap}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1 class="title">Pixel Diner</h1>
+        <p class="subtitle">Open Loop Apps • Offline • Standalone</p>
+      </div>
+      <div class="subtitle">v1.0.0</div>
+    </header>
+
+    <section class="panel">
+      <div class="hud">
+        <div>Orders: <strong id="orders">0</strong></div>
+        <div>Streak: <strong id="streak">0</strong></div>
+        <div>Status: <strong id="status">Ready</strong></div>
+      </div>
+
+      <div class="canvasWrap">
+        <canvas id="game" width="360" height="480" aria-label="Pixel Diner game canvas"></canvas>
+      </div>
+
+      <div class="controls">
+        <button id="serve">Serve</button>
+        <button id="reset" class="secondary">Reset</button>
+      </div>
+
+      <div class="help">Tap the canvas (or press Space) to serve. Keep your streak alive.</div>
+    </section>
+
+    <footer>
+      <span>© <span id="year"></span> Open Loop Apps</span>
+      <span>No accounts • No tracking</span>
+    </footer>
+  </div>
+
+  <script>
+    const c = document.getElementById("game");
+    const ctx = c.getContext("2d", { alpha: false });
+
+    const ordersEl = document.getElementById("orders");
+    const streakEl = document.getElementById("streak");
+    const statusEl = document.getElementById("status");
+    const serveBtn = document.getElementById("serve");
+    const resetBtn = document.getElementById("reset");
+    const yearEl = document.getElementById("year");
+    yearEl.textContent = String(new Date().getFullYear());
+
+    let orders = 0;
+    let streak = 0;
+
+    function setStatus(s) { statusEl.textContent = s; }
+
+    function draw() {
+      // bg
+      ctx.fillStyle = "#0b1220";
+      ctx.fillRect(0, 0, c.width, c.height);
+
+      // counter
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(40, 310, 280, 46);
+
+      // plate
+      ctx.fillStyle = "#e5e7eb";
+      ctx.beginPath();
+      ctx.arc(180, 210, 44, 0, Math.PI * 2);
+      ctx.fill();
+
+      // order card
+      ctx.fillStyle = "#1e293b";
+      ctx.fillRect(70, 90, 220, 70);
+      ctx.strokeStyle = "#334155";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(70, 90, 220, 70);
+
+      ctx.fillStyle = "#e5e7eb";
+      ctx.font = "800 18px system-ui";
+      ctx.fillText("Order Up!", 135, 120);
+
+      ctx.fillStyle = "rgba(229,231,235,.85)";
+      ctx.font = "600 12px system-ui";
+      ctx.fillText("Tap to serve → keep streak", 104, 145);
+
+      // pixel accents
+      ctx.fillStyle = "#f59e0b";
+      for (let i = 0; i < 18; i++) {
+        ctx.fillRect(25 + i * 18, 26, 3, 3);
+      }
+    }
+
+    function serve() {
+      orders += 1;
+      streak += 1;
+      ordersEl.textContent = String(orders);
+      streakEl.textContent = String(streak);
+      setStatus("Served");
+      draw();
+    }
+
+    function reset() {
+      orders = 0;
+      streak = 0;
+      ordersEl.textContent = "0";
+      streakEl.textContent = "0";
+      setStatus("Ready");
+      draw();
+    }
+
+    // Input
+    serveBtn.addEventListener("click", serve);
+    resetBtn.addEventListener("click", reset);
+    c.addEventListener("pointerdown", (e) => { e.preventDefault(); serve(); });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        serve();
+      }
+    });
+
+    reset();
+  </script>
+</body>
+</html>
