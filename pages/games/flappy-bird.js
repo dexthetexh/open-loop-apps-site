@@ -5,7 +5,7 @@ export default function FlappyBirdPage() {
 
       <div style={{ width: "100%", height: "80vh", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
         <iframe
-          src="/games/flappy-bird/"
+          src="/_play/flappy-bird/"
           title="Flappy Bird (Open Loop Apps)"
           style={{ width: "100%", height: "100%", border: 0 }}
           sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
