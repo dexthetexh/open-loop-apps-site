@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cf": "next build && npx @cloudflare/next-on-pages@1"
+    "build:pages": "next build && npx @cloudflare/next-on-pages@1"
   },
   "dependencies": {
     "next": "^16.1.5",

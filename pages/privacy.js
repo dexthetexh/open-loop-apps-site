@@ -1,79 +1,43 @@
 import Link from "next/link";
 
-export default function Home() {
+export default function Privacy() {
   return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>Open Loop Apps</h1>
+    <div style={{ padding: 16, maxWidth: 900, margin: "0 auto", color: "#e5e7eb" }}>
+      <h1 style={{ margin: "8px 0" }}>Privacy</h1>
 
-      <p style={styles.paragraph}>
-        Open Loop Apps builds small, focused Android games with clear progression
-        loops, offline-friendly mechanics, and fast iteration.
+      <p style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
+        Open Loop Apps hosts small web games. We do not require accounts. Game progress (like best scores)
+        may be stored locally in your browser using localStorage.
       </p>
 
-      <div style={styles.card}>
-        <h2 style={styles.cardTitle}>Current Projects</h2>
+      <h2 style={{ marginTop: 16 }}>What we collect</h2>
+      <ul style={{ color: "#cbd5e1", lineHeight: 1.6 }}>
+        <li><b>Local game data:</b> Scores/settings stored on your device (localStorage).</li>
+        <li><b>Server logs:</b> Standard request logs from hosting/CDN may be generated for security and performance.</li>
+      </ul>
 
-        <ul style={styles.list}>
-          <li>
-            <strong>Idle Cyber Defense</strong> — idle progression with Sensors,
-            Firewalls, and offline earnings.
-          </li>
-          <li>
-            <strong>Tap Escape Speedrun</strong> — short, skill-based tap sessions
-            designed for replay.
-          </li>
-        </ul>
+      <h2 style={{ marginTop: 16 }}>Advertising</h2>
+      <p style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
+        If ads are enabled on wrapper pages (e.g., /games/*), ad providers may use cookies or similar technologies
+        to serve and measure ads. This page will be updated with provider details once enabled.
+      </p>
 
-        <div style={styles.actions}>
-          <Link href="/games" style={styles.primaryButton}>
-            View Games
-          </Link>
-        </div>
+      <h2 style={{ marginTop: 16 }}>Contact</h2>
+      <p style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
+        Questions? Use the contact page.
+      </p>
+
+      <div style={{ marginTop: 18 }}>
+        <Link href="/contact" style={{ color: "#93c5fd", textDecoration: "none" }}>
+          Go to Contact
+        </Link>
+        <span style={{ color: "#94a3b8" }}> • </span>
+        <Link href="/games" style={{ color: "#93c5fd", textDecoration: "none" }}>
+          View Games
+        </Link>
       </div>
+
+      <div style={{ marginTop: 18, color: "#94a3b8", fontSize: 12 }}>© 2026 Open Loop Apps</div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "960px",
-    margin: "0 auto",
-    padding: "32px 20px",
-    color: "#e5e7eb",
-  },
-  heading: {
-    fontSize: "40px",
-    marginBottom: "12px",
-  },
-  paragraph: {
-    color: "#cbd5e1",
-    lineHeight: 1.6,
-    marginBottom: "20px",
-  },
-  card: {
-    backgroundColor: "#020617",
-    border: "1px solid #1e293b",
-    borderRadius: "12px",
-    padding: "20px",
-  },
-  cardTitle: {
-    fontSize: "22px",
-    marginBottom: "12px",
-  },
-  list: {
-    paddingLeft: "20px",
-    color: "#cbd5e1",
-  },
-  actions: {
-    marginTop: "16px",
-  },
-  primaryButton: {
-    display: "inline-block",
-    padding: "10px 16px",
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    textDecoration: "none",
-    borderRadius: "8px",
-    fontWeight: 600,
-  },
-};
