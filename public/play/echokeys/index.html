@@ -1,79 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>EchoKeys · NoteLoop · Open Loop Apps</title>
+  <meta charset="UTF-8" />
 
-<meta name="application-name" content="EchoKeys">
-<meta name="author" content="Open Loop Apps">
-<meta name="description" content="EchoKeys — a musical memory game. NoteLoop Series by Open Loop Apps. Codename EchoKeys-NoteLoop.">
+  <!-- Mobile ergonomics -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- Identity -->
+  <title>EchoKeys · NoteLoop · Open Loop Apps</title>
+  <meta name="application-name" content="EchoKeys" />
+  <meta name="author" content="Open Loop Apps" />
+  <meta name="description" content="EchoKeys — a musical memory game. NoteLoop Series by Open Loop Apps. Codename EchoKeys-NoteLoop." />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-    <!-- Audio Unlock Overlay -->
-    <div id="audio-unlock" class="overlay">
-        <div class="unlock-card">
-            <h1>🎹 EchoKeys</h1>
-            <p>Repeat what you hear</p>
-            <button id="start-btn" class="primary-btn">Start Game</button>
-        </div>
+  <!-- Toast (subtle feedback layer) -->
+  <div id="toast" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Audio Unlock Overlay -->
+  <div id="audio-unlock" class="overlay">
+    <div class="unlock-card">
+      <h1>🎹 EchoKeys</h1>
+      <p>Repeat what you hear</p>
+      <button id="start-btn" class="primary-btn" type="button">Start Game</button>
+      <div class="unlock-footnote">Press <kbd>Enter</kbd> to start</div>
+    </div>
+  </div>
+
+  <!-- Main Game Container -->
+  <div id="game-container" class="hidden">
+    <!-- Header -->
+    <header class="game-header">
+      <div class="stat">
+        <span class="label">Level</span>
+        <span id="level-display" class="value">1</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Score</span>
+        <span id="score-display" class="value">0</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Best</span>
+        <span id="best-display" class="value">0</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Daily</span>
+        <span id="daily-display" class="value">0</span>
+      </div>
+
+      <button id="settings-btn" class="settings-btn" title="Settings" type="button">⚙️</button>
+    </header>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="settings-panel hidden">
+      <h3>Settings</h3>
+
+      <div class="setting-item">
+        <label class="toggle-label">
+          <input type="checkbox" id="vibration-toggle" checked />
+          <span class="toggle-slider"></span>
+          <span class="toggle-text">Vibration</span>
+        </label>
+      </div>
+
+      <div class="settings-actions">
+        <button id="restart-btn" class="secondary-btn" type="button">⟲ Restart Run</button>
+        <button id="close-settings-btn" class="secondary-btn" type="button">Close</button>
+      </div>
+
+      <div class="settings-hint">
+        Hotkeys: <kbd>Enter</kbd> (start/next), <kbd>R</kbd> (restart), <kbd>Esc</kbd> (close settings)
+      </div>
     </div>
 
-    <!-- Main Game Container -->
-    <div id="game-container" class="hidden">
-        <!-- Header -->
-        <header class="game-header">
-            <div class="stat">
-                <span class="label">Level</span>
-                <span id="level-display" class="value">1</span>
-            </div>
-            <div class="stat">
-                <span class="label">Score</span>
-                <span id="score-display" class="value">0</span>
-            </div>
-            <div class="stat">
-                <span class="label">Best</span>
-                <span id="best-display" class="value">0</span>
-            </div>
-            <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
-        </header>
+    <!-- Status Message -->
+    <div id="status-message" class="status-message">Listen carefully...</div>
 
-        <!-- Settings Panel -->
-        <div id="settings-panel" class="settings-panel hidden">
-            <h3>Settings</h3>
-            <div class="setting-item">
-                <label class="toggle-label">
-                    <input type="checkbox" id="vibration-toggle" checked>
-                    <span class="toggle-slider"></span>
-                    <span class="toggle-text">Vibration</span>
-                </label>
-            </div>
-            <button id="close-settings-btn" class="secondary-btn">Close</button>
-        </div>
-
-        <!-- Status Message -->
-        <div id="status-message" class="status-message">
-            Listen carefully...
-        </div>
-
-        <!-- Piano Keys Container -->
-        <div id="keys-container" class="keys-container">
-            <!-- Keys generated dynamically -->
-        </div>
-
-        <!-- Action Buttons -->
-        <div id="action-buttons" class="action-buttons hidden">
-            <button id="replay-btn" class="secondary-btn">🔁 Replay</button>
-            <button id="next-btn" class="primary-btn hidden">Next →</button>
-            <button id="retry-btn" class="secondary-btn hidden">Try Again</button>
-        </div>
-
-        <!-- Ad Slot Placeholder -->
-        <div id="ad-slot" class="ad-slot"></div>
+    <!-- Piano Keys Container -->
+    <div id="keys-container" class="keys-container">
+      <!-- Keys generated dynamically -->
     </div>
 
-    <script src="app.js"></script>
-	<footer style="text-align:center;font-size:10px;opacity:.5;margin-top:8px">
-  EchoKeys · NoteLoop Series · Open Loop Apps<br>
-  Codename: EchoKeys-NoteLoop
-</footer>
+    <!-- Action Buttons -->
+    <div id="action-buttons" class="action-buttons hidden">
+      <button id="replay-btn" class="secondary-btn" type="button">🔁 Replay</button>
+      <button id="next-btn" class="primary-btn hidden" type="button">Next →</button>
+      <button id="retry-btn" class="secondary-btn hidden" type="button">Try Again</button>
+    </div>
+
+    <!-- Ad Slot Placeholder (keep tasteful; wrapper page should host real ads) -->
+    <div id="ad-slot" class="ad-slot"></div>
+
+    <footer class="app-footer">
+      <small>
+        EchoKeys · NoteLoop Series · Open Loop Apps<br />
+        Codename: EchoKeys-NoteLoop · Local-only stats (no accounts)
+      </small>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
