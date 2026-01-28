@@ -1,79 +1,34 @@
 import Link from "next/link";
-
-export default function Home() {
+export default function Contact() {
   return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>Open Loop Apps</h1>
-
-      <p style={styles.paragraph}>
-        Open Loop Apps builds small, focused Android games with clear progression
-        loops, offline-friendly mechanics, and fast iteration.
+    <div style={{ padding: 16, maxWidth: 900, margin: "0 auto", color: "#e5e7eb" }}>
+      <h1 style={{ margin: "8px 0" }}>Contact</h1>
+      <p style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
+        Support, feedback, and business inquiries for Open Loop Apps.
       </p>
-
-      <div style={styles.card}>
-        <h2 style={styles.cardTitle}>Current Projects</h2>
-
-        <ul style={styles.list}>
-          <li>
-            <strong>Idle Cyber Defense</strong> — idle progression with Sensors,
-            Firewalls, and offline earnings.
-          </li>
-          <li>
-            <strong>Tap Escape Speedrun</strong> — short, skill-based tap sessions
-            designed for replay.
-          </li>
-        </ul>
-
-        <div style={styles.actions}>
-          <Link href="/games" style={styles.primaryButton}>
-            View Games
-          </Link>
-        </div>
+      <h2 style={{ marginTop: 16 }}>Email</h2>
+      <p style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
+        <a href="mailto:openloopapps@proton.me" style={{ color: "#93c5fd", textDecoration: "none" }}>
+          openloopapps@proton.me
+        </a>
+      </p>
+      <h2 style={{ marginTop: 16 }}>Include</h2>
+      <ul style={{ color: "#cbd5e1", lineHeight: 1.6 }}>
+        <li>Which game (EchoKeys, Pixel Diner, etc.)</li>
+        <li>Device + browser</li>
+        <li>What you expected vs what happened</li>
+        <li>Screenshot if possible</li>
+      </ul>
+      <div style={{ marginTop: 18 }}>
+        <Link href="/privacy" style={{ color: "#93c5fd", textDecoration: "none" }}>
+          Privacy
+        </Link>
+        <span style={{ color: "#94a3b8" }}> • </span>
+        <Link href="/games" style={{ color: "#93c5fd", textDecoration: "none" }}>
+          Games
+        </Link>
       </div>
+      <div style={{ marginTop: 18, color: "#94a3b8", fontSize: 12 }}>© 2026 Open Loop Apps</div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "960px",
-    margin: "0 auto",
-    padding: "32px 20px",
-    color: "#e5e7eb",
-  },
-  heading: {
-    fontSize: "40px",
-    marginBottom: "12px",
-  },
-  paragraph: {
-    color: "#cbd5e1",
-    lineHeight: 1.6,
-    marginBottom: "20px",
-  },
-  card: {
-    backgroundColor: "#020617",
-    border: "1px solid #1e293b",
-    borderRadius: "12px",
-    padding: "20px",
-  },
-  cardTitle: {
-    fontSize: "22px",
-    marginBottom: "12px",
-  },
-  list: {
-    paddingLeft: "20px",
-    color: "#cbd5e1",
-  },
-  actions: {
-    marginTop: "16px",
-  },
-  primaryButton: {
-    display: "inline-block",
-    padding: "10px 16px",
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    textDecoration: "none",
-    borderRadius: "8px",
-    fontWeight: 600,
-  },
-};
