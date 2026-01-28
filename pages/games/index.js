@@ -76,7 +76,7 @@ export default function GamesIndex() {
 
         <section className="grid">
           {GAMES.map((g) => (
-            <Link key={g.slug} href={`/games/${g.slug}`} className="card">
+            <Link key={g.slug} href={g.type === "web" ? `/play/${g.slug}` : `/games/${g.slug}`} className="card">
               <h2 className="h2">{g.title}</h2>
               <p className="cardText">{g.desc}</p>
               <span className="cardCta">
