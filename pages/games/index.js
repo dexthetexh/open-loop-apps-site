@@ -1,40 +1,19 @@
 import Link from "next/link";
 
 const GAMES = [
+  { slug: "pixel-diner", name: "Pixel Diner", series: "Open Loop Apps", codename: null, note: "Match orders. Beat the clock." },
+  { slug: "flappy-bird", name: "Flappy Bird", series: "Open Loop Apps", codename: null, note: "Quick reflex loop." },
+  { slug: "idle-cyber-defense", name: "Idle Cyber Defense", series: "Open Loop Apps", codename: null, note: "Idle progression loop." },
+  { slug: "tap-escape-speedrun", name: "Tap Escape Speedrun", series: "Open Loop Apps", codename: null, note: "Fast taps. Faster runs." },
+
+  // NoteLoop Series
+  { slug: "echokeys", name: "EchoKeys", series: "NoteLoop Series", codename: "EchoKeys-NoteLoop", note: "Musical memory loop." },
   {
-    slug: "pixel-diner",
-    name: "Pixel Diner",
-    series: "Open Loop Apps",
-    codename: null,
-    note: "Match orders. Beat the clock.",
-  },
-  {
-    slug: "flappy-bird",
-    name: "Flappy Bird",
-    series: "Open Loop Apps",
-    codename: null,
-    note: "Quick reflex loop.",
-  },
-  {
-    slug: "idle-cyber-defense",
-    name: "Idle Cyber Defense",
-    series: "Open Loop Apps",
-    codename: null,
-    note: "Idle progression loop.",
-  },
-  {
-    slug: "tap-escape-speedrun",
-    name: "Tap Escape Speedrun",
-    series: "Open Loop Apps",
-    codename: null,
-    note: "Fast taps. Faster runs.",
-  },
-  {
-    slug: "echokeys",
-    name: "EchoKeys",
+    slug: "echokeys-scaletrainer",
+    name: "EchoKeys: ScaleTrainer",
     series: "NoteLoop Series",
     codename: "EchoKeys-NoteLoop",
-    note: "Memory + rhythm loop.",
+    note: "Training mode: scales + ear training loop.",
   },
 ];
 
@@ -59,9 +38,7 @@ function Card({ g }) {
         </div>
       ) : null}
 
-      <p style={{ margin: "10px 0 12px 0", color: "#cbd5e1", lineHeight: 1.4, fontSize: 13 }}>
-        {g.note}
-      </p>
+      <p style={{ margin: "10px 0 12px 0", color: "#cbd5e1", lineHeight: 1.4, fontSize: 13 }}>{g.note}</p>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <Link
@@ -100,9 +77,7 @@ export default function GamesHub() {
   return (
     <div style={{ padding: 16, maxWidth: 980, margin: "0 auto", color: "#e5e7eb" }}>
       <h1 style={{ margin: "8px 0 6px 0" }}>Open Loop Apps</h1>
-      <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.5 }}>
-        Short-session web games. No accounts. Fast loops.
-      </p>
+      <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.5 }}>Short-session web games. No accounts. Fast loops.</p>
 
       {/* Tasteful hub-only ad slot placeholder */}
       <div
@@ -117,6 +92,7 @@ export default function GamesHub() {
           justifyContent: "center",
           color: "#94a3b8",
           fontSize: 12,
+          background: "rgba(15, 23, 42, 0.35)",
         }}
         aria-label="Advertisement"
       >
@@ -130,7 +106,7 @@ export default function GamesHub() {
       </div>
 
       <div style={{ marginTop: 18, color: "#94a3b8", fontSize: 12 }}>
-        If a wrapper page loads but the game is blank, test the “Direct” link to isolate iframe vs asset issues.
+        If a wrapper page loads but a game is blank, use the “Direct” link to isolate iframe vs asset issues.
       </div>
     </div>
   );
