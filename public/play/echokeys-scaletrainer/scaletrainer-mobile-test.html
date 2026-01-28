@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ScaleTrainer - Note Recognition</title>
+    <style>
+/* ScaleTrainer - Note Recognition Game */
+/* NoteLoop Series by Open Loop Apps */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #8b5cf6;
+    --success: #10b981;
+    --error: #ef4444;
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --white-key: #f0f0f0;
+    --white-key-active: #4ade80;
+    --white-key-error: #ef4444;
+    --black-key: #1e293b;
+    --black-key-active: #22c55e;
+    --black-key-error: #dc2626;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================================
+   OVERLAY
+   ============================================================================ */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.unlock-card {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 48px 32px;
+    text-align: center;
+    max-width: 400px;
+    border: 2px solid var(--border);
+}
+
+.unlock-card h1 {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.unlock-card p {
+    color: var(--text-muted);
+    font-size: 18px;
+    margin-bottom: 32px;
+}
+
+/* ============================================================================
+   TUTORIAL SYSTEM
+   ============================================================================ */
+
+.tutorial-card {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 700px;
+    width: 100%;
+    border: 2px solid var(--border);
+    position: relative;
+}
+
+.tutorial-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.tutorial-dots .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.tutorial-dots .dot.active {
+    background: var(--primary);
+    transform: scale(1.3);
+}
+
+.tutorial-dots .dot.completed {
+    background: var(--success);
+}
+
+.tutorial-content {
+    min-height: 400px;
+    position: relative;
+}
+
+.tutorial-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.tutorial-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tutorial-step h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: var(--text);
+    text-align: center;
+}
+
+.tutorial-step p {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.tutorial-step p strong {
+    color: var(--primary);
+}
+
+.tutorial-visual {
+    margin: 32px 0;
+    padding: 24px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.music-emoji {
+    font-size: 120px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.tutorial-svg {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+}
+
+.tutorial-checklist {
+    list-style: none;
+    text-align: left;
+    max-width: 400px;
+    margin: 24px auto;
+    padding: 0;
+}
+
+.tutorial-checklist li {
+    font-size: 18px;
+    padding: 12px 0;
+    color: var(--text);
+}
+
+.hint {
+    color: var(--text-muted) !important;
+    font-style: italic;
+    font-size: 16px !important;
+    margin-top: 24px !important;
+}
+
+/* Quiz Styles */
+.quiz-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.quiz-question {
+    margin: 24px 0;
+    padding: 20px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 12px;
+    border: 2px solid var(--border);
+}
+
+.quiz-question.hidden {
+    display: none;
+}
+
+.quiz-q {
+    font-size: 18px !important;
+    margin-bottom: 16px !important;
+    text-align: left !important;
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quiz-option {
+    padding: 14px 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.quiz-option:hover:not(:disabled) {
+    background: var(--border);
+    transform: translateX(4px);
+}
+
+.quiz-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.quiz-option.correct {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.quiz-option.incorrect {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--error);
+    color: var(--error);
+}
+
+.quiz-feedback {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+}
+
+.quiz-feedback.show {
+    display: block;
+}
+
+.quiz-feedback.correct {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.quiz-feedback.incorrect {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+}
+
+.quiz-complete {
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.quiz-complete.hidden {
+    display: none;
+}
+
+.quiz-success h3 {
+    font-size: 32px;
+    color: var(--success);
+    margin-bottom: 16px;
+}
+
+.quiz-success p {
+    font-size: 18px;
+    color: var(--text);
+}
+
+/* Tutorial Piano Display */
+#tutorial-piano-display {
+    position: relative;
+    height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tutorial-piano-key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.tutorial-piano-key.white {
+    width: 50px;
+    height: 160px;
+    background: var(--white-key);
+    border: 2px solid var(--border);
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 12px;
+}
+
+.tutorial-piano-key.black {
+    position: absolute;
+    width: 35px;
+    height: 100px;
+    background: var(--black-key);
+    border: 2px solid #000;
+    border-radius: 0 0 6px 6px;
+    z-index: 2;
+}
+
+.tutorial-piano-key:hover {
+    transform: translateY(-4px);
+}
+
+.tutorial-piano-key.white:hover {
+    background: #e0e0e0;
+}
+
+.tutorial-piano-key.black:hover {
+    background: #2d3748;
+}
+
+.tutorial-key-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    pointer-events: none;
+}
+
+.tutorial-piano-key.black .tutorial-key-label {
+    color: var(--text);
+    font-size: 10px;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.tutorial-nav {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+.text-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s ease;
+}
+
+.text-btn:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+/* Responsive Tutorial */
+@media (max-width: 640px) {
+    .tutorial-card {
+        padding: 24px;
+    }
+    
+    .tutorial-step h2 {
+        font-size: 24px;
+    }
+    
+    .tutorial-step p {
+        font-size: 16px;
+    }
+    
+    .music-emoji {
+        font-size: 80px;
+    }
+    
+    .tutorial-visual {
+        min-height: 150px;
+        padding: 16px;
+    }
+    
+    .tutorial-piano-key.white {
+        width: 40px;
+        height: 130px;
+    }
+    
+    .tutorial-piano-key.black {
+        width: 28px;
+        height: 80px;
+    }
+    
+    .tutorial-nav {
+        justify-content: center;
+    }
+    
+    .text-btn {
+        flex-basis: 100%;
+        text-align: center;
+    }
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.primary-btn,
+.secondary-btn {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px 32px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    min-width: 140px;
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.primary-btn:active {
+    transform: translateY(0);
+}
+
+.secondary-btn {
+    background: var(--card-bg);
+    color: var(--text);
+    border: 2px solid var(--border);
+}
+
+.secondary-btn:hover {
+    background: var(--border);
+}
+
+/* ============================================================================
+   GAME CONTAINER
+   ============================================================================ */
+
+#game-container {
+    width: 100%;
+    max-width: 900px;
+    transition: opacity 0.3s ease;
+}
+
+#game-container.hidden {
+    display: none;
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.game-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 24px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    position: relative;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.stat .value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.settings-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+    background: var(--border);
+    transform: scale(1.1);
+}
+
+/* ============================================================================
+   SETTINGS PANEL
+   ============================================================================ */
+
+.settings-panel {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.settings-panel.hidden {
+    display: none;
+}
+
+.settings-panel h3 {
+    margin: 0 0 20px 0;
+    color: var(--text);
+    font-size: 20px;
+}
+
+.setting-item {
+    margin-bottom: 20px;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    background: var(--border);
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: var(--text);
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: all 0.3s ease;
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-slider {
+    background: var(--primary);
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-slider::before {
+    transform: translateX(22px);
+}
+
+.toggle-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ============================================================================
+   MODE SELECTOR
+   ============================================================================ */
+
+.mode-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 16px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+    background: var(--border);
+}
+
+.mode-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* ============================================================================
+   QUESTION AREA
+   ============================================================================ */
+
+.question-area {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Musical Staff */
+.staff-svg {
+    width: 100%;
+    max-width: 400px;
+    height: 200px;
+}
+
+.staff-line {
+    stroke: var(--text-muted);
+    stroke-width: 2;
+}
+
+.note-head {
+    fill: var(--text);
+}
+
+.note-stem {
+    stroke: var(--text);
+    stroke-width: 2;
+}
+
+.ledger-line {
+    stroke: var(--text-muted);
+    stroke-width: 2;
+}
+
+/* Note Name Display */
+.note-name-display {
+    text-align: center;
+}
+
+.note-name-display.hidden {
+    display: none;
+}
+
+#note-name-text {
+    font-size: 96px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Audio Mode Display */
+.audio-mode-display {
+    text-align: center;
+}
+
+.audio-mode-display.hidden {
+    display: none;
+}
+
+.play-note-btn {
+    font-size: 64px;
+    background: var(--primary);
+    border: none;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 16px;
+}
+
+.play-note-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.play-note-btn:active {
+    transform: scale(0.95);
+}
+
+.instruction {
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+/* ============================================================================
+   STATUS MESSAGE
+   ============================================================================ */
+
+.status-message {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    min-height: 28px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.status-message.success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.status-message.error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--error);
+    color: var(--error);
+}
+
+/* ============================================================================
+   PIANO KEYBOARD
+   ============================================================================ */
+
+.piano-container {
+    margin-bottom: 24px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 20px 0;
+}
+
+.piano-keyboard {
+    position: relative;
+    display: inline-flex;
+    min-width: 100%;
+    justify-content: center;
+}
+
+.piano-key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    border: 2px solid var(--border);
+}
+
+.piano-key.white {
+    width: 60px;
+    height: 200px;
+    background: var(--white-key);
+    border-radius: 0 0 8px 8px;
+    z-index: 1;
+}
+
+.piano-key.black {
+    position: absolute;
+    width: 40px;
+    height: 120px;
+    background: var(--black-key);
+    border-radius: 0 0 6px 6px;
+    z-index: 2;
+    border: 2px solid #000;
+}
+
+.piano-key.white:hover:not(.disabled) {
+    background: #e0e0e0;
+    transform: translateY(-4px);
+}
+
+.piano-key.black:hover:not(.disabled) {
+    background: #2d3748;
+    transform: translateY(-4px);
+}
+
+.piano-key.white:active:not(.disabled) {
+    transform: translateY(-2px);
+}
+
+.piano-key.black:active:not(.disabled) {
+    transform: translateY(-2px);
+}
+
+.piano-key.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.piano-key.correct {
+    animation: correct-flash 0.5s ease;
+}
+
+.piano-key.white.correct {
+    background: var(--white-key-active);
+}
+
+.piano-key.black.correct {
+    background: var(--black-key-active);
+}
+
+.piano-key.incorrect {
+    animation: incorrect-shake 0.5s ease;
+}
+
+.piano-key.white.incorrect {
+    background: var(--white-key-error);
+}
+
+.piano-key.black.incorrect {
+    background: var(--black-key-error);
+}
+
+.key-label {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    pointer-events: none;
+}
+
+.piano-key.black .key-label {
+    color: var(--text);
+    font-size: 11px;
+    bottom: 6px;
+}
+
+@keyframes correct-flash {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes incorrect-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* ============================================================================
+   ACTION BUTTONS
+   ============================================================================ */
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.action-buttons.hidden {
+    display: none;
+}
+
+/* ============================================================================
+   PROGRESS INDICATOR
+   ============================================================================ */
+
+.progress-indicator {
+    margin-bottom: 24px;
+}
+
+#question-number {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--card-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* ============================================================================
+   AD SLOT
+   ============================================================================ */
+
+.ad-slot {
+    min-height: 50px;
+    background: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+    
+    .unlock-card {
+        padding: 32px 24px;
+    }
+    
+    .unlock-card h1 {
+        font-size: 36px;
+    }
+    
+    .game-header {
+        padding: 16px;
+    }
+    
+    .stat .value {
+        font-size: 24px;
+    }
+    
+    .question-area {
+        padding: 24px 16px;
+        min-height: 180px;
+    }
+    
+    #note-name-text {
+        font-size: 72px;
+    }
+    
+    .play-note-btn {
+        width: 100px;
+        height: 100px;
+        font-size: 48px;
+    }
+    
+    .piano-key.white {
+        width: 45px;
+        height: 160px;
+    }
+    
+    .piano-key.black {
+        width: 30px;
+        height: 100px;
+    }
+    
+    .key-label {
+        font-size: 11px;
+    }
+    
+    .piano-key.black .key-label {
+        font-size: 9px;
+    }
+    
+    .mode-btn {
+        font-size: 14px;
+        padding: 10px 12px;
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .piano-key.white {
+        width: 36px;
+        height: 140px;
+    }
+    
+    .piano-key.black {
+        width: 26px;
+        height: 85px;
+    }
+    
+    .key-label {
+        font-size: 10px;
+    }
+    
+    .piano-key.black .key-label {
+        font-size: 8px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <!-- Audio Unlock Overlay -->
+    <div id="audio-unlock" class="overlay">
+        <div class="unlock-card">
+            <h1>🎼 ScaleTrainer</h1>
+            <p>Learn to read music</p>
+            <button id="start-btn" class="primary-btn">Start Learning</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-overlay" class="overlay hidden">
+        <div class="tutorial-card">
+            <!-- Tutorial Progress Dots -->
+            <div class="tutorial-dots">
+                <span class="dot active" data-step="0"></span>
+                <span class="dot" data-step="1"></span>
+                <span class="dot" data-step="2"></span>
+                <span class="dot" data-step="3"></span>
+                <span class="dot" data-step="4"></span>
+                <span class="dot" data-step="5"></span>
+                <span class="dot" data-step="6"></span>
+            </div>
+
+            <!-- Tutorial Content Container -->
+            <div id="tutorial-content" class="tutorial-content">
+                <!-- Step 0: Welcome -->
+                <div class="tutorial-step active" data-step="0">
+                    <h2>Welcome to Music! 🎵</h2>
+                    <p>Music is a language, and like any language, it has its own alphabet and rules.</p>
+                    <p>Let's learn the basics in just a few minutes!</p>
+                    <div class="tutorial-visual">
+                        <div class="music-emoji">🎼</div>
+                    </div>
+                </div>
+
+                <!-- Step 1: The Musical Staff -->
+                <div class="tutorial-step" data-step="1">
+                    <h2>The Musical Staff 📝</h2>
+                    <p>Music is written on <strong>five lines</strong> called a staff.</p>
+                    <p>Notes sit <strong>on the lines</strong> or <strong>in the spaces</strong> between them.</p>
+                    <div class="tutorial-visual">
+                        <svg class="tutorial-svg" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+                            <g id="tutorial-staff-lines"></g>
+                        </svg>
+                    </div>
+                    <p class="hint">Each line and space represents a different note!</p>
+                </div>
+
+                <!-- Step 2: The Treble Clef -->
+                <div class="tutorial-step" data-step="2">
+                    <h2>The Treble Clef 𝄞</h2>
+                    <p>This symbol at the start is called the <strong>treble clef</strong>.</p>
+                    <p>It tells us that we're reading notes in a higher pitch range.</p>
+                    <div class="tutorial-visual">
+                        <svg class="tutorial-svg" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+                            <g id="tutorial-clef-display"></g>
+                        </svg>
+                    </div>
+                    <p class="hint">Think of it as setting the "language" for reading notes</p>
+                </div>
+
+                <!-- Step 3: Notes on the Staff -->
+                <div class="tutorial-step" data-step="3">
+                    <h2>How Notes Look ♪</h2>
+                    <p>A note has a <strong>head</strong> (oval) and a <strong>stem</strong> (line).</p>
+                    <p>Where the head sits tells us <strong>which note to play</strong>.</p>
+                    <div class="tutorial-visual">
+                        <svg class="tutorial-svg" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                            <g id="tutorial-note-anatomy"></g>
+                        </svg>
+                    </div>
+                    <p class="hint">Higher on the staff = higher sound!</p>
+                </div>
+
+                <!-- Step 4: The Piano Keyboard -->
+                <div class="tutorial-step" data-step="4">
+                    <h2>The Piano Keyboard 🎹</h2>
+                    <p>The piano has <strong>white keys</strong> (natural notes) and <strong>black keys</strong> (sharps/flats).</p>
+                    <p>Notes go up alphabetically: <strong>C → D → E → F → G → A → B</strong> then back to C.</p>
+                    <div class="tutorial-visual">
+                        <div id="tutorial-piano-display"></div>
+                    </div>
+                    <p class="hint">Try clicking the keys to hear them!</p>
+                </div>
+
+                <!-- Step 5: Quick Quiz -->
+                <div class="tutorial-step" data-step="5">
+                    <h2>Quick Check! 🧠</h2>
+                    <p>Let's make sure you've got it. Answer these quick questions:</p>
+                    
+                    <div class="quiz-container">
+                        <!-- Question 1 -->
+                        <div class="quiz-question" data-question="0">
+                            <p class="quiz-q"><strong>Q1:</strong> How many lines does the musical staff have?</p>
+                            <div class="quiz-options">
+                                <button class="quiz-option" data-answer="wrong">3 lines</button>
+                                <button class="quiz-option" data-answer="correct">5 lines</button>
+                                <button class="quiz-option" data-answer="wrong">7 lines</button>
+                            </div>
+                            <div class="quiz-feedback"></div>
+                        </div>
+
+                        <!-- Question 2 -->
+                        <div class="quiz-question hidden" data-question="1">
+                            <p class="quiz-q"><strong>Q2:</strong> What symbol tells us the pitch range?</p>
+                            <div class="quiz-options">
+                                <button class="quiz-option" data-answer="wrong">Note head</button>
+                                <button class="quiz-option" data-answer="correct">Treble clef (𝄞)</button>
+                                <button class="quiz-option" data-answer="wrong">Staff lines</button>
+                            </div>
+                            <div class="quiz-feedback"></div>
+                        </div>
+
+                        <!-- Question 3 -->
+                        <div class="quiz-question hidden" data-question="2">
+                            <p class="quiz-q"><strong>Q3:</strong> Piano keys go in what order?</p>
+                            <div class="quiz-options">
+                                <button class="quiz-option" data-answer="wrong">A → B → C → D</button>
+                                <button class="quiz-option" data-answer="correct">C → D → E → F → G → A → B</button>
+                                <button class="quiz-option" data-answer="wrong">Do → Re → Mi</button>
+                            </div>
+                            <div class="quiz-feedback"></div>
+                        </div>
+
+                        <!-- Quiz Complete -->
+                        <div class="quiz-complete hidden">
+                            <div class="quiz-success">
+                                <h3>🎉 Perfect!</h3>
+                                <p>You've got the basics down. Ready to practice?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6: Ready to Play -->
+                <div class="tutorial-step" data-step="6">
+                    <h2>You're Ready! ✨</h2>
+                    <p>Now you know:</p>
+                    <ul class="tutorial-checklist">
+                        <li>✅ Notes are written on a 5-line staff</li>
+                        <li>✅ The treble clef (𝄞) shows the pitch range</li>
+                        <li>✅ Notes have heads and stems</li>
+                        <li>✅ The piano has white and black keys</li>
+                        <li>✅ Notes go C-D-E-F-G-A-B</li>
+                    </ul>
+                    <p><strong>You're ready to start learning!</strong></p>
+                    <p class="hint">Choose a mode and begin your first lesson.</p>
+                </div>
+            </div>
+
+            <!-- Tutorial Navigation -->
+            <div class="tutorial-nav">
+                <button id="tutorial-back-btn" class="secondary-btn" disabled>← Back</button>
+                <button id="tutorial-skip-btn" class="text-btn">Skip Tutorial</button>
+                <button id="tutorial-next-btn" class="primary-btn">Next →</button>
+                <button id="tutorial-start-btn" class="primary-btn hidden">Start Playing! 🎮</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="hidden">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="stat">
+                <span class="label">Level</span>
+                <span id="level-display" class="value">1</span>
+            </div>
+            <div class="stat">
+                <span class="label">Score</span>
+                <span id="score-display" class="value">0</span>
+            </div>
+            <div class="stat">
+                <span class="label">Best</span>
+                <span id="best-display" class="value">0</span>
+            </div>
+            <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
+        </header>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-panel hidden">
+            <h3>Settings</h3>
+            <div class="setting-item">
+                <label class="toggle-label">
+                    <input type="checkbox" id="vibration-toggle" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">Vibration</span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="toggle-label">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text">Sound</span>
+                </label>
+            </div>
+            <button id="close-settings-btn" class="secondary-btn">Close</button>
+        </div>
+
+        <!-- Mode Selector -->
+        <div id="mode-selector" class="mode-selector">
+            <button id="mode-visual" class="mode-btn active">👁️ See Note</button>
+            <button id="mode-audio" class="mode-btn">👂 Hear Note</button>
+            <button id="mode-name" class="mode-btn">📝 Find Key</button>
+        </div>
+
+        <!-- Question Display Area -->
+        <div id="question-area" class="question-area">
+            <!-- Musical Staff (for visual mode) -->
+            <svg id="staff-svg" class="staff-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Staff lines will be drawn here -->
+            </svg>
+
+            <!-- Note Name Display (for name→piano mode) -->
+            <div id="note-name-display" class="note-name-display hidden">
+                <span id="note-name-text">C</span>
+            </div>
+
+            <!-- Audio Play Button (for audio mode) -->
+            <div id="audio-mode-display" class="audio-mode-display hidden">
+                <button id="play-note-btn" class="play-note-btn">🔊 Play Note</button>
+                <p class="instruction">Listen and find the note on the piano</p>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div id="status-message" class="status-message">
+            Click the correct note on the piano
+        </div>
+
+        <!-- Visual Piano Keyboard -->
+        <div id="piano-container" class="piano-container">
+            <div id="piano-keyboard" class="piano-keyboard">
+                <!-- Piano keys will be generated dynamically -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div id="action-buttons" class="action-buttons hidden">
+            <button id="next-btn" class="primary-btn">Next →</button>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div id="progress-indicator" class="progress-indicator">
+            <span id="question-number">Question 1 / 10</span>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- Ad Slot Placeholder -->
+        <div id="ad-slot" class="ad-slot"></div>
+    </div>
+
+    <script>
+/*
+ * ScaleTrainer - Note Recognition Game
+ * NoteLoop Series by Open Loop Apps
+ *
+ * GAME MODES:
+ * 1. Visual Mode: See note on staff → Click correct piano key
+ * 2. Audio Mode: Hear note → Click correct piano key
+ * 3. Name Mode: See note name → Click correct piano key
+ *
+ * STATE MACHINE:
+ * BOOT → AUDIO_UNLOCK → MODE_SELECT → QUESTION → ANSWER → RESULT → NEXT
+ */
+
+// ============================================================================
+// CONSTANTS & CONFIG
+// ============================================================================
+
+const STATES = {
+    BOOT: 'boot',
+    AUDIO_UNLOCK: 'audio_unlock',
+    MODE_SELECT: 'mode_select',
+    QUESTION: 'question',
+    ANSWER: 'answer',
+    RESULT: 'result'
+};
+
+const GAME_MODES = {
+    VISUAL: 'visual',
+    AUDIO: 'audio',
+    NAME: 'name'
+};
+
+// Note data: MIDI number → frequency, name, staff position
+const NOTE_DATA = {
+    60: { name: 'C', octave: 4, frequency: 261.63, staffPos: 0, isBlack: false },
+    61: { name: 'C#', octave: 4, frequency: 277.18, staffPos: 0, isBlack: true },
+    62: { name: 'D', octave: 4, frequency: 293.66, staffPos: 1, isBlack: false },
+    63: { name: 'D#', octave: 4, frequency: 311.13, staffPos: 1, isBlack: true },
+    64: { name: 'E', octave: 4, frequency: 329.63, staffPos: 2, isBlack: false },
+    65: { name: 'F', octave: 4, frequency: 349.23, staffPos: 3, isBlack: false },
+    66: { name: 'F#', octave: 4, frequency: 369.99, staffPos: 3, isBlack: true },
+    67: { name: 'G', octave: 4, frequency: 392.00, staffPos: 4, isBlack: false },
+    68: { name: 'G#', octave: 4, frequency: 415.30, staffPos: 4, isBlack: true },
+    69: { name: 'A', octave: 4, frequency: 440.00, staffPos: 5, isBlack: false },
+    70: { name: 'A#', octave: 4, frequency: 466.16, staffPos: 5, isBlack: true },
+    71: { name: 'B', octave: 4, frequency: 493.88, staffPos: 6, isBlack: false },
+    72: { name: 'C', octave: 5, frequency: 523.25, staffPos: 7, isBlack: false },
+    73: { name: 'C#', octave: 5, frequency: 554.37, staffPos: 7, isBlack: true },
+    74: { name: 'D', octave: 5, frequency: 587.33, staffPos: 8, isBlack: false },
+    75: { name: 'D#', octave: 5, frequency: 622.25, staffPos: 8, isBlack: true },
+    76: { name: 'E', octave: 5, frequency: 659.25, staffPos: 9, isBlack: false },
+};
+
+// Piano layout: which keys to show and their positions
+const PIANO_LAYOUT = [
+    { midi: 60, type: 'white', offsetX: 0 },    // C
+    { midi: 61, type: 'black', offsetX: 40 },   // C#
+    { midi: 62, type: 'white', offsetX: 60 },   // D
+    { midi: 63, type: 'black', offsetX: 100 },  // D#
+    { midi: 64, type: 'white', offsetX: 120 },  // E
+    { midi: 65, type: 'white', offsetX: 180 },  // F
+    { midi: 66, type: 'black', offsetX: 220 },  // F#
+    { midi: 67, type: 'white', offsetX: 240 },  // G
+    { midi: 68, type: 'black', offsetX: 280 },  // G#
+    { midi: 69, type: 'white', offsetX: 300 },  // A
+    { midi: 70, type: 'black', offsetX: 340 },  // A#
+    { midi: 71, type: 'white', offsetX: 360 },  // B
+    { midi: 72, type: 'white', offsetX: 420 },  // C
+    { midi: 73, type: 'black', offsetX: 460 },  // C#
+    { midi: 74, type: 'white', offsetX: 480 },  // D
+    { midi: 75, type: 'black', offsetX: 520 },  // D#
+    { midi: 76, type: 'white', offsetX: 540 },  // E
+];
+
+const CONFIG = {
+    NOTE_DURATION: 0.5,
+    ATTACK: 0.01,
+    DECAY: 0.05,
+    SUSTAIN: 0.7,
+    RELEASE: 0.2,
+    MASTER_VOLUME: 0.3,
+    QUESTIONS_PER_LEVEL: 10
+};
+
+// ============================================================================
+// GAME STATE
+// ============================================================================
+
+let gameState = {
+    currentState: STATES.BOOT,
+    currentMode: GAME_MODES.VISUAL,
+    level: 1,
+    score: 0,
+    bestScore: 0,
+    
+    // Tutorial
+    tutorialStep: 0,
+    tutorialCompleted: false,
+    quizCompleted: false,
+    currentQuizQuestion: 0,
+    
+    // Current question
+    questionNumber: 1,
+    correctMidi: null,
+    correctAnswers: 0,
+    
+    // Settings
+    vibrationEnabled: true,
+    soundEnabled: true,
+    
+    // Audio
+    audioContext: null,
+    masterGain: null
+};
+
+// ============================================================================
+// AUDIO SYSTEM (from EchoKeys)
+// ============================================================================
+
+function initAudio() {
+    gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    gameState.masterGain = gameState.audioContext.createGain();
+    gameState.masterGain.gain.value = CONFIG.MASTER_VOLUME;
+    gameState.masterGain.connect(gameState.audioContext.destination);
+    console.log('Audio initialized');
+}
+
+function playNote(frequency, startTime, duration = CONFIG.NOTE_DURATION) {
+    if (!gameState.soundEnabled) return;
+    
+    const ctx = gameState.audioContext;
+    const now = startTime || ctx.currentTime;
+    
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = frequency;
+    
+    const gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(1, now + CONFIG.ATTACK);
+    gainNode.gain.linearRampToValueAtTime(CONFIG.SUSTAIN, now + CONFIG.ATTACK + CONFIG.DECAY);
+    gainNode.gain.setValueAtTime(CONFIG.SUSTAIN, now + duration - CONFIG.RELEASE);
+    gainNode.gain.linearRampToValueAtTime(0, now + duration);
+    
+    osc.connect(gainNode);
+    gainNode.connect(gameState.masterGain);
+    
+    osc.start(now);
+    osc.stop(now + duration);
+}
+
+function playFeedbackSound(success) {
+    if (!gameState.soundEnabled) return;
+    
+    const ctx = gameState.audioContext;
+    const now = ctx.currentTime;
+    
+    if (success) {
+        playNote(523, now, 0.15);
+        playNote(659, now + 0.08, 0.15);
+        playNote(784, now + 0.16, 0.2);
+    } else {
+        playNote(330, now, 0.2);
+        playNote(262, now + 0.15, 0.3);
+    }
+}
+
+// ============================================================================
+// VIBRATION SYSTEM (from EchoKeys)
+// ============================================================================
+
+function vibrate(pattern) {
+    if (!gameState.vibrationEnabled) return;
+    if (!navigator.vibrate) return;
+    
+    try {
+        navigator.vibrate(pattern);
+    } catch (e) {
+        console.log('Vibration not supported');
+    }
+}
+
+function vibrateKeyPress() {
+    vibrate(50);
+}
+
+function vibrateSuccess() {
+    vibrate([100, 50, 100, 50, 150]);
+}
+
+function vibrateError() {
+    vibrate([200, 100, 200]);
+}
+
+// ============================================================================
+// TUTORIAL SYSTEM
+// ============================================================================
+
+function showTutorial() {
+    console.log('showTutorial called');
+    document.getElementById('audio-unlock').classList.add('hidden');
+    document.getElementById('tutorial-overlay').classList.remove('hidden');
+    renderTutorialStep(0);
+    
+    tutorialActive = true;
+    history.pushState({ tutorial: true, step: 0 }, '');
+    console.log('Tutorial shown, step 0');
+}
+
+function renderTutorialStep(step) {
+    console.log(`renderTutorialStep: ${step}`);
+    gameState.tutorialStep = step;
+    
+    // Update dots
+    document.querySelectorAll('.tutorial-dots .dot').forEach((dot, index) => {
+        dot.classList.remove('active', 'completed');
+        if (index === step) {
+            dot.classList.add('active');
+        } else if (index < step) {
+            dot.classList.add('completed');
+        }
+    });
+    
+    // Update steps
+    document.querySelectorAll('.tutorial-step').forEach((stepEl, index) => {
+        stepEl.classList.remove('active');
+        if (index === step) {
+            stepEl.classList.add('active');
+        }
+    });
+    
+    // Update buttons
+    const backBtn = document.getElementById('tutorial-back-btn');
+    const nextBtn = document.getElementById('tutorial-next-btn');
+    const startBtn = document.getElementById('tutorial-start-btn');
+    
+    backBtn.disabled = step === 0;
+    
+    // Step 5 is quiz - hide next until quiz complete
+    if (step === 5) {
+        nextBtn.classList.add('hidden');
+        startBtn.classList.add('hidden');
+        // Check if quiz already completed
+        if (gameState.quizCompleted) {
+            nextBtn.classList.remove('hidden');
+        }
+    } else if (step === 6) {
+        // Final step
+        nextBtn.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+    } else {
+        nextBtn.classList.remove('hidden');
+        startBtn.classList.add('hidden');
+    }
+    
+    // Render interactive elements for specific steps
+    switch(step) {
+        case 1:
+            renderTutorialStaff();
+            break;
+        case 2:
+            renderTutorialClef();
+            break;
+        case 3:
+            renderTutorialNote();
+            break;
+        case 4:
+            renderTutorialPiano();
+            break;
+        case 5:
+            initQuiz();
+            break;
+    }
+}
+
+function renderTutorialStaff() {
+    const container = document.getElementById('tutorial-staff-lines');
+    container.innerHTML = '';
+    
+    const staffY = 30;
+    const lineSpacing = 15;
+    
+    for (let i = 0; i < 5; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '30');
+        line.setAttribute('y1', staffY + (i * lineSpacing));
+        line.setAttribute('x2', '270');
+        line.setAttribute('y2', staffY + (i * lineSpacing));
+        line.setAttribute('stroke', '#94a3b8');
+        line.setAttribute('stroke-width', '2');
+        
+        // Animate lines appearing
+        line.style.opacity = '0';
+        setTimeout(() => {
+            line.style.transition = 'opacity 0.5s ease';
+            line.style.opacity = '1';
+        }, i * 200);
+        
+        container.appendChild(line);
+    }
+}
+
+function renderTutorialClef() {
+    const container = document.getElementById('tutorial-clef-display');
+    container.innerHTML = '';
+    
+    const staffY = 30;
+    const lineSpacing = 15;
+    
+    // Draw staff
+    for (let i = 0; i < 5; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '30');
+        line.setAttribute('y1', staffY + (i * lineSpacing));
+        line.setAttribute('x2', '270');
+        line.setAttribute('y2', staffY + (i * lineSpacing));
+        line.setAttribute('stroke', '#94a3b8');
+        line.setAttribute('stroke-width', '2');
+        container.appendChild(line);
+    }
+    
+    // Draw treble clef
+    const clef = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    clef.setAttribute('x', '50');
+    clef.setAttribute('y', staffY + 50);
+    clef.setAttribute('font-size', '70');
+    clef.setAttribute('fill', '#6366f1');
+    clef.textContent = '𝄞';
+    clef.style.opacity = '0';
+    
+    setTimeout(() => {
+        clef.style.transition = 'opacity 0.5s ease';
+        clef.style.opacity = '1';
+    }, 500);
+    
+    container.appendChild(clef);
+}
+
+function renderTutorialNote() {
+    const container = document.getElementById('tutorial-note-anatomy');
+    container.innerHTML = '';
+    
+    const staffY = 40;
+    const lineSpacing = 15;
+    
+    // Draw staff
+    for (let i = 0; i < 5; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '30');
+        line.setAttribute('y1', staffY + (i * lineSpacing));
+        line.setAttribute('x2', '270');
+        line.setAttribute('y2', staffY + (i * lineSpacing));
+        line.setAttribute('stroke', '#94a3b8');
+        line.setAttribute('stroke-width', '2');
+        container.appendChild(line);
+    }
+    
+    // Draw note (on middle line - B4)
+    const noteX = 150;
+    const noteY = staffY + (2 * lineSpacing); // Middle line
+    
+    // Note head
+    const noteHead = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+    noteHead.setAttribute('cx', noteX);
+    noteHead.setAttribute('cy', noteY);
+    noteHead.setAttribute('rx', '10');
+    noteHead.setAttribute('ry', '8');
+    noteHead.setAttribute('fill', '#6366f1');
+    container.appendChild(noteHead);
+    
+    // Stem
+    const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    stem.setAttribute('x1', noteX + 9);
+    stem.setAttribute('y1', noteY);
+    stem.setAttribute('x2', noteX + 9);
+    stem.setAttribute('y2', noteY - 50);
+    stem.setAttribute('stroke', '#6366f1');
+    stem.setAttribute('stroke-width', '2.5');
+    container.appendChild(stem);
+    
+    // Labels
+    const headLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    headLabel.setAttribute('x', noteX + 25);
+    headLabel.setAttribute('y', noteY + 5);
+    headLabel.setAttribute('font-size', '14');
+    headLabel.setAttribute('fill', '#f1f5f9');
+    headLabel.textContent = '← Head';
+    container.appendChild(headLabel);
+    
+    const stemLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    stemLabel.setAttribute('x', noteX + 20);
+    stemLabel.setAttribute('y', noteY - 25);
+    stemLabel.setAttribute('font-size', '14');
+    stemLabel.setAttribute('fill', '#f1f5f9');
+    stemLabel.textContent = 'Stem →';
+    container.appendChild(stemLabel);
+}
+
+function renderTutorialPiano() {
+    const container = document.getElementById('tutorial-piano-display');
+    container.innerHTML = '';
+    
+    const pianoDiv = document.createElement('div');
+    pianoDiv.style.position = 'relative';
+    pianoDiv.style.display = 'flex';
+    
+    // Simplified 7-key piano (C-B)
+    const keys = [
+        { note: 60, label: 'C', type: 'white', x: 0 },
+        { note: 62, label: 'D', type: 'white', x: 50 },
+        { note: 64, label: 'E', type: 'white', x: 100 },
+        { note: 65, label: 'F', type: 'white', x: 150 },
+        { note: 67, label: 'G', type: 'white', x: 200 },
+        { note: 69, label: 'A', type: 'white', x: 250 },
+        { note: 71, label: 'B', type: 'white', x: 300 },
+    ];
+    
+    keys.forEach(keyData => {
+        const key = document.createElement('div');
+        key.className = 'tutorial-piano-key white';
+        key.style.left = `${keyData.x}px`;
+        
+        const label = document.createElement('div');
+        label.className = 'tutorial-key-label';
+        label.textContent = keyData.label;
+        
+        key.appendChild(label);
+        
+        // Make it playable
+        key.addEventListener('click', () => {
+            if (gameState.soundEnabled && gameState.audioContext) {
+                const noteData = NOTE_DATA[keyData.note];
+                playNote(noteData.frequency, null, 0.5);
+            }
+        });
+        
+        pianoDiv.appendChild(key);
+    });
+    
+    container.appendChild(pianoDiv);
+}
+
+function initQuiz() {
+    // Reset quiz state
+    gameState.currentQuizQuestion = 0;
+    gameState.quizCompleted = false;
+    
+    // Reset all questions to initial state
+    document.querySelectorAll('.quiz-question').forEach((q, index) => {
+        q.classList.add('hidden');
+        if (index === 0) {
+            q.classList.remove('hidden');
+        }
+        
+        // Reset options
+        q.querySelectorAll('.quiz-option').forEach(opt => {
+            opt.disabled = false;
+            opt.classList.remove('correct', 'incorrect');
+        });
+        
+        // Hide feedback
+        const feedback = q.querySelector('.quiz-feedback');
+        feedback.classList.remove('show', 'correct', 'incorrect');
+        feedback.textContent = '';
+    });
+    
+    // Hide complete message
+    document.querySelector('.quiz-complete').classList.add('hidden');
+    
+    // Add click handlers to quiz options
+    document.querySelectorAll('.quiz-option').forEach(option => {
+        option.replaceWith(option.cloneNode(true)); // Remove old listeners
+    });
+    
+    document.querySelectorAll('.quiz-option').forEach(option => {
+        option.addEventListener('click', handleQuizAnswer);
+    });
+}
+
+function handleQuizAnswer(e) {
+    const button = e.target;
+    const isCorrect = button.dataset.answer === 'correct';
+    const question = button.closest('.quiz-question');
+    const feedback = question.querySelector('.quiz-feedback');
+    const options = question.querySelectorAll('.quiz-option');
+    
+    // Disable all options
+    options.forEach(opt => opt.disabled = true);
+    
+    // Mark correct/incorrect
+    if (isCorrect) {
+        button.classList.add('correct');
+        feedback.textContent = '✓ Correct!';
+        feedback.classList.add('show', 'correct');
+        
+        // Move to next question after delay
+        setTimeout(() => {
+            gameState.currentQuizQuestion++;
+            
+            if (gameState.currentQuizQuestion < 3) {
+                // Show next question
+                document.querySelectorAll('.quiz-question').forEach((q, index) => {
+                    q.classList.add('hidden');
+                    if (index === gameState.currentQuizQuestion) {
+                        q.classList.remove('hidden');
+                    }
+                });
+            } else {
+                // Quiz complete
+                document.querySelectorAll('.quiz-question').forEach(q => {
+                    q.classList.add('hidden');
+                });
+                document.querySelector('.quiz-complete').classList.remove('hidden');
+                
+                gameState.quizCompleted = true;
+                
+                // Show next button
+                document.getElementById('tutorial-next-btn').classList.remove('hidden');
+            }
+        }, 1000);
+        
+    } else {
+        button.classList.add('incorrect');
+        feedback.textContent = '✗ Try again!';
+        feedback.classList.add('show', 'incorrect');
+        
+        // Re-enable options after delay
+        setTimeout(() => {
+            options.forEach(opt => {
+                if (opt.dataset.answer !== 'wrong' || opt !== button) {
+                    opt.disabled = false;
+                }
+            });
+            feedback.classList.remove('show');
+        }, 1500);
+    }
+}
+
+function nextTutorialStep() {
+    if (gameState.tutorialStep < 6) {
+        renderTutorialStep(gameState.tutorialStep + 1);
+        history.pushState({ tutorial: true, step: gameState.tutorialStep }, '');
+    }
+}
+
+function prevTutorialStep() {
+    if (gameState.tutorialStep > 0) {
+        renderTutorialStep(gameState.tutorialStep - 1);
+    }
+}
+
+function skipTutorial() {
+    gameState.tutorialCompleted = true;
+    saveTutorialProgress();
+    tutorialActive = false;
+    startGame();
+}
+
+function completeTutorial() {
+    gameState.tutorialCompleted = true;
+    saveTutorialProgress();
+    tutorialActive = false;
+    startGame();
+}
+
+function saveTutorialProgress() {
+    try {
+        localStorage.setItem('scaletrainer_tutorial_completed', 'true');
+    } catch (e) {
+        console.log('localStorage not available');
+    }
+}
+
+function loadTutorialProgress() {
+    try {
+        const completed = localStorage.getItem('scaletrainer_tutorial_completed');
+        console.log('localStorage tutorial_completed value:', completed);
+        gameState.tutorialCompleted = completed === 'true';
+        console.log('gameState.tutorialCompleted set to:', gameState.tutorialCompleted);
+    } catch (e) {
+        console.log('localStorage not available:', e);
+        gameState.tutorialCompleted = false;
+    }
+}
+
+// ============================================================================
+// PIANO KEYBOARD RENDERING
+// ============================================================================
+
+function renderPianoKeyboard() {
+    const container = document.getElementById('piano-keyboard');
+    container.innerHTML = '';
+    
+    // Create white keys first
+    PIANO_LAYOUT.filter(k => k.type === 'white').forEach(keyData => {
+        const key = document.createElement('div');
+        key.className = 'piano-key white';
+        key.dataset.midi = keyData.midi;
+        key.style.left = `${keyData.offsetX}px`;
+        
+        const label = document.createElement('div');
+        label.className = 'key-label';
+        const noteData = NOTE_DATA[keyData.midi];
+        label.textContent = `${noteData.name}${noteData.octave}`;
+        
+        key.appendChild(label);
+        key.addEventListener('click', () => handlePianoKeyPress(keyData.midi));
+        
+        container.appendChild(key);
+    });
+    
+    // Create black keys on top
+    PIANO_LAYOUT.filter(k => k.type === 'black').forEach(keyData => {
+        const key = document.createElement('div');
+        key.className = 'piano-key black';
+        key.dataset.midi = keyData.midi;
+        key.style.left = `${keyData.offsetX}px`;
+        
+        const label = document.createElement('div');
+        label.className = 'key-label';
+        const noteData = NOTE_DATA[keyData.midi];
+        label.textContent = `${noteData.name}${noteData.octave}`;
+        
+        key.appendChild(label);
+        key.addEventListener('click', () => handlePianoKeyPress(keyData.midi));
+        
+        container.appendChild(key);
+    });
+}
+
+// ============================================================================
+// STAFF NOTATION RENDERING
+// ============================================================================
+
+function renderStaff() {
+    const svg = document.getElementById('staff-svg');
+    svg.innerHTML = '';
+    
+    const staffY = 60;
+    const lineSpacing = 15;
+    
+    // Draw 5 staff lines
+    for (let i = 0; i < 5; i++) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '50');
+        line.setAttribute('y1', staffY + (i * lineSpacing));
+        line.setAttribute('x2', '350');
+        line.setAttribute('y2', staffY + (i * lineSpacing));
+        line.setAttribute('class', 'staff-line');
+        svg.appendChild(line);
+    }
+    
+    // Draw treble clef (simplified representation)
+    const clef = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    clef.setAttribute('x', '60');
+    clef.setAttribute('y', staffY + 50);
+    clef.setAttribute('font-size', '80');
+    clef.setAttribute('fill', '#f1f5f9');
+    clef.textContent = '𝄞';
+    svg.appendChild(clef);
+}
+
+function drawNoteOnStaff(midi) {
+    const svg = document.getElementById('staff-svg');
+    const noteData = NOTE_DATA[midi];
+    
+    if (!noteData) return;
+    
+    const staffY = 60;
+    const lineSpacing = 15;
+    const noteX = 200;
+    
+    // Calculate Y position (middle C = staffPos 0 = line below staff)
+    // staffPos: 0=C4, 1=D4, 2=E4, 3=F4, 4=G4, 5=A4, 6=B4, 7=C5...
+    // Staff positions: bottom line = 4 (E4)
+    const baseY = staffY + (4 * lineSpacing); // E4 on bottom line
+    const noteY = baseY - ((noteData.staffPos - 2) * (lineSpacing / 2));
+    
+    // Draw ledger lines if needed
+    if (noteData.staffPos < 2) {
+        // Below staff (C4, D4)
+        for (let i = 2; i >= noteData.staffPos; i -= 2) {
+            const ledgerY = baseY + ((2 - i) * (lineSpacing / 2));
+            const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            ledger.setAttribute('x1', noteX - 15);
+            ledger.setAttribute('y1', ledgerY);
+            ledger.setAttribute('x2', noteX + 15);
+            ledger.setAttribute('y2', ledgerY);
+            ledger.setAttribute('class', 'ledger-line');
+            svg.appendChild(ledger);
+        }
+    } else if (noteData.staffPos > 6) {
+        // Above staff (C5+)
+        for (let i = 8; i <= noteData.staffPos; i += 2) {
+            const ledgerY = baseY - ((i - 2) * (lineSpacing / 2));
+            const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            ledger.setAttribute('x1', noteX - 15);
+            ledger.setAttribute('y1', ledgerY);
+            ledger.setAttribute('x2', noteX + 15);
+            ledger.setAttribute('y2', ledgerY);
+            ledger.setAttribute('class', 'ledger-line');
+            svg.appendChild(ledger);
+        }
+    }
+    
+    // Draw note head
+    const noteHead = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+    noteHead.setAttribute('cx', noteX);
+    noteHead.setAttribute('cy', noteY);
+    noteHead.setAttribute('rx', '8');
+    noteHead.setAttribute('ry', '6');
+    noteHead.setAttribute('class', 'note-head');
+    svg.appendChild(noteHead);
+    
+    // Draw stem
+    const stemUp = noteData.staffPos >= 4;
+    const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    if (stemUp) {
+        stem.setAttribute('x1', noteX + 7);
+        stem.setAttribute('y1', noteY);
+        stem.setAttribute('x2', noteX + 7);
+        stem.setAttribute('y2', noteY - 40);
+    } else {
+        stem.setAttribute('x1', noteX - 7);
+        stem.setAttribute('y1', noteY);
+        stem.setAttribute('x2', noteX - 7);
+        stem.setAttribute('y2', noteY + 40);
+    }
+    stem.setAttribute('class', 'note-stem');
+    svg.appendChild(stem);
+    
+    // Draw sharp/flat if needed
+    if (noteData.name.includes('#')) {
+        const sharp = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sharp.setAttribute('x', noteX - 25);
+        sharp.setAttribute('y', noteY + 5);
+        sharp.setAttribute('font-size', '20');
+        sharp.setAttribute('fill', '#f1f5f9');
+        sharp.textContent = '♯';
+        svg.appendChild(sharp);
+    }
+}
+
+// ============================================================================
+// GAME LOGIC
+// ============================================================================
+
+function getAvailableNotes() {
+    // Progressive difficulty based on level
+    if (gameState.level <= 3) {
+        // Level 1-3: C4, D4, E4, F4, G4 (white keys only, limited range)
+        return [60, 62, 64, 65, 67];
+    } else if (gameState.level <= 6) {
+        // Level 4-6: Full octave white keys
+        return [60, 62, 64, 65, 67, 69, 71];
+    } else if (gameState.level <= 10) {
+        // Level 7-10: Add C5
+        return [60, 62, 64, 65, 67, 69, 71, 72];
+    } else {
+        // Level 11+: Add some black keys
+        return [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72];
+    }
+}
+
+function generateQuestion() {
+    const availableNotes = getAvailableNotes();
+    const randomIndex = Math.floor(Math.random() * availableNotes.length);
+    gameState.correctMidi = availableNotes[randomIndex];
+    
+    console.log(`Question ${gameState.questionNumber}: ${NOTE_DATA[gameState.correctMidi].name}${NOTE_DATA[gameState.correctMidi].octave}`);
+}
+
+function displayQuestion() {
+    // Hide all display modes first
+    document.getElementById('staff-svg').style.display = 'none';
+    document.getElementById('note-name-display').classList.add('hidden');
+    document.getElementById('audio-mode-display').classList.add('hidden');
+    
+    const noteData = NOTE_DATA[gameState.correctMidi];
+    console.log(`=== DISPLAY QUESTION ===`);
+    console.log(`Mode: ${gameState.currentMode}`);
+    console.log(`Correct answer: MIDI ${gameState.correctMidi} = ${noteData.name}${noteData.octave}`);
+    
+    switch (gameState.currentMode) {
+        case GAME_MODES.VISUAL:
+            // Show note on staff
+            document.getElementById('staff-svg').style.display = 'block';
+            renderStaff();
+            drawNoteOnStaff(gameState.correctMidi);
+            setStatus('Click the correct note on the piano');
+            console.log('Displaying note on staff');
+            break;
+            
+        case GAME_MODES.AUDIO:
+            // Show play button
+            document.getElementById('audio-mode-display').classList.remove('hidden');
+            setStatus('Listen and find the note');
+            console.log('Audio mode - playing note');
+            // Auto-play once
+            setTimeout(() => {
+                playNote(noteData.frequency, null, CONFIG.NOTE_DURATION);
+            }, 500);
+            break;
+            
+        case GAME_MODES.NAME:
+            // Show note name
+            document.getElementById('note-name-display').classList.remove('hidden');
+            const displayText = `${noteData.name}${noteData.octave}`;
+            document.getElementById('note-name-text').textContent = displayText;
+            setStatus('Find this note on the piano');
+            console.log(`Name mode - displaying: "${displayText}"`);
+            break;
+    }
+}
+
+function handlePianoKeyPress(midi) {
+    if (gameState.currentState !== STATES.QUESTION) return;
+    
+    const noteData = NOTE_DATA[midi];
+    const correctNoteData = NOTE_DATA[gameState.correctMidi];
+    
+    console.log('=== PIANO KEY PRESS ===');
+    console.log(`Clicked key MIDI: ${midi} (${noteData.name}${noteData.octave})`);
+    console.log(`Correct answer MIDI: ${gameState.correctMidi} (${correctNoteData.name}${correctNoteData.octave})`);
+    console.log(`Current mode: ${gameState.currentMode}`);
+    console.log(`Match: ${midi === gameState.correctMidi}`);
+    
+    const key = document.querySelector(`[data-midi="${midi}"]`);
+    
+    // Play the note
+    playNote(noteData.frequency, null, CONFIG.NOTE_DURATION);
+    vibrateKeyPress();
+    
+    // Check if correct
+    if (midi === gameState.correctMidi) {
+        // Correct answer
+        console.log('✓ CORRECT!');
+        key.classList.add('correct');
+        playFeedbackSound(true);
+        vibrateSuccess();
+        setStatus('✨ Correct!', 'success');
+        
+        gameState.correctAnswers++;
+        gameState.score += 10;
+        
+        // Add speed bonus
+        gameState.score += 5;
+        
+        updateDisplay();
+        
+        setTimeout(() => {
+            key.classList.remove('correct');
+            nextQuestion();
+        }, 1000);
+        
+    } else {
+        // Wrong answer
+        console.log('✗ WRONG');
+        key.classList.add('incorrect');
+        playFeedbackSound(false);
+        vibrateError();
+        setStatus('❌ Try again', 'error');
+        
+        setTimeout(() => {
+            key.classList.remove('incorrect');
+        }, 500);
+    }
+}
+
+function nextQuestion() {
+    gameState.questionNumber++;
+    
+    if (gameState.questionNumber > CONFIG.QUESTIONS_PER_LEVEL) {
+        // Level complete
+        completeLevel();
+    } else {
+        // Next question
+        generateQuestion();
+        displayQuestion();
+        updateProgress();
+    }
+}
+
+function completeLevel() {
+    const accuracy = (gameState.correctAnswers / CONFIG.QUESTIONS_PER_LEVEL) * 100;
+    
+    if (accuracy >= 80) {
+        // Pass level
+        gameState.level++;
+        setStatus(`🎉 Level ${gameState.level - 1} Complete! Moving to Level ${gameState.level}`, 'success');
+    } else {
+        // Retry level
+        setStatus(`Try again! ${accuracy.toFixed(0)}% correct (need 80%)`, 'error');
+    }
+    
+    // Update best score
+    if (gameState.score > gameState.bestScore) {
+        gameState.bestScore = gameState.score;
+        saveProgress();
+    }
+    
+    updateDisplay();
+    
+    // Reset for next level
+    setTimeout(() => {
+        gameState.questionNumber = 1;
+        gameState.correctAnswers = 0;
+        generateQuestion();
+        displayQuestion();
+        updateProgress();
+    }, 2000);
+}
+
+// ============================================================================
+// UI UPDATES
+// ============================================================================
+
+function updateDisplay() {
+    document.getElementById('level-display').textContent = gameState.level;
+    document.getElementById('score-display').textContent = gameState.score;
+    document.getElementById('best-display').textContent = gameState.bestScore;
+}
+
+function updateProgress() {
+    const progress = ((gameState.questionNumber - 1) / CONFIG.QUESTIONS_PER_LEVEL) * 100;
+    document.getElementById('progress-fill').style.width = `${progress}%`;
+    document.getElementById('question-number').textContent = 
+        `Question ${gameState.questionNumber} / ${CONFIG.QUESTIONS_PER_LEVEL}`;
+}
+
+function setStatus(message, className = '') {
+    const statusEl = document.getElementById('status-message');
+    statusEl.textContent = message;
+    statusEl.className = 'status-message ' + className;
+}
+
+// ============================================================================
+// MODE SWITCHING
+// ============================================================================
+
+function switchMode(mode) {
+    gameState.currentMode = mode;
+    
+    // Update button states
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`mode-${mode}`).classList.add('active');
+    
+    // Reset level progress
+    gameState.questionNumber = 1;
+    gameState.correctAnswers = 0;
+    
+    // Generate new question
+    generateQuestion();
+    displayQuestion();
+    updateProgress();
+    
+    console.log(`Switched to ${mode} mode`);
+}
+
+// ============================================================================
+// SETTINGS
+// ============================================================================
+
+function toggleSettings() {
+    document.getElementById('settings-panel').classList.toggle('hidden');
+}
+
+function handleVibrationToggle() {
+    gameState.vibrationEnabled = document.getElementById('vibration-toggle').checked;
+    saveProgress();
+    
+    if (gameState.vibrationEnabled) {
+        vibrate(50);
+    }
+}
+
+function handleSoundToggle() {
+    gameState.soundEnabled = document.getElementById('sound-toggle').checked;
+    saveProgress();
+}
+
+function updateToggles() {
+    document.getElementById('vibration-toggle').checked = gameState.vibrationEnabled;
+    document.getElementById('sound-toggle').checked = gameState.soundEnabled;
+}
+
+// ============================================================================
+// PERSISTENCE
+// ============================================================================
+
+function saveProgress() {
+    try {
+        localStorage.setItem('scaletrainer_best', gameState.bestScore);
+        localStorage.setItem('scaletrainer_vibration', gameState.vibrationEnabled);
+        localStorage.setItem('scaletrainer_sound', gameState.soundEnabled);
+    } catch (e) {
+        console.log('localStorage not available');
+    }
+}
+
+function loadProgress() {
+    try {
+        const saved = localStorage.getItem('scaletrainer_best');
+        if (saved) {
+            gameState.bestScore = parseInt(saved, 10);
+        }
+        
+        const vibrationSetting = localStorage.getItem('scaletrainer_vibration');
+        if (vibrationSetting !== null) {
+            gameState.vibrationEnabled = vibrationSetting === 'true';
+        }
+        
+        const soundSetting = localStorage.getItem('scaletrainer_sound');
+        if (soundSetting !== null) {
+            gameState.soundEnabled = soundSetting === 'true';
+        }
+        
+        updateToggles();
+    } catch (e) {
+        console.log('localStorage not available');
+    }
+}
+
+// ============================================================================
+// GAME FLOW
+// ============================================================================
+
+function startGame() {
+    document.getElementById('audio-unlock').classList.add('hidden');
+    document.getElementById('tutorial-overlay').classList.add('hidden');
+    document.getElementById('game-container').classList.remove('hidden');
+    
+    tutorialActive = false;
+    gameActive = true;
+    history.pushState({ game: true }, '');
+    
+    loadProgress();
+    updateDisplay();
+    renderPianoKeyboard();
+    generateQuestion();
+    displayQuestion();
+    updateProgress();
+    
+    gameState.currentState = STATES.QUESTION;
+}
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+// Handle mobile back button
+let tutorialActive = false;
+let gameActive = false;
+
+window.addEventListener('popstate', function(event) {
+    if (tutorialActive && !document.getElementById('tutorial-overlay').classList.contains('hidden')) {
+        // In tutorial - go back one step or exit
+        if (gameState.tutorialStep > 0) {
+            event.preventDefault();
+            prevTutorialStep();
+            history.pushState({ tutorial: true, step: gameState.tutorialStep }, '');
+        } else {
+            // First step - exit tutorial
+            event.preventDefault();
+            exitTutorial();
+        }
+    } else if (gameActive && !document.getElementById('game-container').classList.contains('hidden')) {
+        // In game - show confirmation
+        event.preventDefault();
+        if (confirm('Exit game? Your progress will be lost.')) {
+            exitGame();
+        } else {
+            history.pushState({ game: true }, '');
+        }
+    }
+});
+
+function exitTutorial() {
+    tutorialActive = false;
+    document.getElementById('tutorial-overlay').classList.add('hidden');
+    document.getElementById('audio-unlock').classList.remove('hidden');
+    history.replaceState({}, document.title, window.location.pathname);
+}
+
+function exitGame() {
+    gameActive = false;
+    document.getElementById('game-container').classList.add('hidden');
+    document.getElementById('audio-unlock').classList.remove('hidden');
+    history.replaceState({}, document.title, window.location.pathname);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Load tutorial progress
+    loadTutorialProgress();
+    
+    // TEMPORARY: Force tutorial to always show for testing
+    gameState.tutorialCompleted = false;
+    console.log('Tutorial completed (FORCED TO FALSE FOR TESTING):', gameState.tutorialCompleted);
+    
+    // Start button - show tutorial if not completed
+    document.getElementById('start-btn').addEventListener('click', () => {
+        console.log('Start button clicked');
+        initAudio();
+        
+        if (gameState.tutorialCompleted) {
+            console.log('Skipping tutorial - already completed');
+            startGame();
+        } else {
+            console.log('Showing tutorial - first time user');
+            showTutorial();
+        }
+    });
+    
+    // Tutorial navigation
+    document.getElementById('tutorial-next-btn').addEventListener('click', nextTutorialStep);
+    document.getElementById('tutorial-back-btn').addEventListener('click', prevTutorialStep);
+    document.getElementById('tutorial-skip-btn').addEventListener('click', skipTutorial);
+    document.getElementById('tutorial-start-btn').addEventListener('click', completeTutorial);
+    
+    // Allow clicking dots to jump to steps
+    document.querySelectorAll('.tutorial-dots .dot').forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            if (index <= gameState.tutorialStep || index <= gameState.tutorialStep + 1) {
+                renderTutorialStep(index);
+            }
+        });
+    });
+    
+    // Mode buttons
+    document.getElementById('mode-visual').addEventListener('click', () => switchMode(GAME_MODES.VISUAL));
+    document.getElementById('mode-audio').addEventListener('click', () => switchMode(GAME_MODES.AUDIO));
+    document.getElementById('mode-name').addEventListener('click', () => switchMode(GAME_MODES.NAME));
+    
+    // Play note button (audio mode)
+    document.getElementById('play-note-btn').addEventListener('click', () => {
+        if (gameState.correctMidi) {
+            const noteData = NOTE_DATA[gameState.correctMidi];
+            playNote(noteData.frequency, null, CONFIG.NOTE_DURATION);
+        }
+    });
+    
+    // Settings
+    document.getElementById('settings-btn').addEventListener('click', toggleSettings);
+    document.getElementById('close-settings-btn').addEventListener('click', toggleSettings);
+    document.getElementById('vibration-toggle').addEventListener('change', handleVibrationToggle);
+    document.getElementById('sound-toggle').addEventListener('change', handleSoundToggle);
+    
+    console.log('ScaleTrainer loaded');
+});
+
+    </script>
+</body>
+</html>

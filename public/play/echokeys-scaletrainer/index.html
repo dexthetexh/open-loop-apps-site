@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="description" content="ScaleTrainer: learn to read music through interactive note recognition. Part of the NoteLoop series by Open Loop Apps." />
+  <meta name="theme-color" content="#0f172a" />
+  <title>ScaleTrainer - Note Recognition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <noscript>
+    <div class="noscript">This game requires JavaScript to run.</div>
+  </noscript>
+
+  <!-- Audio Unlock Overlay -->
+  <div id="audio-unlock" class="overlay" role="dialog" aria-modal="true" aria-label="Start ScaleTrainer">
+    <div class="unlock-card">
+      <h1>🎼 ScaleTrainer</h1>
+      <p>Learn to read music</p>
+      <button id="start-btn" class="primary-btn" type="button">Start Learning</button>
+    </div>
+  </div>
+
+  <!-- Tutorial Overlay -->
+  <div id="tutorial-overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Tutorial">
+    <div class="tutorial-card">
+      <div class="tutorial-dots" aria-label="Tutorial progress">
+        <button class="dot active" data-step="0" type="button" aria-label="Step 1"></button>
+        <button class="dot" data-step="1" type="button" aria-label="Step 2"></button>
+        <button class="dot" data-step="2" type="button" aria-label="Step 3"></button>
+        <button class="dot" data-step="3" type="button" aria-label="Step 4"></button>
+        <button class="dot" data-step="4" type="button" aria-label="Step 5"></button>
+        <button class="dot" data-step="5" type="button" aria-label="Step 6"></button>
+        <button class="dot" data-step="6" type="button" aria-label="Step 7"></button>
+      </div>
+
+      <div id="tutorial-content" class="tutorial-content">
+        <div class="tutorial-step active" data-step="0">
+          <h2>Welcome to Music! 🎵</h2>
+          <p>Music is a language, and like any language, it has its own alphabet and rules.</p>
+          <p>Let's learn the basics in just a few minutes!</p>
+          <div class="tutorial-visual">
+            <div class="music-emoji" aria-hidden="true">🎼</div>
+          </div>
+        </div>
+
+        <div class="tutorial-step" data-step="1">
+          <h2>The Musical Staff 📝</h2>
+          <p>Music is written on <strong>five lines</strong> called a staff.</p>
+          <p>Notes sit <strong>on the lines</strong> or <strong>in the spaces</strong> between them.</p>
+          <div class="tutorial-visual">
+            <svg class="tutorial-svg" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg" aria-label="Staff lines">
+              <g id="tutorial-staff-lines"></g>
+            </svg>
+          </div>
+          <p class="hint">Each line and space represents a different note!</p>
+        </div>
+
+        <div class="tutorial-step" data-step="2">
+          <h2>The Treble Clef 𝄞</h2>
+          <p>This symbol at the start is called the <strong>treble clef</strong>.</p>
+          <p>It tells us that we're reading notes in a higher pitch range.</p>
+          <div class="tutorial-visual">
+            <svg class="tutorial-svg" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg" aria-label="Treble clef on staff">
+              <g id="tutorial-clef-display"></g>
+            </svg>
+          </div>
+          <p class="hint">Think of it as setting the “language” for reading notes.</p>
+        </div>
+
+        <div class="tutorial-step" data-step="3">
+          <h2>How Notes Look ♪</h2>
+          <p>A note has a <strong>head</strong> (oval) and a <strong>stem</strong> (line).</p>
+          <p>Where the head sits tells us <strong>which note to play</strong>.</p>
+          <div class="tutorial-visual">
+            <svg class="tutorial-svg" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg" aria-label="Note anatomy">
+              <g id="tutorial-note-anatomy"></g>
+            </svg>
+          </div>
+          <p class="hint">Higher on the staff = higher sound!</p>
+        </div>
+
+        <div class="tutorial-step" data-step="4">
+          <h2>The Piano Keyboard 🎹</h2>
+          <p>The piano has <strong>white keys</strong> (natural notes) and <strong>black keys</strong> (sharps/flats).</p>
+          <p>Notes go up alphabetically: <strong>C → D → E → F → G → A → B</strong> then back to C.</p>
+          <div class="tutorial-visual">
+            <div id="tutorial-piano-display" aria-label="Tutorial piano"></div>
+          </div>
+          <p class="hint">Tap keys to hear them.</p>
+        </div>
+
+        <div class="tutorial-step" data-step="5">
+          <h2>Quick Check! 🧠</h2>
+          <p>Answer these quick questions:</p>
+
+          <div class="quiz-container" id="quiz-container">
+            <div class="quiz-question" data-question="0">
+              <p class="quiz-q"><strong>Q1:</strong> How many lines does the musical staff have?</p>
+              <div class="quiz-options">
+                <button class="quiz-option" data-answer="wrong" type="button">3 lines</button>
+                <button class="quiz-option" data-answer="correct" type="button">5 lines</button>
+                <button class="quiz-option" data-answer="wrong" type="button">7 lines</button>
+              </div>
+              <div class="quiz-feedback" aria-live="polite"></div>
+            </div>
+
+            <div class="quiz-question hidden" data-question="1">
+              <p class="quiz-q"><strong>Q2:</strong> What symbol tells us the pitch range?</p>
+              <div class="quiz-options">
+                <button class="quiz-option" data-answer="wrong" type="button">Note head</button>
+                <button class="quiz-option" data-answer="correct" type="button">Treble clef (𝄞)</button>
+                <button class="quiz-option" data-answer="wrong" type="button">Staff lines</button>
+              </div>
+              <div class="quiz-feedback" aria-live="polite"></div>
+            </div>
+
+            <div class="quiz-question hidden" data-question="2">
+              <p class="quiz-q"><strong>Q3:</strong> Piano keys go in what order?</p>
+              <div class="quiz-options">
+                <button class="quiz-option" data-answer="wrong" type="button">A → B → C → D</button>
+                <button class="quiz-option" data-answer="correct" type="button">C → D → E → F → G → A → B</button>
+                <button class="quiz-option" data-answer="wrong" type="button">Do → Re → Mi</button>
+              </div>
+              <div class="quiz-feedback" aria-live="polite"></div>
+            </div>
+
+            <div class="quiz-complete hidden">
+              <div class="quiz-success">
+                <h3>🎉 Perfect!</h3>
+                <p>You've got the basics down. Ready to practice?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tutorial-step" data-step="6">
+          <h2>You're Ready! ✨</h2>
+          <p>Now you know:</p>
+          <ul class="tutorial-checklist">
+            <li>✅ Notes are written on a 5-line staff</li>
+            <li>✅ The treble clef (𝄞) shows the pitch range</li>
+            <li>✅ Notes have heads and stems</li>
+            <li>✅ The piano has white and black keys</li>
+            <li>✅ Notes go C-D-E-F-G-A-B</li>
+          </ul>
+          <p><strong>Choose a mode and begin your first lesson.</strong></p>
+        </div>
+      </div>
+
+      <div class="tutorial-nav">
+        <button id="tutorial-back-btn" class="secondary-btn" type="button" disabled>← Back</button>
+        <button id="tutorial-skip-btn" class="text-btn" type="button">Skip Tutorial</button>
+        <button id="tutorial-next-btn" class="primary-btn" type="button">Next →</button>
+        <button id="tutorial-start-btn" class="primary-btn hidden" type="button">Start Playing! 🎮</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Game Container -->
+  <div id="game-container" class="hidden">
+    <header class="game-header">
+      <div class="stat">
+        <span class="label">Level</span>
+        <span id="level-display" class="value">1</span>
+      </div>
+      <div class="stat">
+        <span class="label">Score</span>
+        <span id="score-display" class="value">0</span>
+      </div>
+      <div class="stat">
+        <span class="label">Best</span>
+        <span id="best-display" class="value">0</span>
+      </div>
+      <button id="settings-btn" class="settings-btn" type="button" title="Settings" aria-label="Settings">⚙️</button>
+    </header>
+
+    <div id="settings-panel" class="settings-panel hidden" role="region" aria-label="Settings">
+      <h3>Settings</h3>
+      <div class="setting-item">
+        <label class="toggle-label">
+          <input type="checkbox" id="vibration-toggle" checked />
+          <span class="toggle-slider" aria-hidden="true"></span>
+          <span class="toggle-text">Vibration</span>
+        </label>
+      </div>
+      <div class="setting-item">
+        <label class="toggle-label">
+          <input type="checkbox" id="sound-toggle" checked />
+          <span class="toggle-slider" aria-hidden="true"></span>
+          <span class="toggle-text">Sound</span>
+        </label>
+      </div>
+      <button id="close-settings-btn" class="secondary-btn" type="button">Close</button>
+    </div>
+
+    <div id="mode-selector" class="mode-selector" role="tablist" aria-label="Mode selector">
+      <button id="mode-visual" class="mode-btn active" type="button" role="tab" aria-selected="true">👁️ See Note</button>
+      <button id="mode-audio" class="mode-btn" type="button" role="tab" aria-selected="false">👂 Hear Note</button>
+      <button id="mode-name" class="mode-btn" type="button" role="tab" aria-selected="false">📝 Find Key</button>
+    </div>
+
+    <div id="question-area" class="question-area">
+      <svg id="staff-svg" class="staff-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" aria-label="Musical staff"></svg>
+
+      <div id="note-name-display" class="note-name-display hidden">
+        <span id="note-name-text">C</span>
+      </div>
+
+      <div id="audio-mode-display" class="audio-mode-display hidden">
+        <button id="play-note-btn" class="play-note-btn" type="button" aria-label="Play note">🔊</button>
+        <p class="instruction">Listen and find the note on the piano</p>
+      </div>
+    </div>
+
+    <div id="status-message" class="status-message" aria-live="polite">
+      Click the correct note on the piano
+    </div>
+
+    <div id="piano-container" class="piano-container">
+      <div id="piano-keyboard" class="piano-keyboard" aria-label="Piano keyboard"></div>
+    </div>
+
+    <div id="progress-indicator" class="progress-indicator">
+      <span id="question-number">Question 1 / 10</span>
+      <div class="progress-bar" aria-hidden="true">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <div id="ad-slot" class="ad-slot" aria-label="Ad slot"></div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

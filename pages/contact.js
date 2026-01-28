@@ -8,7 +8,7 @@ export default function Contact() {
       </p>
       <h2 style={{ marginTop: 16 }}>Email</h2>
       <p style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
-        <a href="mailto:openloopapps@proton.me" style={{ color: "#93c5fd", textDecoration: "none" }}>
+        <a href="mailto:contact@openloopapps.com" style={{ color: "#93c5fd", textDecoration: "none" }}>
           openloopapps@proton.me
         </a>
       </p>
