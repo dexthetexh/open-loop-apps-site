@@ -1,36 +1,49 @@
+// File: /pages/games/pixel-diner.js
+import Head from "next/head";
+import Link from "next/link";
+
+const CANONICAL_BASE = "https://openloopapps.com";
+
 export default function PixelDinerPage() {
+  const canonical = `${CANONICAL_BASE}/games/pixel-diner`;
+
   return (
-    <div style={{ padding: 16, color: "#e5e7eb" }}>
-      <h1 style={{ marginBottom: 12 }}>Pixel Diner</h1>
-
-      {/* Tasteful ad slot (outside the game iframe) */}
-      <div
-        id="ad-top"
-        style={{
-          margin: "12px 0",
-          minHeight: 90,
-          border: "1px solid #1e293b",
-          borderRadius: 12,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#94a3b8",
-          fontSize: 12,
-        }}
-        aria-label="Advertisement"
-      >
-        Ad slot
-      </div>
-
-      <div style={{ width: "100%", height: "80vh", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
-        <iframe
-          src="/play/pixel-diner/index.html"
-          title="Pixel Diner"
-          style={{ width: "100%", height: "100%", border: 0 }}
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups"
-          allow="fullscreen"
+    <>
+      <Head>
+        <title>Pixel Diner | Open Loop Apps</title>
+        <meta
+          name="description"
+          content="Serve, upgrade, and survive the rush in Pixel Diner."
         />
-      </div>
-    </div>
+        <link rel="canonical" href={canonical} />
+      </Head>
+
+      <main className="page">
+        <header className="page-header">
+          <h1 className="h1">Pixel Diner</h1>
+          <p className="subtitle">Serve, upgrade, and survive the rush.</p>
+          <p className="smallNote">
+            <Link href="/games">← Back to Games</Link>
+          </p>
+        </header>
+
+        {/* AdSense-safe posture: NO ads on gameplay pages during review */}
+        <div className="gameFrameWrap" role="region" aria-label="Pixel Diner game">
+          <iframe
+            className="gameFrame"
+            src="/play/pixel-diner/index.html"
+            title="Pixel Diner"
+            loading="eager"
+            allow="fullscreen; gamepad; autoplay"
+            sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups"
+          />
+        </div>
+
+        <p className="smallNote" style={{ marginTop: 12 }}>
+          If the game does not load, confirm this file exists:{" "}
+          <code>/public/play/pixel-diner/index.html</code>
+        </p>
+      </main>
+    </>
   );
 }

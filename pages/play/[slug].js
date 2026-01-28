@@ -1,9 +1,9 @@
 // File: /pages/play/[slug].js
 const SLUGS = [
   "echokeys",
-  "pixel-diner",
   "echokeys-scaletrainer",
   "flappy-bird",
+  "pixel-diner",
   "idle-cyber-defense",
   "tap-escape-speedrun",
 ];

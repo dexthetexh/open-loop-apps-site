@@ -1,58 +1,47 @@
+// File: /pages/games/echokeys-scaletrainer.js
+import Head from "next/head";
+import Link from "next/link";
+
+const CANONICAL_BASE = "https://openloopapps.com";
+
 export default function EchoKeysScaleTrainerPage() {
+  const canonical = `${CANONICAL_BASE}/games/echokeys-scaletrainer`;
+  const iframeSrc = `/play/echokeys-scaletrainer/index.html`;
+
   return (
-    <div style={{ padding: 16, color: "#e5e7eb", maxWidth: 1100, margin: "0 auto" }}>
-      <h1 style={{ marginBottom: 6 }}>EchoKeys: ScaleTrainer</h1>
-
-      <div style={{ color: "#94a3b8", fontSize: 13, marginBottom: 10 }}>
-        NoteLoop Series • Training mode • Codename: EchoKeys-NoteLoop
-      </div>
-
-      {/* Tasteful ad slot (wrapper-only) */}
-      <div
-        id="ad-top"
-        style={{
-          margin: "12px 0",
-          minHeight: 90,
-          border: "1px solid #1e293b",
-          borderRadius: 12,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#94a3b8",
-          fontSize: 12,
-          background: "rgba(15, 23, 42, 0.35)",
-        }}
-        aria-label="Advertisement"
-      >
-        Ad slot
-      </div>
-
-      <div
-        style={{
-          width: "100%",
-          height: "80vh",
-          border: "1px solid #1e293b",
-          borderRadius: 12,
-          overflow: "hidden",
-          background: "rgba(15, 23, 42, 0.35)",
-        }}
-      >
-        <iframe
-          src="/play/echokeys-scaletrainer/index.html"
-          title="EchoKeys ScaleTrainer"
-          style={{ width: "100%", height: "100%", border: 0 }}
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups"
-          allow="fullscreen"
+    <>
+      <Head>
+        <title>EchoKeys ScaleTrainer | Open Loop Apps</title>
+        <meta
+          name="description"
+          content="Practice scales by pattern, tempo, and accuracy."
         />
-      </div>
+        <link rel="canonical" href={canonical} />
+      </Head>
 
-      <div style={{ marginTop: 14, color: "#94a3b8", fontSize: 12, lineHeight: 1.4 }}>
-        If this wrapper loads but the trainer is blank, open the direct link:
-        <span style={{ color: "#94a3b8" }}> </span>
-        <a href="/play/echokeys-scaletrainer/index.html" style={{ color: "#93c5fd", textDecoration: "none" }}>
-          /play/echokeys-scaletrainer/index.html
-        </a>
-      </div>
-    </div>
+      <main className="page">
+        <header className="page-header">
+          <h1 className="h1">EchoKeys ScaleTrainer</h1>
+          <p className="subtitle">Practice scales by pattern, tempo, and accuracy.</p>
+          <p className="smallNote">
+            <Link href="/games">← Back to Games</Link>
+          </p>
+        </header>
+
+        <div className="gameFrameWrap" role="region" aria-label="EchoKeys ScaleTrainer game">
+          <iframe
+            className="gameFrame"
+            src={iframeSrc}
+            title="EchoKeys ScaleTrainer"
+            loading="eager"
+            allow="fullscreen; gamepad; autoplay"
+          />
+        </div>
+
+        <p className="smallNote" style={{ marginTop: 12 }}>
+          If the game doesn’t load, confirm this file exists: <code>/public/play/echokeys-scaletrainer/index.html</code>
+        </p>
+      </main>
+    </>
   );
 }

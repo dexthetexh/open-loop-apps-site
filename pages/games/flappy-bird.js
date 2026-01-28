@@ -1,17 +1,44 @@
-export default function FlappyBirdPage() {
-  return (
-    <div style={{ padding: 16, color: "#e5e7eb" }}>
-      <h1 style={{ marginBottom: 12 }}>Flappy Bird (Open Loop Apps)</h1>
+// File: /pages/games/flappy-bird.js
+import Head from "next/head";
+import Link from "next/link";
 
-      <div style={{ width: "100%", height: "80vh", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden" }}>
-        <iframe
-          src="/play/flappy-bird/index.html"
-          title="Flappy Bird (Open Loop Apps)"
-          style={{ width: "100%", height: "100%", border: 0 }}
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
-		  allow="fullscreen"
-        />
-      </div>
-    </div>
+const CANONICAL_BASE = "https://openloopapps.com";
+
+export default function FlappyBirdPage() {
+  const canonical = `${CANONICAL_BASE}/games/flappy-bird`;
+  const iframeSrc = `/play/flappy-bird/index.html`;
+
+  return (
+    <>
+      <Head>
+        <title>Flappy Bird | Open Loop Apps</title>
+        <meta name="description" content="A lightweight arcade tap classic." />
+        <link rel="canonical" href={canonical} />
+      </Head>
+
+      <main className="page">
+        <header className="page-header">
+          <h1 className="h1">Flappy Bird</h1>
+          <p className="subtitle">A lightweight arcade tap classic.</p>
+          <p className="smallNote">
+            <Link href="/games">← Back to Games</Link>
+          </p>
+        </header>
+
+        <div className="gameFrameWrap" role="region" aria-label="Flappy Bird game">
+          <iframe
+            className="gameFrame"
+            src={iframeSrc}
+            title="Flappy Bird"
+            loading="eager"
+            allow="fullscreen; gamepad; autoplay"
+          />
+        </div>
+
+        <p className="smallNote" style={{ marginTop: 12 }}>
+          If the game doesn’t load, confirm this file exists: <code>/public/play/flappy-bird/index.html</code>
+        </p>
+      </main>
+    </>
   );
 }
