@@ -72,10 +72,10 @@ body {
   display: block;
   text-decoration: none;
   color: inherit;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: var(--border);
   border-radius: 14px;
   padding: 16px;
-  background: #fff;
+  background: var(--panel);
 }
 
 .card:hover {
