@@ -1,40 +1,34 @@
 // File: /pages/play/[slug].js
 import Head from "next/head";
 import Link from "next/link";
+import { WEB_GAMES, getPrevNextSlug, getGameBySlug } from "../../lib/games";
 
 const CANONICAL_BASE = "https://openloopapps.com";
 
-// Maintain this list to control what gets statically generated.
-const GAMES = [
-  { slug: "echokeys", title: "EchoKeys", desc: "Fast ear-training drills and reaction challenges." },
-  { slug: "pixel-diner", title: "Pixel Diner", desc: "Serve, upgrade, and survive the rush." },
-  { slug: "echokeys-scaletrainer", title: "EchoKeys ScaleTrainer", desc: "Practice scales by pattern, tempo, and accuracy." },
-  { slug: "flappy-bird", title: "Flappy Bird", desc: "A lightweight arcade tap classic." },
-  // These two are placeholders; keep them out of /play
-  // { slug: "idle-cyber-defense", ... }
-  // { slug: "tap-escape-speedrun", ... }
-];
-
 export async function getStaticPaths() {
   return {
-    paths: GAMES.map((g) => ({ params: { slug: g.slug } })),
+    paths: WEB_GAMES.map((g) => ({ params: { slug: g.slug } })),
     fallback: false,
   };
 }
 
 export async function getStaticProps({ params }) {
-  const game = GAMES.find((g) => g.slug === params.slug);
-  return { props: { game } };
+  const game = getGameBySlug(params.slug);
+  if (!game) return { notFound: true };
+
+  const { prev, next } = getPrevNextSlug(game.slug);
+
+  return { props: { game, prev, next } };
 }
 
-export default function PlaySlugPage({ game }) {
+export default function PlaySlugPage({ game, prev, next }) {
   const canonical = `${CANONICAL_BASE}/play/${game.slug}`;
   const iframeSrc = `/play/${game.slug}/index.html`;
 
   return (
     <>
       <Head>
-        <title>{game.title} | Open Loop Apps</title>
+        <title>{`${game.title} | Open Loop Apps`}</title>
         <meta name="description" content={game.desc} />
         <link rel="canonical" href={canonical} />
       </Head>
@@ -43,10 +37,16 @@ export default function PlaySlugPage({ game }) {
         <header className="page-header">
           <h1 className="h1">{game.title}</h1>
           <p className="subtitle">{game.desc}</p>
-          <p className="smallNote">
-            <Link href={`/games/${game.slug}`}>← Back to game page</Link>{" "}
-            · <Link href="/games">Games</Link>
-          </p>
+
+          <div className="navRow" aria-label="Game navigation">
+            <Link className="navGhost" href="/games">← Games</Link>
+            <span className="navSep">·</span>
+            <Link href={`/games/${game.slug}`}>Game page</Link>
+            <span className="navSep">·</span>
+            {prev && <Link href={`/play/${prev}`}>← Prev</Link>}
+            <span className="navSep">·</span>
+            {next && <Link href={`/play/${next}`}>Next →</Link>}
+          </div>
         </header>
 
         {/* AdSense-safe: no ads on gameplay pages */}
@@ -56,7 +56,7 @@ export default function PlaySlugPage({ game }) {
             src={iframeSrc}
             title={game.title}
             loading="eager"
-            allow="fullscreen; gamepad; autoplay"
+            allow="fullscreen; gamepad; autoplay; vibration; accelerometer; gyroscope"
             sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups"
           />
         </div>

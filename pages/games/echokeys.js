@@ -1,22 +1,23 @@
-// File: /pages/games/echokeys.js
 import Head from "next/head";
 import Link from "next/link";
+import { getPrevNextSlug } from "../../lib/games";
 
 const CANONICAL_BASE = "https://openloopapps.com";
 
 export default function EchoKeysPage() {
-  const canonical = `${CANONICAL_BASE}/games/echokeys`;
-  const iframeSrc = `/play/echokeys/index.html`;
+  const slug = "echokeys";
+  const { prev, next } = getPrevNextSlug(slug);
+  const iframeSrc = `/play/${slug}/index.html`;
 
   return (
     <>
       <Head>
-        <title>EchoKeys | Open Loop Apps</title>
+        <title>{`EchoKeys | Open Loop Apps`}</title>
         <meta
           name="description"
-          content="Fast ear-training drills and reaction challenges with EchoKeys."
+          content="Fast ear-training drills and reaction challenges."
         />
-        <link rel="canonical" href={canonical} />
+        <link rel="canonical" href={`${CANONICAL_BASE}/games/${slug}`} />
       </Head>
 
       <main className="page">
@@ -25,27 +26,38 @@ export default function EchoKeysPage() {
           <p className="subtitle">
             Fast ear-training drills and reaction challenges.
           </p>
-          <p className="smallNote">
-            <Link href="/games">← Back to Games</Link>
-          </p>
+
+          <div className="navRow" aria-label="Game navigation">
+            <Link className="navGhost" href="/games">← Games</Link>
+            <span className="navSep">·</span>
+            <Link className="navPrimary" href={`/play/${slug}`}>Play →</Link>
+
+            {prev && (
+              <>
+                <span className="navSep">·</span>
+                <Link href={`/games/${prev}`}>← Prev</Link>
+              </>
+            )}
+
+            {next && (
+              <>
+                <span className="navSep">·</span>
+                <Link href={`/games/${next}`}>Next →</Link>
+              </>
+            )}
+          </div>
         </header>
 
-        {/* AdSense-safe: no ads on gameplay pages */}
         <div className="gameFrameWrap" role="region" aria-label="EchoKeys game">
           <iframe
             className="gameFrame"
             src={iframeSrc}
             title="EchoKeys"
             loading="eager"
-            allow="fullscreen; gamepad; autoplay"
+            allow="fullscreen; gamepad; autoplay; vibration; accelerometer; gyroscope"
             sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups"
           />
         </div>
-
-        <p className="smallNote" style={{ marginTop: 12 }}>
-          If the game does not load, confirm this file exists:{" "}
-          <code>/public/play/echokeys/index.html</code>
-        </p>
       </main>
     </>
   );

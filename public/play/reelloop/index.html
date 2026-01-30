@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <link rel="manifest" href="./manifest.json" />
+
+  <title>ReelLoop | v2.2.9 Hi-Fi</title>
+  
+  <style>
+    /* === CORE VARIABLES === */
+    :root { 
+      --accent: #2aa7ff;
+      --bg-dark: #0b1a2e;
+      --bg-darker: #06101d; 
+      --text: #e8f1ff; 
+      --sunrise: #f2c14e;
+      --danger: #ff5a5f;
+      --bobber-color: #ff6b6b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none; transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%); 
+      color: var(--text); min-height: 100vh; overflow: hidden; position: relative; 
+      transition: background 1s ease;
+    }
+    
+    body.tense { background: linear-gradient(180deg, #1a0f12 0%, #2a1010 100%); }
+
+    /* === ATMOSPHERE === */
+    .waves { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+    .wave { position: absolute; width: 220%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation: wave-flow linear infinite; }
+    .wave-layer-1 { top: 0; opacity: 0.04; animation-duration: 12s; filter: blur(1px); }
+    .wave-layer-2 { top: 20%; opacity: 0.06; animation-duration: 8s; filter: blur(2px); animation-direction: reverse; }
+    .wave-layer-3 { top: 40%; opacity: 0.03; animation-duration: 15s; filter: blur(3px); }
+    @keyframes wave-flow { 0% { transform: translateX(-55%); } 100% { transform: translateX(0%); } }
+
+    .danger-vignette { position: fixed; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(255, 90, 95, 0.4)); pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 500; }
+    .danger-vignette.active { opacity: 1; animation: vignette-pulse 0.8s ease-in-out infinite; }
+    @keyframes vignette-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+    /* === LAYOUT === */
+    .container { max-width: 600px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 20px; position: relative; z-index: 10; }
+    header { text-align: center; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 12px; }
+    h1 { font-size: 1.8rem; color: var(--accent); text-shadow: 0 0 18px rgba(42, 167, 255, 0.65); letter-spacing: 0.5px; margin-right: auto; }
+    
+    .icon-btn { 
+      font-size: 1.2rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
+      color: rgba(255,255,255,0.9); border-radius: 8px; padding: 6px 12px; cursor: pointer; 
+    }
+    .icon-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
+
+    /* === STATS === */
+    .stats { display: flex; justify-content: space-around; gap: 8px; margin-bottom: 10px; }
+    .stat-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 8px 4px; flex: 1; text-align: center; backdrop-filter: blur(4px); }
+    .stat-label { font-size: 0.7rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .stat-value { font-size: 1.2rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+    .stat-value.accent { color: var(--accent); }
+
+    .game-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+    
+    /* === GAME ELEMENTS === */
+    .bobber { 
+      width: 44px; height: 44px; 
+      background: radial-gradient(circle at 30% 30%, #fff, var(--bobber-color)); 
+      border-radius: 50%; margin-top: 100px; 
+      box-shadow: 0 0 20px var(--bobber-color); 
+      animation: float 3s ease-in-out infinite; z-index: 2; 
+    }
+    .bobber.nibbling { animation: nibble 0.1s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes nibble { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(4px) rotate(-5deg); } 75% { transform: translateY(-4px) rotate(5deg); } }
+
+    .strike-button { 
+      background: linear-gradient(135deg, var(--sunrise), #ff9f1c); 
+      color: #15223a; border: none; border-radius: 50%; width: 150px; height: 150px; 
+      font-size: 1.6rem; font-weight: 900; cursor: pointer; 
+      box-shadow: 0 0 40px rgba(242, 193, 78, 0.4); 
+      animation: breathe 2s ease-in-out infinite;
+    }
+    .strike-button:active { transform: scale(0.92); animation: none; }
+    @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(242, 193, 78, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(242, 193, 78, 0.6); } }
+
+    /* === FISH ART === */
+    .fish-display { text-align: center; margin-bottom: 20px; }
+    .fish-art img { width: 120px; height: 120px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); animation: struggle 0.5s infinite; }
+    @keyframes struggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+    .fish-name { font-size: 1.5rem; font-weight: 800; margin-top: 10px; }
+    .fish-rarity { font-size: 0.9rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* === GAUGES === */
+    .gauge-wrapper { width: 100%; margin: 15px 0; }
+    .gauge-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: flex; justify-content: space-between; opacity: 0.8; }
+    .gauge-bar { height: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+    .gauge-fill { height: 100%; width: 0%; transition: width 0.05s linear; }
+    
+    #tensionFill { background: linear-gradient(90deg, #4ade80, #facc15, #ef4444); }
+    .gauge-fill.danger { animation: tension-pulse 0.2s infinite; filter: brightness(1.3); }
+    @keyframes tension-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    
+    #progressFill { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+    .sweet-spot { position: absolute; left: 60%; width: 20%; height: 100%; background: rgba(255,255,255,0.05); border-left: 1px dashed rgba(255,255,255,0.3); border-right: 1px dashed rgba(255,255,255,0.3); }
+
+    /* === TAP AREA === */
+    .tap-area { 
+      width: 100%; max-width: 380px; height: 240px; 
+      background: rgba(255, 255, 255, 0.03); 
+      border: 2px dashed rgba(255, 255, 255, 0.2); 
+      border-radius: 24px; display: flex; justify-content: center; align-items: center; 
+      font-size: 1.4rem; font-weight: 700; cursor: pointer; position: relative; overflow: hidden; 
+      animation: border-pulse 3s infinite;
+    }
+    .tap-area:active { background: rgba(42, 167, 255, 0.1); transform: scale(0.98); border-color: var(--accent); border-style: solid; }
+    @keyframes border-pulse { 0%, 100% { border-color: rgba(255,255,255,0.2); } 50% { border-color: rgba(42,167,255,0.5); } }
+
+    .tap-indicator { position: absolute; font-weight: 900; pointer-events: none; animation: tap-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 20; -webkit-text-stroke: 1px rgba(0,0,0,0.5); }
+    @keyframes tap-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; } }
+
+    /* === ROTATION TUTORIAL === */
+    .reel-handle-container { position: absolute; width: 160px; height: 160px; border: 4px dashed rgba(255, 255, 255, 0.3); border-radius: 50%; display: none; justify-content: center; align-items: center; pointer-events: none; }
+    .reel-handle { width: 30px; height: 30px; background: var(--accent); border-radius: 50%; position: absolute; top: -15px; box-shadow: 0 0 15px var(--accent); }
+    .rotate-anim { animation: spin-handle 2s linear infinite; }
+    @keyframes spin-handle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    
+    .tutorial-finger { position: absolute; font-size: 4rem; animation: finger-circle 2s infinite linear; z-index: 30; filter: drop-shadow(0 0 10px black); opacity: 0.8; }
+    @keyframes finger-circle { from { transform: rotate(0deg) translate(70px) rotate(0deg); } to { transform: rotate(360deg) translate(70px) rotate(-360deg); } }
+
+    /* === SUCCESS/COLLECTION === */
+    .fish-jump { position: fixed; font-size: 6rem; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0); z-index: 100; pointer-events: none; animation: fish-leap 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+    @keyframes fish-leap { 0% { transform: translate(-50%, 50%) scale(0) rotate(-20deg); } 50% { transform: translate(-50%, -80%) scale(1.5) rotate(10deg); } 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
+
+    .particle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: explode 0.8s ease-out forwards; }
+    @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+
+    .overlay { position: fixed; inset: 0; background: rgba(6, 16, 29, 0.95); z-index: 1000; display: none; padding: 20px; overflow-y: auto; backdrop-filter: blur(10px); }
+    .overlay.active { display: block; animation: fade-in 0.3s ease; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding-bottom: 40px; }
+    .fish-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; text-align: center; }
+    .fish-card.locked { opacity: 0.4; filter: grayscale(1); }
+    .fish-card img { width: 64px; height: 64px; margin-bottom: 10px; }
+    
+    .bobber-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 12px; }
+    .bobber-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .bobber-opt.selected { border-color: #fff; box-shadow: 0 0 10px #fff; transform: scale(1.2); }
+
+    .btn { background: linear-gradient(135deg, var(--accent), #1b6fa6); color: white; border: none; padding: 16px 32px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin: 10px; box-shadow: 0 4px 20px rgba(42, 167, 255, 0.3); transition: opacity 0.3s; }
+    .btn.disabled { opacity: 0; pointer-events: none; }
+    .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="danger-vignette" id="dangerVignette"></div>
+  <div class="waves">
+    <div class="wave-layer-1"></div>
+    <div class="wave-layer-2"></div>
+    <div class="wave-layer-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>🎣 ReelLoop</h1>
+      <button class="icon-btn" id="btnFS">⛶</button>
+      <button class="icon-btn" id="btnSound">🔊</button>
+    </header>
+
+    <div class="stats">
+      <div class="stat-box"><div class="stat-label">Caught</div><div class="stat-value accent" id="totalCaught">0</div></div>
+      <div class="stat-box"><div class="stat-label">Discovered</div><div class="stat-value" id="uniqueFish">0/5</div></div>
+      <div class="stat-box"><div class="stat-label">Vista</div><div class="stat-value" id="vistaName">Sunny Lake</div></div>
+    </div>
+    
+    <div class="game-area">
+      <div id="waitingState">
+        <div class="bobber" id="bobber"></div>
+        <p style="text-align: center; margin-top: 30px; opacity: 0.6;">Waiting for bite...</p>
+      </div>
+
+      <div id="strikeState" class="hidden">
+        <button class="strike-button" id="strikeButton">HOOK!</button>
+      </div>
+
+      <div id="reelState" class="hidden">
+        <div class="fish-display">
+          <div class="fish-art"><img id="fishArtImg" alt="Fish" /></div>
+          <div class="fish-name" id="fishName">Fish</div>
+          <div class="fish-rarity" id="fishRarity">Common</div>
+        </div>
+
+        <div class="gauge-wrapper">
+          <div class="gauge-label"><span>Line Tension</span><span id="tensionVal">0%</span></div>
+          <div class="gauge-bar"><div class="sweet-spot"></div><div class="gauge-fill" id="tensionFill"></div></div>
+        </div>
+
+        <div class="gauge-wrapper">
+          <div class="gauge-label"><span>Reel Progress</span></div>
+          <div class="gauge-bar"><div class="gauge-fill" id="progressFill"></div></div>
+        </div>
+
+        <div class="tap-area" id="tapArea">
+          <div id="reelHandle" class="reel-handle-container"><div class="reel-handle"></div></div>
+          <span id="tapPrompt" style="position: relative; z-index: 2;">REEL FAST!</span>
+        </div>
+      </div>
+
+      <div id="successState" class="hidden">
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 5rem;" id="successFishIcon">🐟</div>
+          <h2 style="font-size: 2rem; margin: 10px 0;" id="caughtFishName"></h2>
+          <div style="color: var(--sunrise); font-weight: 800; letter-spacing: 1px;" id="newDiscovery"></div>
+        </div>
+        <button class="btn disabled" id="castAgainButton">Cast Again</button>
+      </div>
+      
+      <div id="failState" class="hidden">
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 4rem; margin-bottom: 10px;">💔</div>
+          <h2 style="color: var(--danger);">Line Snapped</h2>
+          <p style="opacity: 0.7;">Too much tension!</p>
+        </div>
+        <button class="btn" id="tryAgainButton">Try Again</button>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: auto;">
+      <button class="btn btn-secondary" id="collectionButton">🏆 Trophy Room</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="collectionOverlay">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="font-size: 1.5rem;">🏆 Trophy Room</h2>
+      <button class="btn-secondary" style="padding: 8px 16px; margin: 0;" id="closeCollection">Done</button>
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+      <div style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">Bobber Color</div>
+      <div class="bobber-selector" id="bobberSelector"></div>
+    </div>
+
+    <div class="collection-grid" id="collectionGrid"></div>
+  </div>
+
+  <script>
+    // === CONFIG & ART ===
+    const FISH_DICTIONARY = [
+      { id: "fish_bluegill", name: "Bluegill", color: "#60a5fa", vibration: [30, 40], requiredTaps: 12, rarity: "Common", icon: "🐟", reelType: "tap" },
+      { id: "fish_perch", name: "Yellow Perch", color: "#facc15", vibration: [40, 30], requiredTaps: 16, rarity: "Common", icon: "🐠", reelType: "tap" },
+      { id: "fish_trout", name: "Rainbow Trout", color: "#4ade80", vibration: [60, 40], requiredTaps: 28, rarity: "Uncommon", icon: "🐟", reelType: "hold" },
+      { id: "fish_bass", name: "Largemouth Bass", color: "#22c55e", vibration: [80, 40], requiredTaps: 45, rarity: "Rare", icon: "🐟", reelType: "rotate" },
+      { id: "fish_muskie", name: "Muskie", color: "#a855f7", vibration: [120, 60, 120], requiredTaps: 85, rarity: "Legendary", icon: "🦈", reelType: "rotate" }
+    ];
+
+    const BOBBER_COLORS = ['#ff6b6b', '#51cf66', '#339af0', '#fcc419', '#cc5de8'];
+
+    // --- HI-FIDELITY SVG GENERATION (Restored from v2.2.4) ---
+    function fishSvg(species, body, accent) {
+      switch (species) {
+        case "bluegill": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M20 64c0-18 20-32 44-32s44 14 44 32-20 32-44 32S20 82 20 64z" fill="url(#g)"/><path d="M90 64l26-18v36L90 64z" fill="${accent}" opacity="0.9"/><circle cx="52" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "perch": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 66c0-16 22-30 46-30s46 14 46 30-22 30-46 30S18 82 18 66z" fill="url(#g)"/><path d="M90 66l26-16v32L90 66z" fill="${accent}" opacity="0.95"/><path d="M42 44v44" stroke="rgba(0,0,0,0.18)" stroke-width="5"/><path d="M54 42v48" stroke="rgba(0,0,0,0.14)" stroke-width="5"/><circle cx="52" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "trout": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M16 64c0-14 26-26 52-26s44 12 44 26-18 26-44 26S16 78 16 64z" fill="url(#g)"/><path d="M90 64l24-14v28L90 64z" fill="${accent}" opacity="0.9"/><path d="M36 64c14 8 30 12 48 12" stroke="rgba(255,255,255,0.22)" stroke-width="3"/><circle cx="48" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "bass": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-18 22-32 48-32s44 14 44 32-18 32-44 32S18 82 18 64z" fill="url(#g)"/><path d="M92 64l24-18v36L92 64z" fill="${accent}" opacity="0.95"/><path d="M44 72c18 10 40 10 58 0" stroke="rgba(255,255,255,0.18)" stroke-width="3"/><circle cx="50" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "muskie": default: return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M14 64c0-14 30-26 56-26s44 12 44 26-18 26-44 26S14 78 14 64z" fill="url(#g)"/><path d="M92 64l24-14v28L92 64z" fill="${accent}" opacity="0.95"/><circle cx="46" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+      }
+    }
+
+    function fishArtDataUri(fish) {
+      const map = {
+        fish_bluegill: { s: "bluegill", a: "#b7e3ff" },
+        fish_perch:    { s: "perch",    a: "#ffda6b" },
+        fish_trout:    { s: "trout",    a: "#c7ffd7" },
+        fish_bass:     { s: "bass",     a: "#b0f2c2" },
+        fish_muskie:   { s: "muskie",   a: "#d2d8df" }
+      };
+      const entry = map[fish.id] || { s: "muskie", a: "#d2d8df" };
+      const svg = fishSvg(entry.s, fish.color, entry.a);
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    // === STATE ===
+    let gameState='waiting', currentFish=null, reelingProgress=0, tension=0, isHolding=false;
+    let holdInterval=null, reelInterval=null, tapCombo=0, comboTimeout=null;
+    let lastAngle=null, totalRotation=0;
+    
+    let caughtFish = JSON.parse(localStorage.getItem('reelLoopCaughtFish') || '[]');
+    let soundEnabled = true, audioCtx = null;
+    let currentBobberColor = localStorage.getItem('reelLoopBobberColor') || BOBBER_COLORS[0];
+
+    // === DOM ===
+    const getEl = (id) => document.getElementById(id);
+    const states = { waiting: getEl('waitingState'), strike: getEl('strikeState'), reel: getEl('reelState'), success: getEl('successState'), fail: getEl('failState') };
+    const bobber=getEl('bobber'), tapArea=getEl('tapArea');
+    const pFill = getEl('progressFill'), tFill = getEl('tensionFill');
+
+    // === AUDIO & HAPTICS ===
+    function ensureAudio() {
+      if(!audioCtx && soundEnabled) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+      }
+      if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    
+    function playTone(freq, type='sine') {
+      if(!audioCtx) return;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = 0.1; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      o.start(); o.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // === GAME LOGIC ===
+    function applyBobberColor() { document.documentElement.style.setProperty('--bobber-color', currentBobberColor); }
+
+    function startWaiting() {
+      setState('waiting');
+      bobber.classList.remove('nibbling');
+      document.body.className = '';
+      getEl('dangerVignette').classList.remove('active');
+      applyBobberColor();
+      setTimeout(() => { if(gameState==='waiting') startNibbling(); }, 2000 + Math.random()*3000);
+    }
+
+    function startNibbling() {
+      bobber.classList.add('nibbling');
+      let nibbles = 0;
+      const i = setInterval(() => {
+        if(gameState !== 'waiting') { clearInterval(i); return; }
+        if(navigator.vibrate) navigator.vibrate(20);
+        nibbles++;
+        if(nibbles > 2) { clearInterval(i); setTimeout(showStrike, 600); }
+      }, 800);
+    }
+
+    function showStrike() {
+      currentFish = FISH_DICTIONARY[Math.floor(Math.random()*FISH_DICTIONARY.length)];
+      setState('strike');
+      if(navigator.vibrate) navigator.vibrate(200);
+      playTone(400, 'triangle');
+      setTimeout(() => { if(gameState === 'strike') startWaiting(); }, 2000);
+    }
+
+    function startReeling() {
+      ensureAudio();
+      setState('reel');
+      reelingProgress=0; tension=0; isHolding=false; tapCombo=0;
+      totalRotation = 0; lastAngle = null;
+
+      getEl('fishName').textContent = currentFish.name;
+      getEl('fishRarity').textContent = currentFish.rarity;
+      getEl('fishArtImg').src = fishArtDataUri(currentFish);
+      
+      const prompts = { tap: "TAP TAP TAP!", hold: "HOLD IT!", rotate: "SPIN IT!" };
+      getEl('tapPrompt').textContent = prompts[currentFish.reelType];
+      
+      const handle = getEl('reelHandle');
+      if (currentFish.reelType === 'rotate') { 
+        handle.style.display='flex'; handle.classList.add('rotate-anim');
+        if(!localStorage.getItem('reelLoopRotTute')) {
+          const finger = document.createElement('div');
+          finger.className = 'tutorial-finger';
+          finger.innerText = '👆';
+          tapArea.appendChild(finger);
+          localStorage.setItem('reelLoopRotTute', '1');
+          setTimeout(()=>finger.remove(), 4000);
+        }
+      } else { handle.style.display='none'; handle.classList.remove('rotate-anim'); }
+
+      if (reelInterval) clearInterval(reelInterval);
+      reelInterval = setInterval(gameLoop, 50);
+    }
+
+    function gameLoop() {
+      if (!isHolding) tension = Math.max(0, tension - 2);
+      
+      if (tension > 80) {
+        tFill.classList.add('danger');
+        getEl('dangerVignette').classList.add('active');
+        document.body.classList.add('tense');
+      } else {
+        tFill.classList.remove('danger');
+        getEl('dangerVignette').classList.remove('active');
+        document.body.classList.remove('tense');
+      }
+
+      if (tension >= 100) finish(false);
+      if (reelingProgress >= 100) finish(true);
+      
+      tFill.style.width = tension + '%';
+      pFill.style.width = reelingProgress + '%';
+      getEl('tensionVal').textContent = Math.floor(tension) + '%';
+    }
+
+    function increment(amount) {
+      let gain = amount * (100 / currentFish.requiredTaps);
+      if (tension >= 60 && tension <= 80) gain *= 1.3;
+      
+      reelingProgress = Math.min(100, reelingProgress + gain);
+      tension = Math.min(100, tension + (currentFish.reelType==='hold' ? 1.5 : 4));
+
+      // Force UI
+      pFill.style.width = reelingProgress + '%';
+      tFill.style.width = tension + '%';
+      
+      if(currentFish.reelType === 'tap') {
+         tapCombo++;
+         clearTimeout(comboTimeout);
+         comboTimeout = setTimeout(() => tapCombo=0, 800);
+         showTapFeedback();
+         playTone(600 + (tapCombo*50));
+      }
+    }
+
+    function showTapFeedback() {
+      const el = document.createElement('div');
+      el.className = 'tap-indicator';
+      el.innerText = `+${tapCombo}`;
+      const size = Math.min(1.5 + (tapCombo * 0.1), 3);
+      el.style.fontSize = size + 'rem';
+      el.style.left = (50 + Math.random()*20 - 10) + '%'; 
+      el.style.top = (50 + Math.random()*20 - 10) + '%';
+      el.style.color = currentFish.color;
+      tapArea.appendChild(el);
+      setTimeout(() => el.remove(), 600);
+    }
+
+    function createConfetti() {
+      for(let i=0; i<30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.background = currentFish.color;
+        p.style.left = '50%'; p.style.top = '50%';
+        p.style.setProperty('--tx', (Math.random()*300 - 150) + 'px');
+        p.style.setProperty('--ty', (Math.random()*300 - 150) + 'px');
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+      }
+    }
+
+    function finish(win) {
+      clearInterval(reelInterval); clearInterval(holdInterval);
+      if(win) {
+        const existing = caughtFish.find(f => f.id === currentFish.id);
+        if(existing) existing.count++; else caughtFish.push({...currentFish, count:1});
+        localStorage.setItem('reelLoopCaughtFish', JSON.stringify(caughtFish));
+        
+        getEl('caughtFishName').textContent = currentFish.name;
+        getEl('successFishIcon').textContent = currentFish.icon;
+        
+        createConfetti();
+        playTone(600, 'square');
+        setTimeout(()=>playTone(800, 'square'), 100);
+        setTimeout(()=>playTone(1000, 'square'), 200);
+
+        const btn = getEl('castAgainButton');
+        btn.classList.add('disabled');
+        setState('success');
+        updateStats();
+        setTimeout(() => btn.classList.remove('disabled'), 1500);
+      } else {
+        setState('fail');
+        playTone(200, 'sawtooth');
+      }
+    }
+
+    function setState(newState) {
+      Object.values(states).forEach(el => el.classList.add('hidden'));
+      states[newState].classList.remove('hidden');
+      gameState = newState;
+    }
+    
+    function updateStats() {
+      getEl('totalCaught').innerText = caughtFish.reduce((s,f)=>s+f.count,0);
+      getEl('uniqueFish').innerText = `${caughtFish.length}/${FISH_DICTIONARY.length}`;
+    }
+
+    // === EVENT LISTENERS ===
+    function attach(id, fn) {
+      const el = getEl(id);
+      if(el) el.addEventListener('click', fn);
+    }
+
+    tapArea.addEventListener('pointerdown', (e) => {
+      if(gameState !== 'reel') return;
+      e.preventDefault();
+      
+      if(currentFish.reelType === 'tap') increment(1);
+      
+      if(currentFish.reelType === 'hold') {
+        isHolding = true;
+        holdInterval = setInterval(() => { if(isHolding) increment(0.2); }, 50);
+      }
+      
+      if(currentFish.reelType === 'rotate') {
+        const rect = tapArea.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        lastAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+      }
+    });
+
+    tapArea.addEventListener('pointermove', (e) => {
+      if(gameState !== 'reel' || currentFish.reelType !== 'rotate' || lastAngle === null) return;
+      e.preventDefault();
+
+      const rect = tapArea.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+      
+      let delta = angle - lastAngle;
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      
+      totalRotation += Math.abs(delta);
+      if(totalRotation >= 45) {
+        increment(0.8);
+        playTone(600);
+        totalRotation = 0;
+      }
+      lastAngle = angle;
+    });
+
+    window.addEventListener('pointerup', () => { isHolding = false; clearInterval(holdInterval); lastAngle = null; });
+    
+    getEl('strikeButton').addEventListener('pointerdown', (e) => { e.preventDefault(); startReeling(); });
+    attach('castAgainButton', startWaiting);
+    attach('tryAgainButton', startWaiting);
+
+    attach('collectionButton', () => {
+      renderBobberSelector();
+      renderCollection();
+      getEl('collectionOverlay').classList.add('active');
+    });
+    attach('closeCollection', () => getEl('collectionOverlay').classList.remove('active'));
+    
+    attach('btnFS', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen().catch(()=>{});
+    });
+    
+    attach('btnSound', () => {
+      soundEnabled = !soundEnabled;
+      getEl('btnSound').style.opacity = soundEnabled ? '1' : '0.5';
+    });
+
+    function renderBobberSelector() {
+      const container = getEl('bobberSelector');
+      container.innerHTML = '';
+      BOBBER_COLORS.forEach(c => {
+        const div = document.createElement('div');
+        div.className = `bobber-opt ${c === currentBobberColor ? 'selected' : ''}`;
+        div.style.backgroundColor = c;
+        div.onclick = () => {
+          currentBobberColor = c;
+          localStorage.setItem('reelLoopBobberColor', c);
+          applyBobberColor();
+          renderBobberSelector();
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function renderCollection() {
+      const grid = getEl('collectionGrid'); grid.innerHTML = '';
+      FISH_DICTIONARY.forEach(fish => {
+        const caught = caughtFish.find(f => f.id === fish.id);
+        const card = document.createElement('div');
+        card.className = `fish-card ${!caught ? 'locked' : ''}`;
+        card.style.borderColor = fish.color;
+        card.innerHTML = `
+          <img src="${fishArtDataUri(fish)}" />
+          <div style="font-weight:bold">${caught ? fish.name : '???'}</div>
+          <div style="font-size:0.8rem">${caught ? `x${caught.count}` : ''}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    applyBobberColor();
+    updateStats();
+    startWaiting();
+  </script>
+</body>
+</html>

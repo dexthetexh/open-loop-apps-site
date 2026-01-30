@@ -1,13 +1,24 @@
 /* File: /styles/globals.css */
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+  --bg: #050b16;
+  --panel: #0b1324;
+  --panel-2: #0e1a31;
+  --text: #e7eefc;
+  --muted: rgba(231, 238, 252, 0.72);
+  --faint: rgba(231, 238, 252, 0.55);
+  --border: rgba(231, 238, 252, 0.12);
+  --border-2: rgba(231, 238, 252, 0.18);
+  --link: #7fb3ff;
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
@@ -38,14 +49,16 @@ body {
 
 .subtitle {
   margin: 0;
-  opacity: 0.8;
+  opacity: 1;
+  color: var(--muted);
   max-width: 70ch;
 }
 
 .smallNote {
   margin: 10px 0 0;
   font-size: 14px;
-  opacity: 0.85;
+  opacity: 1;
+  color: var(--faint);
 }
 
 .grid {
@@ -77,6 +90,14 @@ body {
 .cardCta {
   font-weight: 600;
   opacity: 0.9;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--panel);
+  max-width: 720px;
 }
 
 .footerNote {
@@ -123,4 +144,91 @@ body {
   font-size: 12px;
   opacity: 0.65;
   margin-bottom: 6px;
+}
+/* ReelLoop (and other mobile-first games): constrain to a 9:16 frame */
+.phoneFrame {
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  aspect-ratio: 9 / 16;
+}
+
+/* Make sure the iframe fills the frame */
+.phoneFrame .gameFrame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;      /* override global .gameFrame min-height */
+}
+.gameFrameWrap.phoneFrame {
+  min-height: 0;      /* override global .gameFrameWrap min-height */
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================
+   Navigation Row (Prev/Next)
+   ========================== */
+
+.navRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.navRow a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.navRow a:hover {
+  border-color: var(--border-2);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.navRow .navSep {
+  opacity: 0.55;
+  color: var(--faint);
+  padding: 0 2px;
+}
+
+.navRow .navPrimary {
+  font-weight: 650;
+}
+
+.navRow .navGhost {
+  background: transparent;
+}
+
+.navRow .navGhost:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 520px) {
+  .navRow a {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .navRow .navSep {
+    display: none;
+  }
 }
