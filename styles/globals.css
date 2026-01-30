@@ -232,3 +232,68 @@ a:hover {
     display: none;
   }
 }
+/* ==========================
+   Dark Theme Overrides (FINAL)
+   ========================== */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #050b16;
+  --panel: #0b1324;
+  --text: #e7eefc;
+  --muted: rgba(231, 238, 252, 0.72);
+  --faint: rgba(231, 238, 252, 0.55);
+  --border: rgba(231, 238, 252, 0.12);
+  --border-2: rgba(231, 238, 252, 0.18);
+  --link: #7fb3ff;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: var(--link);
+}
+
+/* Cards */
+.card {
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.card:hover {
+  border-color: var(--border-2) !important;
+}
+
+/* Card text tones */
+.cardText {
+  color: var(--muted) !important;
+  opacity: 1 !important;
+}
+
+.cardCta {
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+
+/* Header/support text */
+.subtitle {
+  color: var(--muted) !important;
+  opacity: 1 !important;
+}
+
+.smallNote,
+.footerNote {
+  color: var(--faint) !important;
+  opacity: 1 !important;
+}
+
+/* Gameplay frame border on dark */
+.gameFrameWrap {
+  border-color: var(--border) !important;
+}
