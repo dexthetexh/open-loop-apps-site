@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tap Escape: Pure Speedrun</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      background-color: #050510;
+      color: #E6E8F2;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    #background {
+      position: absolute;
+      inset: 0;
+      opacity: 0.3;
+    }
+    
+    #content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      gap: 24px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+    
+    .header-left .label,
+    .header-right .label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #9AA0B4;
+      margin-bottom: 4px;
+    }
+    
+    .header-left .value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #00F0FF;
+      line-height: 1;
+    }
+    
+    .header-right-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .header-right .value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #FCEE0A;
+      line-height: 1;
+      text-align: right;
+    }
+    
+    .icon-button {
+      background: none;
+      border: none;
+      color: #00F0FF;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    
+    .icon-button:hover {
+      opacity: 0.7;
+    }
+    
+    .meters {
+      flex: none;
+    }
+    
+    .meter {
+      margin-bottom: 20px;
+    }
+    
+    .meter-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #9AA0B4;
+      margin-bottom: 8px;
+    }
+    
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #9AA0B4;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #0B0B16;
+      border: 1px solid #1F1F33;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: width 0.1s linear, background-color 0.3s;
+    }
+    
+    .meter-value {
+      text-align: right;
+      font-size: 10px;
+      color: #9AA0B4;
+      margin-top: 4px;
+    }
+    
+    .result-panel {
+      flex: none;
+      padding: 16px;
+      background-color: #0B0B16;
+      border: 2px solid;
+      border-radius: 8px;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .result-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    
+    .result-details {
+      font-size: 14px;
+      color: #9AA0B4;
+    }
+    
+    .tap-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .tap-button {
+      width: 208px;
+      height: 208px;
+      border-radius: 50%;
+      background-color: #0B0B16;
+      border: 4px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #FFFFFF;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.3s;
+      user-select: none;
+    }
+    
+    .tap-button:active {
+      transform: scale(0.95);
+    }
+    
+    .upgrades {
+      flex: none;
+    }
+    
+    .upgrade-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .upgrade-card {
+      background-color: #0B0B16;
+      border: 1px solid #1F1F33;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    
+    .upgrade-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    
+    .upgrade-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .upgrade-level {
+      font-size: 11px;
+      color: #9AA0B4;
+    }
+    
+    .upgrade-subtitle {
+      font-size: 11px;
+      color: #9AA0B4;
+      margin-bottom: 12px;
+    }
+    
+    .upgrade-button {
+      width: 100%;
+      padding: 8px;
+      background-color: #0E1224;
+      border: 1px solid;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    
+    .upgrade-button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    .upgrade-insufficient {
+      text-align: center;
+      font-size: 10px;
+      color: #FF2BD6;
+      margin-top: 8px;
+    }
+    
+    .footer {
+      border-top: 1px solid rgba(31, 31, 51, 0.7);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .footer-status {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+    }
+    
+    .footer-button {
+      background: none;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      color: #FF2BD6;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: opacity 0.2s;
+    }
+    
+    .footer-button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    
+    .modal {
+      background-color: #0B0B16;
+      border: 1px solid #1F1F33;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    .modal h2 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    
+    .modal p {
+      font-size: 14px;
+      color: #9AA0B4;
+      margin-bottom: 16px;
+    }
+    
+    .modal-button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-bottom: 8px;
+    }
+    
+    .modal-button-primary {
+      background-color: #2A0B1E;
+      border: 1px solid #FF2BD6;
+      color: #FF2BD6;
+    }
+    
+    .modal-button-secondary {
+      background: none;
+      border: none;
+      color: #00F0FF;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .modal-buttons button {
+      flex: 1;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <svg id="background" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="hexagons" width="50" height="43.4" patternUnits="userSpaceOnUse">
+          <path d="M25 0L46.65 12.5V37.5L25 50L3.35 37.5V12.5z" 
+                fill="none" 
+                stroke="#00F0FF" 
+                stroke-width="0.5" 
+                opacity="0.3"/>
+        </pattern>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#00F0FF;stop-opacity:0.05" />
+          <stop offset="100%" style="stop-color:#FF2BD6;stop-opacity:0.05" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#hexagons)" />
+      <rect width="100%" height="100%" fill="url(#bgGrad)" />
+    </svg>
+    
+    <div id="content">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <div class="label">SECTOR</div>
+          <div class="value" id="levelDisplay">LVL 01</div>
+        </div>
+        <div class="header-right">
+          <div class="header-right-content">
+            <div style="text-align: right;">
+              <div class="label">SHARDS</div>
+              <div class="value" id="shardsDisplay">0</div>
+            </div>
+            <button class="icon-button" onclick="showAboutDialog()">ⓘ</button>
+            <button class="icon-button" onclick="showSettingsDialog()">⚙</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Meters -->
+      <div class="meters">
+        <div class="meter">
+          <div class="meter-label">TIME INTEGRITY</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="timeFill"></div>
+          </div>
+          <div class="meter-value" id="timeValue">10.00s</div>
+        </div>
+        
+        <div class="meter">
+          <div class="meter-label-row">
+            <span>DECRYPTION</span>
+            <span id="progressValue">0 / 20</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="background-color: #FCEE0A;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Result Panel -->
+      <div id="resultPanel" class="result-panel hidden">
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-details" id="resultDetails"></div>
+      </div>
+      
+      <!-- Tap Button -->
+      <div class="tap-container">
+        <div style="text-align: center;">
+          <button class="tap-button" id="tapButton" onclick="handleTap()">
+            READY
+          </button>
+          <div style="font-size: 11px; color: #9AA0B4; margin-top: 12px; letter-spacing: 1px;">
+            CLICK OR PRESS ANY KEY
+          </div>
+        </div>
+      </div>
+      
+      <!-- Upgrades -->
+      <div class="upgrades">
+        <div class="upgrade-grid">
+          <!-- Strength -->
+          <div class="upgrade-card">
+            <div class="upgrade-header">
+              <div class="upgrade-title">Strength</div>
+              <div class="upgrade-level" id="strengthLevel">LVL 0</div>
+            </div>
+            <div class="upgrade-subtitle">+Power/Tap</div>
+            <button class="upgrade-button" id="strengthButton" onclick="upgradeStrength()">
+              <span id="strengthCost">25</span> SHARDS
+            </button>
+            <div id="strengthInsufficient" class="upgrade-insufficient hidden">Insufficient</div>
+          </div>
+          
+          <!-- Efficiency -->
+          <div class="upgrade-card">
+            <div class="upgrade-header">
+              <div class="upgrade-title">Efficiency</div>
+              <div class="upgrade-level" id="efficiencyLevel">LVL 0</div>
+            </div>
+            <div class="upgrade-subtitle">-Time Cost</div>
+            <button class="upgrade-button" id="efficiencyButton" onclick="upgradeEfficiency()">
+              <span id="efficiencyCost">25</span> SHARDS
+            </button>
+            <div id="efficiencyInsufficient" class="upgrade-insufficient hidden">Insufficient</div>
+          </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+          <div class="footer-status" id="statusText" style="color: #9AA0B4;">IDLE</div>
+          <button class="footer-button" id="stopButton" onclick="stopRun()" disabled>STOP</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2>Settings</h2>
+        <p>Reset progress clears shards, level, and upgrades.</p>
+        <button class="modal-button modal-button-primary" onclick="showResetConfirm()">
+          Reset Progress
+        </button>
+        <button class="modal-button modal-button-secondary" onclick="hideSettingsDialog()">
+          Close
+        </button>
+      </div>
+    </div>
+    
+    <!-- Reset Confirm Modal -->
+    <div id="resetModal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2>Confirm Reset</h2>
+        <p>This cannot be undone.</p>
+        <div class="modal-buttons">
+          <button class="modal-button modal-button-primary" onclick="resetProgress()">
+            Reset
+          </button>
+          <button class="modal-button modal-button-secondary" onclick="hideResetConfirm()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2>About</h2>
+        <p style="font-size: 18px; font-weight: 600; color: #00F0FF; margin-bottom: 16px;">
+          Tap Escape: Pure Speedrun
+        </p>
+        <p>Version: 1.0.0</p>
+        <p>Build: web</p>
+        <p style="margin-top: 16px;">A minimalist skill-based speedrun game.</p>
+        <p style="margin-top: 12px; font-size: 12px;">
+          <strong style="color: #E6E8F2;">Controls:</strong><br>
+          Click the button or press any key to tap.
+        </p>
+        <button class="modal-button modal-button-secondary" onclick="hideAboutDialog()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== GAME TUNING ====================
+    const GameTuning = {
+      BASE_PROGRESS_PER_TAP: 1.0,
+      STRENGTH_STEP: 0.5,
+      BASE_TIME_COST_PER_TAP: 0.10,
+      EFFICIENCY_STEP: 0.005,
+      MIN_TIME_COST_FLOOR: 0.01,
+      BASE_START_TIME_SEC: 10.0,
+      TIME_DECREASE_PER_LEVEL: 0.5,
+      MIN_START_TIME_SEC: 3.0,
+      BASE_PROGRESS_TARGET: 20.0,
+      TARGET_STEP_PER_LEVEL: 6.0,
+      BASE_SHARDS_REWARD: 10.0,
+      SHARDS_REWARD_STEP: 5.0,
+      BASE_STRENGTH_COST: 25.0,
+      BASE_EFFICIENCY_COST: 25.0,
+      COST_GROWTH: 1.22
+    };
+
+    // ==================== GAME STATE ====================
+    let gameState = {
+      isRunning: false,
+      shards: 0,
+      level: 1,
+      progress: 0,
+      timeLeft: 10.0,
+      taps: 0,
+      strengthLevel: 0,
+      efficiencyLevel: 0,
+      lastResult: null,
+      animationFrame: null,
+      lastTimestamp: null
+    };
+
+    // ==================== CALCULATIONS ====================
+    function calculateStartTime(level) {
+      const time = GameTuning.BASE_START_TIME_SEC - (level - 1) * GameTuning.TIME_DECREASE_PER_LEVEL;
+      return Math.max(time, GameTuning.MIN_START_TIME_SEC);
+    }
+
+    function calculateTarget(level) {
+      return GameTuning.BASE_PROGRESS_TARGET + (level - 1) * GameTuning.TARGET_STEP_PER_LEVEL;
+    }
+
+    function calculateReward(level) {
+      return Math.floor(GameTuning.BASE_SHARDS_REWARD + (level - 1) * GameTuning.SHARDS_REWARD_STEP);
+    }
+
+    function calculateUpgradeCost(baseCost, level) {
+      return Math.max(1, Math.floor(baseCost * Math.pow(GameTuning.COST_GROWTH, level)));
+    }
+
+    function calculateProgressPerTap() {
+      return GameTuning.BASE_PROGRESS_PER_TAP + gameState.strengthLevel * GameTuning.STRENGTH_STEP;
+    }
+
+    function calculateTimeCostPerTap() {
+      const cost = GameTuning.BASE_TIME_COST_PER_TAP - gameState.efficiencyLevel * GameTuning.EFFICIENCY_STEP;
+      return Math.max(cost, GameTuning.MIN_TIME_COST_FLOOR);
+    }
+
+    // ==================== PERSISTENCE ====================
+    function loadProgress() {
+      try {
+        const saved = localStorage.getItem('tap_escape_speedrun_progress');
+        if (saved) {
+          const data = JSON.parse(saved);
+          gameState.shards = data.shards || 0;
+          gameState.level = data.level || 1;
+          gameState.strengthLevel = data.strengthLevel || 0;
+          gameState.efficiencyLevel = data.efficiencyLevel || 0;
+        }
+      } catch (e) {
+        console.error('Failed to load progress:', e);
+      }
+    }
+
+    function saveProgress() {
+      if (gameState.isRunning) return;
+      
+      try {
+        localStorage.setItem('tap_escape_speedrun_progress', JSON.stringify({
+          shards: gameState.shards,
+          level: gameState.level,
+          strengthLevel: gameState.strengthLevel,
+          efficiencyLevel: gameState.efficiencyLevel
+        }));
+      } catch (e) {
+        console.error('Failed to save progress:', e);
+      }
+    }
+
+    // ==================== GAME LOOP ====================
+    function gameLoop(timestamp) {
+      if (!gameState.isRunning) {
+        gameState.lastTimestamp = null;
+        return;
+      }
+
+      if (gameState.lastTimestamp === null) {
+        gameState.lastTimestamp = timestamp;
+      }
+
+      const deltaMs = timestamp - gameState.lastTimestamp;
+      const deltaSec = deltaMs / 1000;
+      gameState.lastTimestamp = timestamp;
+
+      gameState.timeLeft = Math.max(0, gameState.timeLeft - deltaSec);
+
+      // Check loss condition
+      if (gameState.timeLeft <= 0 && gameState.progress < calculateTarget(gameState.level)) {
+        endRun(false, 'Time Up');
+        return;
+      }
+
+      updateUI();
+      gameState.animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    function startRun() {
+      if (gameState.isRunning) return;
+
+      gameState.isRunning = true;
+      gameState.progress = 0;
+      gameState.taps = 0;
+      gameState.timeLeft = calculateStartTime(gameState.level);
+      gameState.lastResult = null;
+      gameState.lastTimestamp = null;
+
+      updateUI();
+      gameState.animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    function endRun(won, reason) {
+      gameState.isRunning = false;
+
+      if (gameState.animationFrame) {
+        cancelAnimationFrame(gameState.animationFrame);
+        gameState.animationFrame = null;
+      }
+
+      const reward = won ? calculateReward(gameState.level) : 0;
+
+      if (won) {
+        gameState.shards += reward;
+        gameState.level += 1;
+      }
+
+      gameState.lastResult = {
+        won: won,
+        reason: reason,
+        taps: gameState.taps,
+        shardsEarned: reward
+      };
+
+      saveProgress();
+      updateUI();
+    }
+
+    function stopRun() {
+      if (gameState.isRunning) {
+        endRun(false, 'Stopped');
+      }
+    }
+
+    // ==================== USER ACTIONS ====================
+    function handleTap() {
+      if (!gameState.isRunning) {
+        startRun();
+        return;
+      }
+
+      const progressPerTap = calculateProgressPerTap();
+      const timeCostPerTap = calculateTimeCostPerTap();
+      const target = calculateTarget(gameState.level);
+
+      gameState.progress = Math.min(target, gameState.progress + progressPerTap);
+      gameState.timeLeft = Math.max(0, gameState.timeLeft - timeCostPerTap);
+      gameState.taps += 1;
+
+      // Check win condition
+      if (gameState.progress >= target) {
+        endRun(true, 'Escaped');
+        return;
+      }
+
+      // Check loss condition
+      if (gameState.timeLeft <= 0) {
+        endRun(false, 'Time Up');
+        return;
+      }
+
+      updateUI();
+    }
+
+    function upgradeStrength() {
+      if (gameState.isRunning) return;
+      
+      const cost = calculateUpgradeCost(GameTuning.BASE_STRENGTH_COST, gameState.strengthLevel);
+      if (gameState.shards < cost) return;
+
+      gameState.shards -= cost;
+      gameState.strengthLevel += 1;
+      saveProgress();
+      updateUI();
+    }
+
+    function upgradeEfficiency() {
+      if (gameState.isRunning) return;
+      
+      const cost = calculateUpgradeCost(GameTuning.BASE_EFFICIENCY_COST, gameState.efficiencyLevel);
+      if (gameState.shards < cost) return;
+
+      gameState.shards -= cost;
+      gameState.efficiencyLevel += 1;
+      saveProgress();
+      updateUI();
+    }
+
+    function resetProgress() {
+      gameState = {
+        isRunning: false,
+        shards: 0,
+        level: 1,
+        progress: 0,
+        timeLeft: GameTuning.BASE_START_TIME_SEC,
+        taps: 0,
+        strengthLevel: 0,
+        efficiencyLevel: 0,
+        lastResult: null,
+        animationFrame: null,
+        lastTimestamp: null
+      };
+      saveProgress();
+      updateUI();
+      hideResetConfirm();
+      hideSettingsDialog();
+    }
+
+    // ==================== UI UPDATES ====================
+    function updateUI() {
+      const startTime = calculateStartTime(gameState.level);
+      const target = calculateTarget(gameState.level);
+      const timeRatio = startTime > 0 ? Math.max(0, Math.min(1, gameState.timeLeft / startTime)) : 0;
+      const progRatio = target > 0 ? Math.max(0, Math.min(1, gameState.progress / target)) : 0;
+
+      // Header
+      document.getElementById('levelDisplay').textContent = `LVL ${String(gameState.level).padStart(2, '0')}`;
+      document.getElementById('shardsDisplay').textContent = gameState.shards;
+
+      // Time meter
+      const timeFill = document.getElementById('timeFill');
+      timeFill.style.width = `${timeRatio * 100}%`;
+      timeFill.style.backgroundColor = timeRatio < 0.3 ? '#FF2BD6' : '#00F0FF';
+      document.getElementById('timeValue').textContent = `${gameState.timeLeft.toFixed(2)}s`;
+
+      // Progress meter
+      document.getElementById('progressFill').style.width = `${progRatio * 100}%`;
+      document.getElementById('progressValue').textContent = 
+        `${Math.floor(gameState.progress)} / ${Math.floor(target)}`;
+
+      // Result panel
+      const resultPanel = document.getElementById('resultPanel');
+      if (gameState.lastResult && !gameState.isRunning) {
+        resultPanel.classList.remove('hidden');
+        resultPanel.style.borderColor = gameState.lastResult.won ? '#00F0FF' : '#FF2BD6';
+        
+        document.getElementById('resultTitle').textContent = 
+          gameState.lastResult.won ? '✓ ESCAPED' : `✗ ${gameState.lastResult.reason.toUpperCase()}`;
+        document.getElementById('resultTitle').style.color = 
+          gameState.lastResult.won ? '#00F0FF' : '#FF2BD6';
+        
+        let details = `${gameState.lastResult.taps} taps`;
+        if (gameState.lastResult.shardsEarned > 0) {
+          details += ` • +${gameState.lastResult.shardsEarned} shards`;
+        }
+        document.getElementById('resultDetails').textContent = details;
+      } else {
+        resultPanel.classList.add('hidden');
+      }
+
+      // Tap button
+      const tapButton = document.getElementById('tapButton');
+      tapButton.textContent = gameState.isRunning ? 'TAP' : 'READY';
+      tapButton.style.borderColor = gameState.isRunning ? '#00F0FF' : '#9AA0B4';
+      tapButton.style.boxShadow = gameState.isRunning ? '0 0 40px rgba(0, 240, 255, 0.25)' : 'none';
+
+      // Upgrades
+      const strengthCost = calculateUpgradeCost(GameTuning.BASE_STRENGTH_COST, gameState.strengthLevel);
+      const efficiencyCost = calculateUpgradeCost(GameTuning.BASE_EFFICIENCY_COST, gameState.efficiencyLevel);
+
+      document.getElementById('strengthLevel').textContent = `LVL ${gameState.strengthLevel}`;
+      document.getElementById('strengthCost').textContent = strengthCost;
+      
+      const strengthButton = document.getElementById('strengthButton');
+      const canAffordStrength = gameState.shards >= strengthCost && !gameState.isRunning;
+      strengthButton.disabled = !canAffordStrength;
+      strengthButton.style.borderColor = canAffordStrength ? '#00F0FF' : '#1F1F33';
+      strengthButton.style.color = canAffordStrength ? '#00F0FF' : '#9AA0B4';
+      
+      document.getElementById('strengthInsufficient').classList.toggle('hidden', 
+        gameState.isRunning || gameState.shards >= strengthCost);
+
+      document.getElementById('efficiencyLevel').textContent = `LVL ${gameState.efficiencyLevel}`;
+      document.getElementById('efficiencyCost').textContent = efficiencyCost;
+      
+      const efficiencyButton = document.getElementById('efficiencyButton');
+      const canAffordEfficiency = gameState.shards >= efficiencyCost && !gameState.isRunning;
+      efficiencyButton.disabled = !canAffordEfficiency;
+      efficiencyButton.style.borderColor = canAffordEfficiency ? '#FF2BD6' : '#1F1F33';
+      efficiencyButton.style.color = canAffordEfficiency ? '#FF2BD6' : '#9AA0B4';
+      
+      document.getElementById('efficiencyInsufficient').classList.toggle('hidden', 
+        gameState.isRunning || gameState.shards >= efficiencyCost);
+
+      // Footer
+      document.getElementById('statusText').textContent = gameState.isRunning ? 'RUN ACTIVE' : 'IDLE';
+      document.getElementById('statusText').style.color = gameState.isRunning ? '#FF2BD6' : '#9AA0B4';
+      document.getElementById('stopButton').disabled = !gameState.isRunning;
+    }
+
+    // ==================== MODALS ====================
+    function showSettingsDialog() {
+      document.getElementById('settingsModal').classList.remove('hidden');
+    }
+
+    function hideSettingsDialog() {
+      document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    function showResetConfirm() {
+      document.getElementById('resetModal').classList.remove('hidden');
+    }
+
+    function hideResetConfirm() {
+      document.getElementById('resetModal').classList.add('hidden');
+    }
+
+    function showAboutDialog() {
+      document.getElementById('aboutModal').classList.remove('hidden');
+    }
+
+    function hideAboutDialog() {
+      document.getElementById('aboutModal').classList.add('hidden');
+    }
+
+    // ==================== KEYBOARD INPUT ====================
+    window.addEventListener('keydown', (event) => {
+      // Prevent default for spacebar to avoid page scroll
+      if (event.code === 'Space') {
+        event.preventDefault();
+      }
+      
+      // Don't handle keys when modals are open
+      if (!document.getElementById('settingsModal').classList.contains('hidden') ||
+          !document.getElementById('resetModal').classList.contains('hidden') ||
+          !document.getElementById('aboutModal').classList.contains('hidden')) {
+        return;
+      }
+      
+      // Trigger tap on any key press
+      handleTap();
+      
+      // Visual feedback on tap button
+      const tapButton = document.getElementById('tapButton');
+      tapButton.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        tapButton.style.transform = 'scale(1)';
+      }, 100);
+    });
+
+    // ==================== INITIALIZATION ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      updateUI();
+    });
+  </script>
+</body>
+</html>

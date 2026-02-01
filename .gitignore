@@ -17,3 +17,14 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# ReelLoop source sheets / local art boards
+Fish and Vistas levels 1 2.png
+*.psd
+*.kra
+*.ase
+*.aseprite
+
+# Local tooling outputs (keep scripts, ignore generated zips)
+tools/**/*.zip
+tools/**/export/
