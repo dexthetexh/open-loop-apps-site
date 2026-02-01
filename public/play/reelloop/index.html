@@ -5,29 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="manifest" href="./manifest.json" />
 
-  <title>ReelLoop | v2.2.9 Hi-Fi</title>
-  
+  <title>ReelLoop | v2.3.0 Ice Tundra</title>
+
   <style>
     /* === CORE VARIABLES === */
-    :root { 
+    :root {
       --accent: #2aa7ff;
       --bg-dark: #0b1a2e;
-      --bg-darker: #06101d; 
-      --text: #e8f1ff; 
+      --bg-darker: #06101d;
+      --text: #e8f1ff;
       --sunrise: #f2c14e;
       --danger: #ff5a5f;
       --bobber-color: #ff6b6b;
+
+      /* Ice */
+      --ice-1: #e0f2fe;
+      --ice-2: #bae6fd;
+      --ice-3: #38bdf8;
+      --ice-hole: #082f49;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none; transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%); 
-      color: var(--text); min-height: 100vh; overflow: hidden; position: relative; 
-      transition: background 1s ease;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      touch-action: none;
+      transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      transition: background 0.8s ease;
+    }
+
     body.tense { background: linear-gradient(180deg, #1a0f12 0%, #2a1010 100%); }
 
     /* === ATMOSPHERE === */
@@ -43,42 +60,123 @@
     @keyframes vignette-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
     /* === LAYOUT === */
-    .container { max-width: 600px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 20px; position: relative; z-index: 10; }
+    .container { max-width: 680px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 18px; position: relative; z-index: 10; }
     header { text-align: center; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 12px; }
     h1 { font-size: 1.8rem; color: var(--accent); text-shadow: 0 0 18px rgba(42, 167, 255, 0.65); letter-spacing: 0.5px; margin-right: auto; }
-    
-    .icon-btn { 
-      font-size: 1.2rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
-      color: rgba(255,255,255,0.9); border-radius: 8px; padding: 6px 12px; cursor: pointer; 
+
+    .icon-btn {
+      font-size: 1.2rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.9);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
     }
     .icon-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
 
+    /* === VISTA PANEL === */
+    .vista-panel {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      backdrop-filter: blur(5px);
+    }
+    .vista-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .vista-badge {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(42,167,255,0.12);
+      white-space: nowrap;
+    }
+    .vista-select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .vista-banner {
+      width: 100%;
+      height: 72px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      position: relative;
+    }
+    .vista-banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.95;
+      transform: scale(1.02);
+    }
+    .vista-banner .label {
+      position: absolute;
+      left: 10px;
+      bottom: 8px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
     /* === STATS === */
-    .stats { display: flex; justify-content: space-around; gap: 8px; margin-bottom: 10px; }
-    .stat-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 8px 4px; flex: 1; text-align: center; backdrop-filter: blur(4px); }
-    .stat-label { font-size: 0.7rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-    .stat-value { font-size: 1.2rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+    .stats { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 8px 6px;
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .stat-label { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .stat-value { font-size: 1.15rem; font-weight: 850; color: #fff; font-variant-numeric: tabular-nums; }
     .stat-value.accent { color: var(--accent); }
 
     .game-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-    
+
     /* === GAME ELEMENTS === */
-    .bobber { 
-      width: 44px; height: 44px; 
-      background: radial-gradient(circle at 30% 30%, #fff, var(--bobber-color)); 
-      border-radius: 50%; margin-top: 100px; 
-      box-shadow: 0 0 20px var(--bobber-color); 
-      animation: float 3s ease-in-out infinite; z-index: 2; 
+    .bobber {
+      width: 44px; height: 44px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--bobber-color));
+      border-radius: 50%; margin-top: 100px;
+      box-shadow: 0 0 20px var(--bobber-color);
+      animation: float 3s ease-in-out infinite; z-index: 2;
     }
     .bobber.nibbling { animation: nibble 0.1s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     @keyframes nibble { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(4px) rotate(-5deg); } 75% { transform: translateY(-4px) rotate(5deg); } }
 
-    .strike-button { 
-      background: linear-gradient(135deg, var(--sunrise), #ff9f1c); 
-      color: #15223a; border: none; border-radius: 50%; width: 150px; height: 150px; 
-      font-size: 1.6rem; font-weight: 900; cursor: pointer; 
-      box-shadow: 0 0 40px rgba(242, 193, 78, 0.4); 
+    .strike-button {
+      background: linear-gradient(135deg, var(--sunrise), #ff9f1c);
+      color: #15223a; border: none; border-radius: 50%;
+      width: 150px; height: 150px;
+      font-size: 1.6rem; font-weight: 900; cursor: pointer;
+      box-shadow: 0 0 40px rgba(242, 193, 78, 0.4);
       animation: breathe 2s ease-in-out infinite;
     }
     .strike-button:active { transform: scale(0.92); animation: none; }
@@ -96,21 +194,23 @@
     .gauge-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: flex; justify-content: space-between; opacity: 0.8; }
     .gauge-bar { height: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
     .gauge-fill { height: 100%; width: 0%; transition: width 0.05s linear; }
-    
     #tensionFill { background: linear-gradient(90deg, #4ade80, #facc15, #ef4444); }
     .gauge-fill.danger { animation: tension-pulse 0.2s infinite; filter: brightness(1.3); }
     @keyframes tension-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    
     #progressFill { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
     .sweet-spot { position: absolute; left: 60%; width: 20%; height: 100%; background: rgba(255,255,255,0.05); border-left: 1px dashed rgba(255,255,255,0.3); border-right: 1px dashed rgba(255,255,255,0.3); }
 
     /* === TAP AREA === */
-    .tap-area { 
-      width: 100%; max-width: 380px; height: 240px; 
-      background: rgba(255, 255, 255, 0.03); 
-      border: 2px dashed rgba(255, 255, 255, 0.2); 
-      border-radius: 24px; display: flex; justify-content: center; align-items: center; 
-      font-size: 1.4rem; font-weight: 700; cursor: pointer; position: relative; overflow: hidden; 
+    .tap-area {
+      width: 100%; max-width: 380px; height: 240px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 1.4rem; font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
       animation: border-pulse 3s infinite;
     }
     .tap-area:active { background: rgba(42, 167, 255, 0.1); transform: scale(0.98); border-color: var(--accent); border-style: solid; }
@@ -124,7 +224,7 @@
     .reel-handle { width: 30px; height: 30px; background: var(--accent); border-radius: 50%; position: absolute; top: -15px; box-shadow: 0 0 15px var(--accent); }
     .rotate-anim { animation: spin-handle 2s linear infinite; }
     @keyframes spin-handle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    
+
     .tutorial-finger { position: absolute; font-size: 4rem; animation: finger-circle 2s infinite linear; z-index: 30; filter: drop-shadow(0 0 10px black); opacity: 0.8; }
     @keyframes finger-circle { from { transform: rotate(0deg) translate(70px) rotate(0deg); } to { transform: rotate(360deg) translate(70px) rotate(-360deg); } }
 
@@ -138,12 +238,12 @@
     .overlay { position: fixed; inset: 0; background: rgba(6, 16, 29, 0.95); z-index: 1000; display: none; padding: 20px; overflow-y: auto; backdrop-filter: blur(10px); }
     .overlay.active { display: block; animation: fade-in 0.3s ease; }
     @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    
+
     .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding-bottom: 40px; }
     .fish-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; text-align: center; }
     .fish-card.locked { opacity: 0.4; filter: grayscale(1); }
     .fish-card img { width: 64px; height: 64px; margin-bottom: 10px; }
-    
+
     .bobber-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 12px; }
     .bobber-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
     .bobber-opt.selected { border-color: #fff; box-shadow: 0 0 10px #fff; transform: scale(1.2); }
@@ -152,15 +252,72 @@
     .btn.disabled { opacity: 0; pointer-events: none; }
     .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; }
     .hidden { display: none !important; }
+
+    /* === ICE FISHING (DRILL) === */
+    .ice-surface {
+      width: 100%;
+      max-width: 380px;
+      height: 140px;
+      background: linear-gradient(135deg, var(--ice-1) 0%, var(--ice-2) 100%);
+      border: 3px solid var(--ice-3);
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.28);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .ice-hole {
+      position: absolute;
+      width: 64px; height: 64px;
+      background: radial-gradient(circle, #0c4a6e, var(--ice-hole));
+      border-radius: 50%;
+      border: 4px solid #0ea5e9;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+      animation: ripple-hole 2s infinite;
+    }
+    @keyframes ripple-hole {
+      0%, 100% { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 0 0 rgba(14,165,233,0.7); }
+      50% { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 0 16px rgba(14,165,233,0); }
+    }
+    .drill-animation {
+      position: absolute;
+      font-size: 3rem;
+      animation: drill-spin 0.3s linear;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
+    }
+    @keyframes drill-spin {
+      from { transform: translate(-50%, -50%) rotate(0deg) scale(0.55); opacity: 0; }
+      to { transform: translate(-50%, -50%) rotate(720deg) scale(1.35); opacity: 0; }
+    }
+
+    .near-miss {
+      animation: wobble 0.45s ease-in-out 2;
+      transform-origin: center;
+    }
+    @keyframes wobble {
+      0% { transform: translateX(0) rotate(0deg); }
+      25% { transform: translateX(-6px) rotate(-2deg); }
+      50% { transform: translateX(6px) rotate(2deg); }
+      75% { transform: translateX(-4px) rotate(-1deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @media (max-width: 420px) {
+      .container { padding: 14px; }
+      .stat-box { min-width: 105px; }
+    }
   </style>
 </head>
 
 <body>
   <div class="danger-vignette" id="dangerVignette"></div>
   <div class="waves">
-    <div class="wave-layer-1"></div>
-    <div class="wave-layer-2"></div>
-    <div class="wave-layer-3"></div>
+    <div class="wave wave-layer-1"></div>
+    <div class="wave wave-layer-2"></div>
+    <div class="wave wave-layer-3"></div>
   </div>
 
   <div class="container">
@@ -170,16 +327,51 @@
       <button class="icon-btn" id="btnSound">🔊</button>
     </header>
 
+    <!-- Vista + Unlock -->
+    <div class="vista-panel">
+      <div class="vista-top">
+        <div class="vista-badge" id="vistaBadge">☀️ Sunny Lake</div>
+        <select id="vistaSelector" class="vista-select" aria-label="Select Vista">
+          <option value="sunny_lake">☀️ Sunny Lake</option>
+          <option value="frozen_tundra" id="frozenTundraOption" disabled>❄️ Ice Tundra (Lvl 25 • 500🪙)</option>
+        </select>
+      </div>
+      <div class="vista-banner" title="Vista Assets Reference (static image)">
+        <!-- Place your uploaded image at: public/play/reelloop/assets/vistas.png -->
+        <img src="./assets/vistas.png" alt="Vista Assets" />
+        <div class="label" id="vistaBannerLabel">Sunny Lake</div>
+      </div>
+    </div>
+
     <div class="stats">
-      <div class="stat-box"><div class="stat-label">Caught</div><div class="stat-value accent" id="totalCaught">0</div></div>
+      <div class="stat-box"><div class="stat-label">Level</div><div class="stat-value accent" id="playerLevel">1</div></div>
+      <div class="stat-box"><div class="stat-label">Coins</div><div class="stat-value" id="playerCoins">0</div></div>
+      <div class="stat-box"><div class="stat-label">Caught</div><div class="stat-value" id="totalCaught">0</div></div>
       <div class="stat-box"><div class="stat-label">Discovered</div><div class="stat-value" id="uniqueFish">0/5</div></div>
       <div class="stat-box"><div class="stat-label">Vista</div><div class="stat-value" id="vistaName">Sunny Lake</div></div>
     </div>
-    
+
     <div class="game-area">
       <div id="waitingState">
-        <div class="bobber" id="bobber"></div>
-        <p style="text-align: center; margin-top: 30px; opacity: 0.6;">Waiting for bite...</p>
+        <!-- ICE MODE (hidden unless vista.mechanic === 'drill') -->
+        <div id="iceDrillMode" class="hidden">
+          <div class="ice-surface" id="iceSurface">
+            <div id="iceHole" class="ice-hole hidden"></div>
+          </div>
+          <p style="text-align: center; opacity: 0.72;">Tap ice to drill a hole (5 catches per hole)</p>
+          <p style="text-align: center; font-size: 0.9rem; margin-top: 8px; opacity: 0.85;">
+            Hole Uses: <span id="holeUseCount">0</span>/5
+          </p>
+          <p style="text-align: center; font-size: 0.85rem; margin-top: 6px; opacity: 0.65;" id="iceHint">
+            Drill to start fishing.
+          </p>
+        </div>
+
+        <!-- STANDARD MODE -->
+        <div id="bobberMode">
+          <div class="bobber" id="bobber"></div>
+          <p style="text-align: center; margin-top: 30px; opacity: 0.6;">Waiting for bite...</p>
+        </div>
       </div>
 
       <div id="strikeState" class="hidden">
@@ -214,20 +406,21 @@
           <div style="font-size: 5rem;" id="successFishIcon">🐟</div>
           <h2 style="font-size: 2rem; margin: 10px 0;" id="caughtFishName"></h2>
           <div style="color: var(--sunrise); font-weight: 800; letter-spacing: 1px;" id="newDiscovery"></div>
+          <div style="margin-top: 10px; opacity: 0.75; font-weight: 700;" id="rewardLine"></div>
         </div>
         <button class="btn disabled" id="castAgainButton">Cast Again</button>
       </div>
-      
+
       <div id="failState" class="hidden">
         <div style="text-align: center; padding: 20px;">
           <div style="font-size: 4rem; margin-bottom: 10px;">💔</div>
-          <h2 style="color: var(--danger);">Line Snapped</h2>
-          <p style="opacity: 0.7;">Too much tension!</p>
+          <h2 style="color: var(--danger);" id="failTitle">Line Snapped</h2>
+          <p style="opacity: 0.7;" id="failBody">Too much tension!</p>
         </div>
         <button class="btn" id="tryAgainButton">Try Again</button>
       </div>
     </div>
-    
+
     <div style="text-align: center; margin-top: auto;">
       <button class="btn btn-secondary" id="collectionButton">🏆 Trophy Room</button>
     </div>
@@ -238,35 +431,93 @@
       <h2 style="font-size: 1.5rem;">🏆 Trophy Room</h2>
       <button class="btn-secondary" style="padding: 8px 16px; margin: 0;" id="closeCollection">Done</button>
     </div>
-    
+
     <div style="margin-bottom: 20px;">
       <div style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">Bobber Color</div>
       <div class="bobber-selector" id="bobberSelector"></div>
     </div>
 
+    <div style="margin-bottom: 14px; opacity: 0.85; font-weight: 800;" id="collectionSubhead">All Fish</div>
     <div class="collection-grid" id="collectionGrid"></div>
   </div>
 
   <script>
-    // === CONFIG & ART ===
-    const FISH_DICTIONARY = [
+    /* =========================
+       DATA: Fish + Vistas
+       ========================= */
+
+    const BASE_FISH = [
       { id: "fish_bluegill", name: "Bluegill", color: "#60a5fa", vibration: [30, 40], requiredTaps: 12, rarity: "Common", icon: "🐟", reelType: "tap" },
       { id: "fish_perch", name: "Yellow Perch", color: "#facc15", vibration: [40, 30], requiredTaps: 16, rarity: "Common", icon: "🐠", reelType: "tap" },
       { id: "fish_trout", name: "Rainbow Trout", color: "#4ade80", vibration: [60, 40], requiredTaps: 28, rarity: "Uncommon", icon: "🐟", reelType: "hold" },
       { id: "fish_bass", name: "Largemouth Bass", color: "#22c55e", vibration: [80, 40], requiredTaps: 45, rarity: "Rare", icon: "🐟", reelType: "rotate" },
-      { id: "fish_muskie", name: "Muskie", color: "#a855f7", vibration: [120, 60, 120], requiredTaps: 85, rarity: "Legendary", icon: "🦈", reelType: "rotate" }
+      { id: "fish_muskie", name: "Muskie", color: "#a855f7", vibration: [120, 60, 120], requiredTaps: 85, rarity: "Legendary", icon: "🦈", reelType: "rotate", isJackpot: true }
+    ];
+
+    // Ice fish per spec 
+    const ICE_FISH = [
+      { id: "ice_minnow",  name: "Ice Minnow",  color: "#67e8f9", vibration: [20, 30], requiredTaps: 8,   rarity: "Common",   icon: "🐟", reelType: "tap",    vista: "frozen_tundra", coin: 10 },
+      { id: "frost_perch", name: "Frost Perch", color: "#7dd3fc", vibration: [40, 35], requiredTaps: 18,  rarity: "Common",   icon: "🐠", reelType: "tap",    vista: "frozen_tundra", coin: 35 },
+      { id: "glacier_bass",name: "Glacier Bass",color: "#38bdf8", vibration: [60, 45], requiredTaps: 32,  rarity: "Uncommon", icon: "🐟", reelType: "hold",   vista: "frozen_tundra", coin: 80 },
+      { id: "arctic_pike", name: "Arctic Pike", color: "#0ea5e9", vibration: [90, 50], requiredTaps: 55,  rarity: "Rare",     icon: "🐟", reelType: "rotate", vista: "frozen_tundra", coin: 200, nearMissChance: 0.30 },
+      { id: "frost_wyrm",  name: "Frost Wyrm",  color: "#0284c7", vibration: [150,80,150], requiredTaps: 100, rarity: "Legendary", icon: "🐉", reelType: "rotate", vista: "frozen_tundra", coin: 800, isJackpot: true }
+    ];
+
+    const FISH_DICTIONARY = [...BASE_FISH, ...ICE_FISH];
+
+    const VISTAS = [
+      {
+        id: "sunny_lake",
+        name: "Sunny Lake",
+        emoji: "☀️",
+        unlocked: true,
+        bgGradient: "linear-gradient(180deg, #0b1a2e 0%, #06101d 100%)",
+        fishPool: ["fish_bluegill", "fish_perch", "fish_trout", "fish_bass", "fish_muskie"],
+        mechanic: "bobber"
+      },
+      {
+        id: "frozen_tundra",
+        name: "Ice Tundra",
+        emoji: "❄️",
+        unlocked: false,
+        unlockLevel: 25,
+        unlockCost: 500,
+        bgGradient: "linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%)",
+        fishPool: ["ice_minnow", "frost_perch", "glacier_bass", "arctic_pike", "frost_wyrm"],
+        mechanic: "drill"
+      }
     ];
 
     const BOBBER_COLORS = ['#ff6b6b', '#51cf66', '#339af0', '#fcc419', '#cc5de8'];
 
-    // --- HI-FIDELITY SVG GENERATION (Restored from v2.2.4) ---
+    /* =========================
+       HI-FI SVG ART (extended)
+       ========================= */
+
     function fishSvg(species, body, accent) {
       switch (species) {
-        case "bluegill": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M20 64c0-18 20-32 44-32s44 14 44 32-20 32-44 32S20 82 20 64z" fill="url(#g)"/><path d="M90 64l26-18v36L90 64z" fill="${accent}" opacity="0.9"/><circle cx="52" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "perch": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 66c0-16 22-30 46-30s46 14 46 30-22 30-46 30S18 82 18 66z" fill="url(#g)"/><path d="M90 66l26-16v32L90 66z" fill="${accent}" opacity="0.95"/><path d="M42 44v44" stroke="rgba(0,0,0,0.18)" stroke-width="5"/><path d="M54 42v48" stroke="rgba(0,0,0,0.14)" stroke-width="5"/><circle cx="52" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "trout": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M16 64c0-14 26-26 52-26s44 12 44 26-18 26-44 26S16 78 16 64z" fill="url(#g)"/><path d="M90 64l24-14v28L90 64z" fill="${accent}" opacity="0.9"/><path d="M36 64c14 8 30 12 48 12" stroke="rgba(255,255,255,0.22)" stroke-width="3"/><circle cx="48" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "bass": return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-18 22-32 48-32s44 14 44 32-18 32-44 32S18 82 18 64z" fill="url(#g)"/><path d="M92 64l24-18v36L92 64z" fill="${accent}" opacity="0.95"/><path d="M44 72c18 10 40 10 58 0" stroke="rgba(255,255,255,0.18)" stroke-width="3"/><circle cx="50" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "muskie": default: return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M14 64c0-14 30-26 56-26s44 12 44 26-18 26-44 26S14 78 14 64z" fill="url(#g)"/><path d="M92 64l24-14v28L92 64z" fill="${accent}" opacity="0.95"/><circle cx="46" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "bluegill":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M20 64c0-18 20-32 44-32s44 14 44 32-20 32-44 32S20 82 20 64z" fill="url(#g)"/><path d="M90 64l26-18v36L90 64z" fill="${accent}" opacity="0.9"/><circle cx="52" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "perch":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 66c0-16 22-30 46-30s46 14 46 30-22 30-46 30S18 82 18 66z" fill="url(#g)"/><path d="M90 66l26-16v32L90 66z" fill="${accent}" opacity="0.95"/><path d="M42 44v44" stroke="rgba(0,0,0,0.18)" stroke-width="5"/><path d="M54 42v48" stroke="rgba(0,0,0,0.14)" stroke-width="5"/><circle cx="52" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "trout":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M16 64c0-14 26-26 52-26s44 12 44 26-18 26-44 26S16 78 16 64z" fill="url(#g)"/><path d="M90 64l24-14v28L90 64z" fill="${accent}" opacity="0.9"/><path d="M36 64c14 8 30 12 48 12" stroke="rgba(255,255,255,0.22)" stroke-width="3"/><circle cx="48" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "bass":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-18 22-32 48-32s44 14 44 32-18 32-44 32S18 82 18 64z" fill="url(#g)"/><path d="M92 64l24-18v36L92 64z" fill="${accent}" opacity="0.95"/><path d="M44 72c18 10 40 10 58 0" stroke="rgba(255,255,255,0.18)" stroke-width="3"/><circle cx="50" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "muskie":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M14 64c0-14 30-26 56-26s44 12 44 26-18 26-44 26S14 78 14 64z" fill="url(#g)"/><path d="M92 64l24-14v28L92 64z" fill="${accent}" opacity="0.95"/><circle cx="46" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
+        case "ice_minnow":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-12 24-22 48-22s44 10 44 22-20 22-44 22S18 76 18 64z" fill="url(#g)"/><path d="M92 64l22-12v24L92 64z" fill="${accent}" opacity="0.95"/><path d="M30 64c18 6 38 6 58 0" stroke="rgba(255,255,255,0.22)" stroke-width="3"/><circle cx="48" cy="60" r="4" fill="#06101d" opacity="0.85"/></svg>`;
+        case "frost_perch":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 66c0-15 22-28 46-28s46 13 46 28-22 28-46 28S18 81 18 66z" fill="url(#g)"/><path d="M90 66l26-16v32L90 66z" fill="${accent}" opacity="0.95"/><path d="M42 46v40" stroke="rgba(255,255,255,0.18)" stroke-width="5"/><circle cx="52" cy="60" r="4" fill="#06101d" opacity="0.85"/></svg>`;
+        case "glacier_bass":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-18 22-32 48-32s44 14 44 32-18 32-44 32S18 82 18 64z" fill="url(#g)"/><path d="M92 64l24-18v36L92 64z" fill="${accent}" opacity="0.95"/><path d="M36 64c18 10 42 10 62 0" stroke="rgba(255,255,255,0.16)" stroke-width="3"/><circle cx="50" cy="58" r="4" fill="#06101d" opacity="0.85"/></svg>`;
+        case "arctic_pike":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M12 64c0-12 34-22 60-22s44 10 44 22-18 22-44 22S12 76 12 64z" fill="url(#g)"/><path d="M92 64l26-14v28L92 64z" fill="${accent}" opacity="0.95"/><path d="M30 58h56" stroke="rgba(255,255,255,0.18)" stroke-width="3"/><path d="M30 70h52" stroke="rgba(255,255,255,0.12)" stroke-width="3"/><circle cx="46" cy="58" r="4" fill="#06101d" opacity="0.85"/></svg>`;
+        case "frost_wyrm":
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M16 80c10-26 24-40 46-44 22-4 40 8 50 30-10 14-24 22-42 24-18 2-34-2-54-10z" fill="url(#g)"/><path d="M28 70c10 10 22 16 36 18" stroke="rgba(255,255,255,0.22)" stroke-width="3" fill="none"/><path d="M70 44l18 8-6 18-18-8z" fill="${accent}" opacity="0.9"/><circle cx="58" cy="56" r="4" fill="#06101d" opacity="0.85"/></svg>`;
+        default:
+          return fishSvg("muskie", body, accent);
       }
     }
 
@@ -276,103 +527,273 @@
         fish_perch:    { s: "perch",    a: "#ffda6b" },
         fish_trout:    { s: "trout",    a: "#c7ffd7" },
         fish_bass:     { s: "bass",     a: "#b0f2c2" },
-        fish_muskie:   { s: "muskie",   a: "#d2d8df" }
+        fish_muskie:   { s: "muskie",   a: "#d2d8df" },
+
+        ice_minnow:    { s: "ice_minnow",    a: "#e0f2fe" },
+        frost_perch:   { s: "frost_perch",   a: "#dbeafe" },
+        glacier_bass:  { s: "glacier_bass",  a: "#bae6fd" },
+        arctic_pike:   { s: "arctic_pike",   a: "#a5f3fc" },
+        frost_wyrm:    { s: "frost_wyrm",    a: "#93c5fd" }
       };
+
       const entry = map[fish.id] || { s: "muskie", a: "#d2d8df" };
       const svg = fishSvg(entry.s, fish.color, entry.a);
       return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
     }
 
-    // === STATE ===
-    let gameState='waiting', currentFish=null, reelingProgress=0, tension=0, isHolding=false;
-    let holdInterval=null, reelInterval=null, tapCombo=0, comboTimeout=null;
-    let lastAngle=null, totalRotation=0;
-    
+    /* =========================
+       STATE
+       ========================= */
+
+    let gameState = 'waiting';
+    let currentFish = null;
+    let reelingProgress = 0;
+    let tension = 0;
+    let isHolding = false;
+    let holdInterval = null;
+    let reelInterval = null;
+    let tapCombo = 0;
+    let comboTimeout = null;
+    let lastAngle = null;
+    let totalRotation = 0;
+
+    // Progression
+    let playerLevel = 1;
+    let playerCoins = 0;
+
+    // Ice hole
+    let iceHoleUses = 0;
+    const MAX_HOLE_USES = 5;
+
+    // Vista
+    let currentVista = VISTAS[0];
+
+    // Collection
     let caughtFish = JSON.parse(localStorage.getItem('reelLoopCaughtFish') || '[]');
-    let soundEnabled = true, audioCtx = null;
+
+    // Audio
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    // Cosmetics
     let currentBobberColor = localStorage.getItem('reelLoopBobberColor') || BOBBER_COLORS[0];
 
-    // === DOM ===
-    const getEl = (id) => document.getElementById(id);
-    const states = { waiting: getEl('waitingState'), strike: getEl('strikeState'), reel: getEl('reelState'), success: getEl('successState'), fail: getEl('failState') };
-    const bobber=getEl('bobber'), tapArea=getEl('tapArea');
-    const pFill = getEl('progressFill'), tFill = getEl('tensionFill');
+    /* =========================
+       DOM
+       ========================= */
 
-    // === AUDIO & HAPTICS ===
+    const getEl = (id) => document.getElementById(id);
+    const states = {
+      waiting: getEl('waitingState'),
+      strike: getEl('strikeState'),
+      reel: getEl('reelState'),
+      success: getEl('successState'),
+      fail: getEl('failState')
+    };
+
+    const bobber = getEl('bobber');
+    const tapArea = getEl('tapArea');
+    const pFill = getEl('progressFill');
+    const tFill = getEl('tensionFill');
+
+    /* =========================
+       AUDIO
+       ========================= */
+
     function ensureAudio() {
-      if(!audioCtx && soundEnabled) {
-        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+      if (!audioCtx && soundEnabled) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
       }
-      if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     }
-    
-    function playTone(freq, type='sine') {
-      if(!audioCtx) return;
+
+    function playTone(freq, type = 'sine', pitchMul = 1.0) {
+      if (!audioCtx) return;
       const o = audioCtx.createOscillator();
       const g = audioCtx.createGain();
       o.connect(g); g.connect(audioCtx.destination);
       o.type = type;
-      o.frequency.value = freq;
-      g.gain.value = 0.1; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-      o.start(); o.stop(audioCtx.currentTime + 0.1);
+      o.frequency.value = freq * pitchMul;
+      g.gain.value = 0.10;
+      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.10);
+      o.start();
+      o.stop(audioCtx.currentTime + 0.12);
     }
 
-    // === GAME LOGIC ===
-    function applyBobberColor() { document.documentElement.style.setProperty('--bobber-color', currentBobberColor); }
+    /* =========================
+       PROGRESSION
+       ========================= */
+
+    function gainXP(amount) {
+      // Simple, stable: each level costs level*10 taps-worth.
+      const xpNeeded = playerLevel * 10;
+      const gainedLevels = Math.floor(amount / xpNeeded);
+      if (gainedLevels > 0) playerLevel += gainedLevels;
+      localStorage.setItem('reelLoopLevel', String(playerLevel));
+      updateVistaUnlockUI();
+      updateStats();
+    }
+
+    function gainCoins(amount) {
+      playerCoins += amount;
+      localStorage.setItem('reelLoopCoins', String(playerCoins));
+      updateStats();
+    }
+
+    function spendCoins(amount) {
+      if (playerCoins < amount) return false;
+      playerCoins -= amount;
+      localStorage.setItem('reelLoopCoins', String(playerCoins));
+      updateStats();
+      return true;
+    }
+
+    /* =========================
+       GAME LOGIC
+       ========================= */
+
+    function applyBobberColor() {
+      document.documentElement.style.setProperty('--bobber-color', currentBobberColor);
+    }
+
+    function setBackgroundForVista() {
+      document.body.style.background = currentVista.bgGradient;
+      getEl('vistaName').innerText = currentVista.name;
+      getEl('vistaBadge').innerText = `${currentVista.emoji} ${currentVista.name}`;
+      getEl('vistaBannerLabel').innerText = currentVista.name;
+    }
+
+    function getVistaFishList() {
+      const ids = new Set(currentVista.fishPool);
+      return FISH_DICTIONARY.filter(f => ids.has(f.id));
+    }
+
+    function pickFishWeighted(vistaFish) {
+      // Common: heavy, Uncommon: mid, Rare: light, Legendary: minimal
+      const weights = vistaFish.map(f => {
+        if (f.rarity === 'Common') return 40;
+        if (f.rarity === 'Uncommon') return 25;
+        if (f.rarity === 'Rare') return 15;
+        return 5;
+      });
+
+      const total = weights.reduce((a,b) => a + b, 0);
+      let r = Math.random() * total;
+      for (let i = 0; i < vistaFish.length; i++) {
+        r -= weights[i];
+        if (r <= 0) return vistaFish[i];
+      }
+      return vistaFish[vistaFish.length - 1];
+    }
+
+    function resetDanger() {
+      bobber.classList.remove('nibbling');
+      document.body.classList.remove('tense');
+      getEl('dangerVignette').classList.remove('active');
+      tFill.classList.remove('danger');
+      getEl('failTitle').innerText = 'Line Snapped';
+      getEl('failBody').innerText = 'Too much tension!';
+      tapArea.classList.remove('near-miss');
+    }
 
     function startWaiting() {
       setState('waiting');
-      bobber.classList.remove('nibbling');
-      document.body.className = '';
-      getEl('dangerVignette').classList.remove('active');
+      resetDanger();
       applyBobberColor();
-      setTimeout(() => { if(gameState==='waiting') startNibbling(); }, 2000 + Math.random()*3000);
+
+      const isIce = currentVista.mechanic === 'drill';
+
+      // Toggle waiting UI
+      getEl('iceDrillMode').classList.toggle('hidden', !isIce);
+      getEl('bobberMode').classList.toggle('hidden', isIce);
+
+      if (isIce) {
+        // If no hole or exhausted, do not start bite timer.
+        const hole = getEl('iceHole');
+        const holeVisible = !hole.classList.contains('hidden');
+        const holeUsable = iceHoleUses < MAX_HOLE_USES;
+
+        getEl('holeUseCount').innerText = String(iceHoleUses);
+        getEl('iceHint').innerText = holeVisible
+          ? (holeUsable ? 'Waiting for bite...' : 'Hole exhausted. Drill again.')
+          : 'Drill to start fishing.';
+
+        if (holeVisible && holeUsable) {
+          setTimeout(() => { if (gameState === 'waiting') startNibbling(); }, 2000 + Math.random() * 3000);
+        }
+      } else {
+        setTimeout(() => { if (gameState === 'waiting') startNibbling(); }, 2000 + Math.random() * 3000);
+      }
     }
 
     function startNibbling() {
+      if (gameState !== 'waiting') return;
+
+      // In ice mode, only nibble if hole exists and has uses.
+      if (currentVista.mechanic === 'drill') {
+        const holeVisible = !getEl('iceHole').classList.contains('hidden');
+        if (!holeVisible || iceHoleUses >= MAX_HOLE_USES) return;
+      }
+
       bobber.classList.add('nibbling');
       let nibbles = 0;
+
       const i = setInterval(() => {
-        if(gameState !== 'waiting') { clearInterval(i); return; }
-        if(navigator.vibrate) navigator.vibrate(20);
+        if (gameState !== 'waiting') { clearInterval(i); return; }
+        if (navigator.vibrate) navigator.vibrate(20);
         nibbles++;
-        if(nibbles > 2) { clearInterval(i); setTimeout(showStrike, 600); }
+        if (nibbles > 2) { clearInterval(i); setTimeout(showStrike, 600); }
       }, 800);
     }
 
     function showStrike() {
-      currentFish = FISH_DICTIONARY[Math.floor(Math.random()*FISH_DICTIONARY.length)];
+      const vistaFish = getVistaFishList();
+      currentFish = pickFishWeighted(vistaFish);
+
       setState('strike');
-      if(navigator.vibrate) navigator.vibrate(200);
+      if (navigator.vibrate) navigator.vibrate(200);
+      ensureAudio();
       playTone(400, 'triangle');
-      setTimeout(() => { if(gameState === 'strike') startWaiting(); }, 2000);
+
+      setTimeout(() => { if (gameState === 'strike') startWaiting(); }, 2000);
     }
 
     function startReeling() {
       ensureAudio();
       setState('reel');
-      reelingProgress=0; tension=0; isHolding=false; tapCombo=0;
-      totalRotation = 0; lastAngle = null;
+
+      reelingProgress = 0;
+      tension = 0;
+      isHolding = false;
+      tapCombo = 0;
+      totalRotation = 0;
+      lastAngle = null;
 
       getEl('fishName').textContent = currentFish.name;
       getEl('fishRarity').textContent = currentFish.rarity;
       getEl('fishArtImg').src = fishArtDataUri(currentFish);
-      
+
       const prompts = { tap: "TAP TAP TAP!", hold: "HOLD IT!", rotate: "SPIN IT!" };
-      getEl('tapPrompt').textContent = prompts[currentFish.reelType];
-      
+      getEl('tapPrompt').textContent = prompts[currentFish.reelType] || "REEL!";
+
       const handle = getEl('reelHandle');
-      if (currentFish.reelType === 'rotate') { 
-        handle.style.display='flex'; handle.classList.add('rotate-anim');
-        if(!localStorage.getItem('reelLoopRotTute')) {
+      if (currentFish.reelType === 'rotate') {
+        handle.style.display = 'flex';
+        handle.classList.add('rotate-anim');
+
+        // One-time rotate tutorial
+        if (!localStorage.getItem('reelLoopRotTute')) {
           const finger = document.createElement('div');
           finger.className = 'tutorial-finger';
           finger.innerText = '👆';
           tapArea.appendChild(finger);
           localStorage.setItem('reelLoopRotTute', '1');
-          setTimeout(()=>finger.remove(), 4000);
+          setTimeout(() => finger.remove(), 4000);
         }
-      } else { handle.style.display='none'; handle.classList.remove('rotate-anim'); }
+      } else {
+        handle.style.display = 'none';
+        handle.classList.remove('rotate-anim');
+      }
 
       if (reelInterval) clearInterval(reelInterval);
       reelInterval = setInterval(gameLoop, 50);
@@ -380,7 +801,7 @@
 
     function gameLoop() {
       if (!isHolding) tension = Math.max(0, tension - 2);
-      
+
       if (tension > 80) {
         tFill.classList.add('danger');
         getEl('dangerVignette').classList.add('active');
@@ -393,7 +814,7 @@
 
       if (tension >= 100) finish(false);
       if (reelingProgress >= 100) finish(true);
-      
+
       tFill.style.width = tension + '%';
       pFill.style.width = reelingProgress + '%';
       getEl('tensionVal').textContent = Math.floor(tension) + '%';
@@ -401,21 +822,21 @@
 
     function increment(amount) {
       let gain = amount * (100 / currentFish.requiredTaps);
-      if (tension >= 60 && tension <= 80) gain *= 1.3;
-      
+      if (tension >= 60 && tension <= 80) gain *= 1.3; // sweet spot
+
       reelingProgress = Math.min(100, reelingProgress + gain);
-      tension = Math.min(100, tension + (currentFish.reelType==='hold' ? 1.5 : 4));
+      tension = Math.min(100, tension + (currentFish.reelType === 'hold' ? 1.5 : 4));
 
       // Force UI
       pFill.style.width = reelingProgress + '%';
       tFill.style.width = tension + '%';
-      
-      if(currentFish.reelType === 'tap') {
-         tapCombo++;
-         clearTimeout(comboTimeout);
-         comboTimeout = setTimeout(() => tapCombo=0, 800);
-         showTapFeedback();
-         playTone(600 + (tapCombo*50));
+
+      if (currentFish.reelType === 'tap') {
+        tapCombo++;
+        clearTimeout(comboTimeout);
+        comboTimeout = setTimeout(() => tapCombo = 0, 800);
+        showTapFeedback();
+        playTone(600 + (tapCombo * 50));
       }
     }
 
@@ -425,49 +846,104 @@
       el.innerText = `+${tapCombo}`;
       const size = Math.min(1.5 + (tapCombo * 0.1), 3);
       el.style.fontSize = size + 'rem';
-      el.style.left = (50 + Math.random()*20 - 10) + '%'; 
-      el.style.top = (50 + Math.random()*20 - 10) + '%';
+      el.style.left = (50 + Math.random() * 20 - 10) + '%';
+      el.style.top = (50 + Math.random() * 20 - 10) + '%';
       el.style.color = currentFish.color;
       tapArea.appendChild(el);
       setTimeout(() => el.remove(), 600);
     }
 
-    function createConfetti() {
-      for(let i=0; i<30; i++) {
+    function createConfetti(mult = 1) {
+      const count = 30 * mult;
+      for (let i = 0; i < count; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
         p.style.background = currentFish.color;
         p.style.left = '50%'; p.style.top = '50%';
-        p.style.setProperty('--tx', (Math.random()*300 - 150) + 'px');
-        p.style.setProperty('--ty', (Math.random()*300 - 150) + 'px');
+        p.style.setProperty('--tx', (Math.random() * 320 - 160) + 'px');
+        p.style.setProperty('--ty', (Math.random() * 320 - 160) + 'px');
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 1000);
       }
     }
 
-    function finish(win) {
-      clearInterval(reelInterval); clearInterval(holdInterval);
-      if(win) {
+    function nearMissFail() {
+      // NMM: wobble + dull thud, then fail.
+      tapArea.classList.add('near-miss');
+      ensureAudio();
+      playTone(200, 'sawtooth');
+      getEl('failTitle').innerText = 'So Close';
+      getEl('failBody').innerText = 'It slipped at the last second.';
+      setTimeout(() => finish(false, { fromNearMiss: true }), 280);
+    }
+
+    function finish(win, opts = {}) {
+      clearInterval(reelInterval);
+      clearInterval(holdInterval);
+
+      if (win) {
+        // Near-miss chance (applies to Arctic Pike by design)
+        if (currentFish.nearMissChance && Math.random() < currentFish.nearMissChance) {
+          nearMissFail();
+          return;
+        }
+
         const existing = caughtFish.find(f => f.id === currentFish.id);
-        if(existing) existing.count++; else caughtFish.push({...currentFish, count:1});
+        const firstTime = !existing;
+
+        if (existing) existing.count++;
+        else caughtFish.push({ ...currentFish, count: 1 });
+
         localStorage.setItem('reelLoopCaughtFish', JSON.stringify(caughtFish));
-        
+
+        // Ice hole uses
+        if (currentVista.mechanic === 'drill') {
+          iceHoleUses++;
+          getEl('holeUseCount').innerText = String(iceHoleUses);
+
+          if (iceHoleUses >= MAX_HOLE_USES) {
+            // Force re-drill
+            getEl('iceHint').innerText = 'Hole exhausted. Drill again.';
+          }
+        }
+
+        // Rewards
+        const coins = typeof currentFish.coin === 'number'
+          ? currentFish.coin
+          : ({ Common: 10, Uncommon: 35, Rare: 80, Legendary: 800 }[currentFish.rarity] || 10);
+
+        gainCoins(coins);
+        gainXP(currentFish.requiredTaps);
+
         getEl('caughtFishName').textContent = currentFish.name;
         getEl('successFishIcon').textContent = currentFish.icon;
-        
-        createConfetti();
-        playTone(600, 'square');
-        setTimeout(()=>playTone(800, 'square'), 100);
-        setTimeout(()=>playTone(1000, 'square'), 200);
+        getEl('newDiscovery').textContent = firstTime ? 'NEW DISCOVERY!' : '';
+        getEl('rewardLine').textContent = `+${coins}🪙`;
+
+        // Jackpot (VRR)
+        if (currentFish.isJackpot) {
+          createConfetti(2);
+          playTone(600, 'square', 1.10);
+          setTimeout(() => playTone(800, 'square', 1.10), 90);
+          setTimeout(() => playTone(1200, 'square', 1.10), 180);
+          if (navigator.vibrate) navigator.vibrate([90, 40, 90, 40, 140]);
+        } else {
+          createConfetti(1);
+          playTone(600, 'square');
+          setTimeout(() => playTone(800, 'square'), 100);
+          setTimeout(() => playTone(1000, 'square'), 200);
+        }
 
         const btn = getEl('castAgainButton');
         btn.classList.add('disabled');
         setState('success');
         updateStats();
-        setTimeout(() => btn.classList.remove('disabled'), 1500);
+        setTimeout(() => btn.classList.remove('disabled'), 1200);
+
       } else {
         setState('fail');
-        playTone(200, 'sawtooth');
+        ensureAudio();
+        if (!opts.fromNearMiss) playTone(200, 'sawtooth');
       }
     }
 
@@ -476,30 +952,182 @@
       states[newState].classList.remove('hidden');
       gameState = newState;
     }
-    
+
     function updateStats() {
-      getEl('totalCaught').innerText = caughtFish.reduce((s,f)=>s+f.count,0);
-      getEl('uniqueFish').innerText = `${caughtFish.length}/${FISH_DICTIONARY.length}`;
+      const totalCaught = caughtFish.reduce((s, f) => s + (f.count || 0), 0);
+      getEl('totalCaught').innerText = String(totalCaught);
+
+      const vistaFish = getVistaFishList();
+      const caughtInVista = vistaFish.filter(f => caughtFish.some(cf => cf.id === f.id)).length;
+      getEl('uniqueFish').innerText = `${caughtInVista}/${vistaFish.length}`;
+
+      getEl('playerLevel').innerText = String(playerLevel);
+      getEl('playerCoins').innerText = String(playerCoins);
+
+      getEl('vistaName').innerText = currentVista.name;
+      setBackgroundForVista();
     }
 
-    // === EVENT LISTENERS ===
+    /* =========================
+       ICE DRILLING
+       ========================= */
+
+    function createIceParticles(x, y) {
+      const surface = getEl('iceSurface');
+      for (let i = 0; i < 14; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        p.style.background = '#bae6fd';
+        p.style.setProperty('--tx', `${(Math.random() - 0.5) * 170}px`);
+        p.style.setProperty('--ty', `${(Math.random() - 0.5) * 170}px`);
+        surface.appendChild(p);
+        setTimeout(() => p.remove(), 820);
+      }
+    }
+
+    function drillIceHole(e) {
+      if (currentVista.mechanic !== 'drill') return;
+
+      // If exhausted, reset and require drill again
+      if (iceHoleUses >= MAX_HOLE_USES) {
+        iceHoleUses = 0;
+        getEl('holeUseCount').innerText = String(iceHoleUses);
+        getEl('iceHole').classList.add('hidden');
+        getEl('iceHint').innerText = 'Drill to start fishing.';
+      }
+
+      const surface = getEl('iceSurface');
+      const rect = surface.getBoundingClientRect();
+
+      // Support touch (pointer events)
+      const x = (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || rect.left + rect.width / 2) - rect.left;
+      const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || rect.top + rect.height / 2) - rect.top;
+
+      // Drill animation
+      const drill = document.createElement('div');
+      drill.className = 'drill-animation';
+      drill.textContent = '🪛';
+      drill.style.left = x + 'px';
+      drill.style.top = y + 'px';
+      surface.appendChild(drill);
+      setTimeout(() => drill.remove(), 320);
+
+      // Haptic pulse (coarse approximation of 0.3s intervals)
+      if (navigator.vibrate) navigator.vibrate([90, 90, 90]);
+
+      ensureAudio();
+      playTone(400, 'square');
+      setTimeout(() => playTone(520, 'square'), 90);
+      setTimeout(() => playTone(640, 'square'), 180);
+
+      setTimeout(() => {
+        const hole = getEl('iceHole');
+        hole.classList.remove('hidden');
+        hole.style.left = (x - 32) + 'px';
+        hole.style.top = (y - 32) + 'px';
+        createIceParticles(x, y);
+        getEl('iceHint').innerText = 'Waiting for bite...';
+        startWaiting();
+      }, 280);
+    }
+
+    /* =========================
+       VISTA UNLOCK + SELECTOR
+       ========================= */
+
+    function updateVistaUnlockUI() {
+      const tundraOpt = getEl('frozenTundraOption');
+      const tundra = VISTAS.find(v => v.id === 'frozen_tundra');
+
+      // Persist unlock flag
+      const savedUnlock = localStorage.getItem('reelLoopVistaUnlocked_frozen_tundra');
+      if (savedUnlock === '1') tundra.unlocked = true;
+
+      if (playerLevel >= tundra.unlockLevel) {
+        tundraOpt.disabled = false;
+        tundraOpt.textContent = tundra.unlocked
+          ? `❄️ ${tundra.name}`
+          : `❄️ ${tundra.name} (Unlock: ${tundra.unlockCost}🪙)`;
+      } else {
+        tundraOpt.disabled = true;
+        tundraOpt.textContent = `❄️ ${tundra.name} (Lvl ${tundra.unlockLevel} • ${tundra.unlockCost}🪙)`;
+      }
+
+      // Ensure selector reflects current vista
+      getEl('vistaSelector').value = currentVista.id;
+    }
+
+    function setVistaById(id) {
+      const v = VISTAS.find(x => x.id === id) || VISTAS[0];
+      currentVista = v;
+      localStorage.setItem('reelLoopVista', currentVista.id);
+
+      // Reset ice hole on vista change
+      if (currentVista.mechanic === 'drill') {
+        iceHoleUses = 0;
+        getEl('holeUseCount').innerText = '0';
+        getEl('iceHole').classList.add('hidden');
+        getEl('iceHint').innerText = 'Drill to start fishing.';
+      }
+
+      setBackgroundForVista();
+      updateStats();
+      startWaiting();
+    }
+
+    getEl('vistaSelector').addEventListener('change', (e) => {
+      const selectedId = e.target.value;
+      const selected = VISTAS.find(v => v.id === selectedId);
+
+      if (!selected) return;
+
+      // Unlock flow for tundra
+      if (selected.id === 'frozen_tundra' && !selected.unlocked) {
+        if (playerLevel < selected.unlockLevel) {
+          alert(`Unlock at Level ${selected.unlockLevel}.`);
+          e.target.value = currentVista.id;
+          return;
+        }
+
+        if (spendCoins(selected.unlockCost)) {
+          selected.unlocked = true;
+          localStorage.setItem('reelLoopVistaUnlocked_frozen_tundra', '1');
+          alert(`Unlocked: ${selected.name}`);
+        } else {
+          alert(`Need ${selected.unlockCost} coins.`);
+          e.target.value = currentVista.id;
+          return;
+        }
+      }
+
+      setVistaById(selected.id);
+      updateVistaUnlockUI();
+    });
+
+    /* =========================
+       EVENT LISTENERS
+       ========================= */
+
     function attach(id, fn) {
       const el = getEl(id);
-      if(el) el.addEventListener('click', fn);
+      if (el) el.addEventListener('click', fn);
     }
 
+    // Tap area interactions
     tapArea.addEventListener('pointerdown', (e) => {
-      if(gameState !== 'reel') return;
+      if (gameState !== 'reel') return;
       e.preventDefault();
-      
-      if(currentFish.reelType === 'tap') increment(1);
-      
-      if(currentFish.reelType === 'hold') {
+
+      if (currentFish.reelType === 'tap') increment(1);
+
+      if (currentFish.reelType === 'hold') {
         isHolding = true;
-        holdInterval = setInterval(() => { if(isHolding) increment(0.2); }, 50);
+        holdInterval = setInterval(() => { if (isHolding) increment(0.2); }, 50);
       }
-      
-      if(currentFish.reelType === 'rotate') {
+
+      if (currentFish.reelType === 'rotate') {
         const rect = tapArea.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -508,48 +1136,66 @@
     });
 
     tapArea.addEventListener('pointermove', (e) => {
-      if(gameState !== 'reel' || currentFish.reelType !== 'rotate' || lastAngle === null) return;
+      if (gameState !== 'reel' || currentFish.reelType !== 'rotate' || lastAngle === null) return;
       e.preventDefault();
 
       const rect = tapArea.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
-      
+
       let delta = angle - lastAngle;
       if (delta > 180) delta -= 360;
       if (delta < -180) delta += 360;
-      
+
       totalRotation += Math.abs(delta);
-      if(totalRotation >= 45) {
+
+      if (totalRotation >= 45) {
         increment(0.8);
         playTone(600);
         totalRotation = 0;
       }
+
       lastAngle = angle;
     });
 
-    window.addEventListener('pointerup', () => { isHolding = false; clearInterval(holdInterval); lastAngle = null; });
-    
+    window.addEventListener('pointerup', () => {
+      isHolding = false;
+      clearInterval(holdInterval);
+      lastAngle = null;
+    });
+
+    // Strike -> Reel
     getEl('strikeButton').addEventListener('pointerdown', (e) => { e.preventDefault(); startReeling(); });
     attach('castAgainButton', startWaiting);
     attach('tryAgainButton', startWaiting);
 
+    // Ice drilling surface (pointer)
+    getEl('iceSurface').addEventListener('pointerdown', (e) => {
+      if (gameState !== 'waiting') return;
+      e.preventDefault();
+      drillIceHole(e);
+    });
+
+    // Trophy room
     attach('collectionButton', () => {
       renderBobberSelector();
       renderCollection();
       getEl('collectionOverlay').classList.add('active');
     });
     attach('closeCollection', () => getEl('collectionOverlay').classList.remove('active'));
-    
+
+    // Fullscreen
     attach('btnFS', () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-      else document.exitFullscreen().catch(()=>{});
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      else document.exitFullscreen().catch(() => {});
     });
-    
+
+    // Sound toggle
     attach('btnSound', () => {
       soundEnabled = !soundEnabled;
       getEl('btnSound').style.opacity = soundEnabled ? '1' : '0.5';
+      if (soundEnabled) ensureAudio();
     });
 
     function renderBobberSelector() {
@@ -570,24 +1216,56 @@
     }
 
     function renderCollection() {
-      const grid = getEl('collectionGrid'); grid.innerHTML = '';
-      FISH_DICTIONARY.forEach(fish => {
+      const grid = getEl('collectionGrid');
+      grid.innerHTML = '';
+
+      // Show vista ordering: current vista fish first, then the rest
+      const vistaSet = new Set(currentVista.fishPool);
+      const ordered = [
+        ...FISH_DICTIONARY.filter(f => vistaSet.has(f.id)),
+        ...FISH_DICTIONARY.filter(f => !vistaSet.has(f.id))
+      ];
+
+      getEl('collectionSubhead').innerText = `All Fish (Current: ${currentVista.name})`;
+
+      ordered.forEach(fish => {
         const caught = caughtFish.find(f => f.id === fish.id);
         const card = document.createElement('div');
         card.className = `fish-card ${!caught ? 'locked' : ''}`;
         card.style.borderColor = fish.color;
         card.innerHTML = `
-          <img src="${fishArtDataUri(fish)}" />
-          <div style="font-weight:bold">${caught ? fish.name : '???'}</div>
-          <div style="font-size:0.8rem">${caught ? `x${caught.count}` : ''}</div>
+          <img src="${fishArtDataUri(fish)}" alt="${fish.name}" />
+          <div style="font-weight:900">${caught ? fish.name : '???'}</div>
+          <div style="font-size:0.8rem; opacity:0.85">${caught ? `x${caught.count}` : ''}</div>
+          <div style="font-size:0.72rem; opacity:0.65; margin-top:6px">${fish.vista === 'frozen_tundra' ? 'Ice Tundra' : 'Sunny Lake'}</div>
         `;
         grid.appendChild(card);
       });
     }
 
-    applyBobberColor();
-    updateStats();
-    startWaiting();
+    /* =========================
+       INIT (load saved progress)
+       ========================= */
+
+    (function init() {
+      playerLevel = parseInt(localStorage.getItem('reelLoopLevel') || '1', 10);
+      playerCoins = parseInt(localStorage.getItem('reelLoopCoins') || '0', 10);
+
+      // Restore unlock
+      const tundra = VISTAS.find(v => v.id === 'frozen_tundra');
+      if (localStorage.getItem('reelLoopVistaUnlocked_frozen_tundra') === '1') tundra.unlocked = true;
+
+      // Restore vista (only if unlocked or base)
+      const savedVista = localStorage.getItem('reelLoopVista');
+      if (savedVista === 'frozen_tundra' && tundra.unlocked) currentVista = tundra;
+      else currentVista = VISTAS.find(v => v.id === savedVista) || VISTAS[0];
+
+      applyBobberColor();
+      updateVistaUnlockUI();
+      setBackgroundForVista();
+      updateStats();
+      startWaiting();
+    })();
   </script>
 </body>
 </html>
