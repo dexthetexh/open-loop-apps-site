@@ -140,14 +140,107 @@
       margin-bottom:10px;
     }
     .badge{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.14);
-      background:rgba(42,167,255,0.12);
-      font-size:.85rem;
-      opacity:.95;
-    }
-    .select{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:900;
+  cursor:pointer;
+  user-select:none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  border:1px solid rgba(255,255,255,0.14);
+}
+.badge:active{ transform: translateY(1px); }
+.badge img{
+  width:18px;
+  height:18px;
+  display:none;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+}
+.badge .chev{
+  opacity:0.7;
+  font-size:14px;
+  margin-left:2px;
+}
+.badge.showUnlock img{ display:inline-block; }
+
+/* Vista picker list */
+.vistaList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.vistaItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 12px;
+  border-radius:16px;
+  background: rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12);
+  cursor:pointer;
+  user-select:none;
+}
+.vistaItem:active{ transform: translateY(1px); }
+.vistaLeft{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.vistaEmoji{ font-size:18px; width:24px; text-align:center; }
+.vistaText{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.vistaName{
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.vistaReq{
+  font-size:12px;
+  color: rgba(232,241,255,0.70);
+  font-weight:800;
+}
+.vistaRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+}
+.vistaActive{
+  font-weight:900;
+  color: var(--accent);
+  opacity:0.95;
+}
+.unlockIconBtn{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  cursor:pointer;
+}
+.unlockIconBtn:active{ transform: translateY(1px); }
+.unlockIconBtn img{ width:18px; height:18px; display:block; }
+.hintSmall{
+  margin-top:12px;
+  font-size:12px;
+  color: rgba(232,241,255,0.65);
+  font-weight:800;
+  line-height:1.35;
+}
+
+.select{
       background:rgba(255,255,255,0.08);
       border:1px solid rgba(255,255,255,0.18);
       color:#fff;
@@ -160,32 +253,88 @@
 
     .banner{
       width:100%;
-      height:72px;
+      height:110px;
       border-radius:12px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,0.12);
       background:rgba(255,255,255,0.03);
       position:relative;
     }
-    .banner .label{
+    .banner::after{
+      content:"";
       position:absolute;
-      left:10px; bottom:8px;
-      background:rgba(0,0,0,0.22);
-      border:1px solid rgba(255,255,255,0.12);
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:800;
-      font-size:.9rem;
-      letter-spacing:.2px;
-      text-shadow:0 6px 18px rgba(0,0,0,0.55);
+      inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.55));
+      pointer-events:none;
+      z-index:1;
     }
-    .banner .img{
+    .bannerOverlay{
+      position:absolute;
+      left:10px;
+      bottom:10px;
+      z-index:2;
+    }
+    .bannerOverlay .badge{
+      background: rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+    }
+
+    .bannerHud{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+    }
+    .bannerHud .badge{
+      pointer-events:auto;
+    }
+    .bannerStat{
+      position:absolute;
+      min-width:68px;
+      padding:6px 10px;
+      border-radius:10px;
+      background: rgba(0,0,0,0.65);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      text-align:center;
+      pointer-events:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+    }
+    .bannerStat .k{
+      font-size:10px;
+      opacity:0.75;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:800;
+      color: rgba(231,238,252,0.88);
+    }
+    .bannerStat .v{
+      font-weight:900;
+      font-size:18px;
+      line-height:1;
+      font-variant-numeric: tabular-nums;
+      color: rgba(231,238,252,0.98);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .bannerStat.topRight{ top:10px; right:10px; }
+    .bannerStat.bottomRight{ bottom:10px; right:10px; }
+    .bannerStat.topRight .v{ color: var(--accent); }
+    .bannerStat.bottomRight .v{ color: var(--sunrise); }
+        .banner .img{
       width:100%;
       height:100%;
       object-fit:cover;
       opacity:.95;
       transform:scale(1.02);
       display:none;
+      position:relative;
+      z-index:0;
     }
     .banner .fallback{
       position:absolute; inset:0;
@@ -636,11 +785,117 @@
       max-width:none;
       margin:0;
     }
+
+    /* iOS Install Nudge Banner */
+    .iosNudge{
+      position:fixed;
+      bottom:0;
+      left:0;
+      right:0;
+      background:linear-gradient(180deg, rgba(42,167,255,0.18), rgba(42,167,255,0.12));
+      border-top:1px solid rgba(42,167,255,0.35);
+      backdrop-filter:blur(12px);
+      padding:12px 16px;
+      padding-bottom:calc(12px + env(safe-area-inset-bottom));
+      z-index:1001;
+      display:none;
+      align-items:center;
+      gap:12px;
+      animation:slideUp 0.3s ease-out;
+    }
+    .iosNudge.show{display:flex;}
+    @keyframes slideUp{
+      from{transform:translateY(100%);}
+      to{transform:translateY(0);}
+    }
+    .iosNudgeIcon{
+      font-size:1.6rem;
+      flex:0 0 auto;
+    }
+    .iosNudgeText{
+      flex:1;
+      font-size:.85rem;
+      line-height:1.35;
+    }
+    .iosNudgeText strong{
+      display:block;
+      font-size:.95rem;
+      margin-bottom:2px;
+      color:var(--accent);
+    }
+    .iosNudgeDismiss{
+      background:rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.2);
+      color:#fff;
+      border-radius:8px;
+      padding:8px 12px;
+      font-size:.8rem;
+      font-weight:700;
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+    .iosNudgeDismiss:active{transform:scale(0.97);}
+  
+    /* v4.3.1: Banner stats are independent + icon-based (no overlap). Coins prepared as future store button. */
+    .banner{ height:128px; }
+    .bannerHud{ pointer-events:none; }
+    .bannerOverlay{ pointer-events:auto; }
+
+    .bannerStat{
+      right:12px;
+      min-width:86px;
+      max-width:42vw;
+      padding:8px 10px;
+      border-radius:12px;
+      background: rgba(0,0,0,0.68);
+      border:1px solid rgba(255,255,255,0.18);
+      text-align:right;
+      gap:4px;
+      z-index:3;
+    }
+    .bannerStat.topRight{ top:12px; }
+    .bannerStat.bottomRight{ bottom:12px; }
+
+    .bannerStat .k{ font-size:11px; opacity:0.85; font-weight:900; letter-spacing:0.10em; color:rgba(231,238,252,0.92); }
+    .bannerStat .v{ font-size:20px; font-weight:900; line-height:1.05; font-variant-numeric:tabular-nums; }
+
+    .bannerStat .kRow{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:6px;
+    }
+    .bannerStat .kIcon{
+      width:16px;
+      height:16px;
+      display:block;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45));
+      opacity:0.95;
+    }
+
+    /* Make only the coins badge interactive (store-ready) */
+    .coinBtn{
+      pointer-events:auto;
+      cursor:pointer;
+    }
+    .coinBtn:active{ transform: translateY(1px); }
+    .coinBtn:focus{ outline:none; }
+
   </style>
 </head>
 
 <body class="vista-sunny">
   <div class="dangerVignette" id="dangerVignette"></div>
+
+  <!-- iOS INSTALL NUDGE -->
+  <div class="iosNudge" id="iosNudge">
+    <div class="iosNudgeIcon">📲</div>
+    <div class="iosNudgeText">
+      <strong>Better on Home Screen</strong>
+      Tap <b>Share</b> → <b>Add to Home Screen</b> for fullscreen &amp; faster loads.
+    </div>
+    <button class="iosNudgeDismiss" id="iosNudgeDismiss">Got it</button>
+  </div>
 
   <!-- TROPHY ROOM OVERLAY -->
   <div class="overlay" id="trophyOverlay">
@@ -663,6 +918,18 @@
       </div>
     </div>
   </div>
+<!-- VISTA PICKER OVERLAY -->
+<div class="overlay" id="vistaOverlay">
+  <div class="overlayHeader">
+    <div class="overlayTitle">🗺️ Select Vista</div>
+    <button class="overlayClose" id="vistaClose">✕</button>
+  </div>
+  <div class="overlayBody">
+    <div class="vistaList" id="vistaList"></div>
+    <div class="hintSmall" id="vistaHint">Tap a vista to switch. Locked vistas show an unlock icon.</div>
+  </div>
+</div>
+
 
   <div class="app" id="app">
     <header>
@@ -674,45 +941,38 @@
       </div>
     </header>
 
-    <div class="panel">
-      <div class="vistaRow">
-        <div class="badge" id="vistaBadge">Vista: Sunny Lake</div>
+    
+<div class="panel">
+  <div class="banner" id="banner">
+    <div class="fallback sunny" id="bannerFallback"></div>
+    <img class="img" id="bannerImg" alt="Vista banner" />
+    <div class="bannerHud">
+      <div class="bannerOverlay">
+        <button class="badge" id="vistaPill" aria-label="Select Vista">
+          <span id="vistaPillText">Vista: Sunny Lake</span>
+          <img id="vistaPillUnlock" src="./assets/ui/icon-unlock.png" alt="Unlock" />
+          <span class="chev">▾</span>
+        </button>
+      </div>
 
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <select class="select" id="vistaSelect">
-            <option value="sunny_lake">☀️ Sunny Lake</option>
-            <option value="frozen_tundra" id="optIce">❄️ Frozen Tundra</option>
-            <option value="bayou_blackwater" id="optBayou">🐊 Bayou Blackwater</option>
-          </select>
-          <button class="btn" id="unlockBtn">Unlock</button>
+      <div class="bannerStat topRight" id="levelBadge" aria-label="Level">
+        <div class="kRow">
+          <img class="kIcon" src="./assets/ui/icon-level.png" alt="Level" />
+          <div class="k">LEVEL</div>
         </div>
+        <div class="v" id="lvl">1</div>
       </div>
 
-      <div class="banner" id="banner">
-        <div class="fallback sunny" id="bannerFallback"></div>
-        <img class="img" id="bannerImg" alt="Vista banner" />
-        <div class="label" id="bannerLabel">Sunny Lake</div>
-      </div>
-    </div>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="k">Level</div>
-        <div class="v accent" id="lvl">1</div>
-      </div>
-      <div class="stat">
-        <div class="k">Coins</div>
+      <button class="bannerStat bottomRight coinBtn" id="coinsBadge" type="button" aria-label="Coins">
+        <div class="kRow">
+          <img class="kIcon" src="./assets/ui/icon-coin.png" alt="Coins" />
+          <div class="k">COINS</div>
+        </div>
         <div class="v" id="coins">0</div>
-      </div>
-      <div class="stat">
-        <div class="k">Perfect Cast</div>
-        <div class="v" id="castRate">0%</div>
-      </div>
-      <div class="stat">
-        <div class="k">Catches</div>
-        <div class="v" id="catches">0</div>
-      </div>
+      </button>
     </div>
+  </div>
+</div>
 
     <div class="game">
       <!-- WAITING -->
@@ -820,6 +1080,10 @@
      **********************/
     const $ = (id) => document.getElementById(id);
 
+    const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const IS_STANDALONE = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone;
+
+
     // Convert underscore IDs to kebab-case for asset paths
     function toKebab(s){
       return (s || '').replaceAll('_','-');
@@ -859,6 +1123,14 @@
     }
 
     async function toggleFullscreen(){
+      // iOS Safari/Chrome do not support true fullscreen for arbitrary DOM elements.
+      // Best-available: run as PWA (Add to Home Screen) + pseudo-fullscreen via --vh sizing.
+      if (IS_IOS && !IS_STANDALONE){
+        toast('iOS: Install to Home Screen for true fullscreen', 1100);
+        vibrate([30]);
+        return;
+      }
+
       const root = $('app');
       // Real fullscreen (desktop browsers)
       const doc = document;
@@ -1127,18 +1399,19 @@
       computeLevel();
       $('lvl').textContent = S.level;
       $('coins').textContent = S.coins;
-      $('catches').textContent = S.catches;
+      const catchesEl = document.getElementById('catches');
+      if (catchesEl) catchesEl.textContent = S.catches;
 
       const rate = S.cast.total > 0 ? Math.round((S.cast.perfect / S.cast.total) * 100) : 0;
-      $('castRate').textContent = rate + '%';
+      const castRateEl = document.getElementById('castRate');
+      if (castRateEl) castRateEl.textContent = rate + '%';
       $('perfectCastCount').textContent = S.cast.perfect;
       $('totalCastCount').textContent = S.cast.total;
 
       // Vista badge + banner
-      $('vistaBadge').textContent = `Vista: ${currentVista.name}`;
-      $('bannerLabel').textContent = currentVista.name;
-
-      const img = $('bannerImg');
+      $('vistaPillText').textContent = `Vista: ${currentVista.name}`;
+      $('vistaPillUnlock').style.display = S.unlocked[currentVista.id] ? 'none' : 'inline-block';
+const img = $('bannerImg');
       const fallback = $('bannerFallback');
       fallback.className = 'fallback ' + currentVista.fallbackClass;
 
@@ -1148,20 +1421,68 @@
       img.src = `./assets/vistas/${toKebab(currentVista.id)}/banner.png`;
     }
 
-    function setVistaSelectOptions(){
-      const optIce = $('optIce');
-      const optBayou = $('optBayou');
+    function updateVistaPill(){
+  $('vistaPillText').textContent = `Vista: ${currentVista.name}`;
+  // Active vista is always unlocked; unlock icon is used in the picker list.
+  $('vistaPill').classList.remove('showUnlock');
+}
 
-      // show lock state in label (stable, no UI drift)
-      optIce.textContent = S.unlocked.frozen_tundra ? '❄️ Frozen Tundra' : '❄️ Frozen Tundra (Lvl 5 • 200🪙)';
-      optBayou.textContent = S.unlocked.bayou_blackwater ? '🐊 Bayou Blackwater' : '🐊 Bayou Blackwater (Lvl 10 • 500🪙)';
+function openVistaOverlay(){
+  renderVistaOverlay();
+  $('vistaOverlay').classList.add('open');
+}
 
-      // Keep options enabled so Unlock button can target locked vistas
-      optIce.disabled = false;
-      optBayou.disabled = false;
+function closeVistaOverlay(){
+  $('vistaOverlay').classList.remove('open');
+}
 
-      $('vistaSelect').value = currentVista.id;
-    }
+function renderVistaOverlay(){
+  const list = $('vistaList');
+  if (!list) return;
+
+  const emojiFor = (id) => (id === 'sunny_lake' ? '☀️' : (id === 'frozen_tundra' ? '❄️' : '🐊'));
+  
+  // Subtitle text for unlocked vistas
+  const subFor = (id) => {
+    if (id === 'sunny_lake') return 'Precision Cast • 5 fish species';
+    if (id === 'frozen_tundra') return 'Ice Drilling • 5 fish species';
+    if (id === 'bayou_blackwater') return 'Precision Cast • 5 fish species';
+    return '';
+  };
+
+  list.innerHTML = '';
+  for (const v of VISTAS){
+    const isUnlocked = !!S.unlocked[v.id];
+    const isActive = (v.id === currentVista.id);
+
+    const item = document.createElement('div');
+    item.className = 'vistaItem';
+    item.dataset.vista = v.id;
+
+    const reqText = isUnlocked ? subFor(v.id) : `Lvl ${v.unlockLevel} or ${v.unlockCost}🪙`;
+
+    item.innerHTML = `
+      <div class="vistaLeft">
+        <div class="vistaEmoji">${emojiFor(v.id)}</div>
+        <div class="vistaText">
+          <div class="vistaName">${v.name}</div>
+          <div class="vistaReq">${reqText}</div>
+        </div>
+      </div>
+      <div class="vistaRight">
+        ${isActive ? '<div class="vistaActive">✓</div>' : ''}
+        ${(!isUnlocked) ? '<div class="unlockIconBtn" data-action="unlock" title="Unlock"><img src="./assets/ui/icon-unlock.png" alt="Unlock"></div>' : ''}
+      </div>
+    `;
+    list.appendChild(item);
+  }
+}
+
+// Legacy name kept as a no-op shim (prevents accidental runtime errors)
+function setVistaSelectOptions(){
+  renderVistaOverlay();
+}
+
 
     function showState(id){
       $('stateWaiting').classList.remove('active');
@@ -1300,7 +1621,7 @@
       S.currentVista = v.id;  // Persist selection
       setBodyVistaClass(v.id);
       updateStats();
-      setVistaSelectOptions();
+      updateVistaPill();
       configureWaitingUI();
       save();
     }
@@ -1892,13 +2213,29 @@
       }
 
       updateStats();
-      setVistaSelectOptions();
+      updateVistaPill();
     }
 
     /**********************
      * INPUT WIRING
      **********************/
     function attachInput(){
+
+    // Prevent long-press text selection / callout and context menus in the play surface
+    document.addEventListener('contextmenu', (e) => { e.preventDefault(); }, {capture:true});
+    document.addEventListener('selectstart', (e) => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+      e.preventDefault();
+    }, {capture:true});
+
+    // Improve tap responsiveness on iOS (ensure preventDefault is honored)
+    document.addEventListener('touchstart', (e) => {
+      const t = e.target;
+      if (t && (t.closest('button') || t.closest('select') || t.closest('input') || t.closest('textarea') || t.closest('a'))) return;
+      e.preventDefault();
+    }, {passive:false, capture:true});
+
       // Global “wake” for audio on first gesture
       window.addEventListener('pointerdown', () => ensureAudio(), {once:true, passive:true});
 
@@ -2102,47 +2439,54 @@
       });
 
       // Vista selection
-      $('vistaSelect').addEventListener('change', (e) => {
-        const id = e.target.value;
-        if (!S.unlocked[id]){
-          // keep selection so Unlock can target it
-          toast('Locked — press Unlock', 850);
-          vibrate([60]);
-          tone(180,'sawtooth',0.08,0.05);
-          return;
-        }
-        // reset state on vista change
-        clearBiteTimer();
-        resetCastingUI();
-        stopDrillTimers();
-        holeOpen = false; holeUses = 0;
-        gameState = STATE.WAITING;
-        showState('stateWaiting');
-        setVista(id);
-      });
+      // Vista picker: ONLY entry point is the top-left pill
+$('vistaPill').addEventListener('click', () => {
+  openVistaOverlay();
+  tone(420,'sine',0.05,0.04);
+});
 
-      $('unlockBtn').addEventListener('click', () => {
-        const id = $('vistaSelect').value;
-        const v = VISTAS.find(x=>x.id===id);
-        if (!v) return;
+$('vistaClose').addEventListener('click', () => {
+  closeVistaOverlay();
+  tone(320,'sine',0.05,0.03);
+});
 
-        if (S.unlocked[v.id]){
-          toast('Already unlocked');
-          return;
-        }
-        if (unlockVista(v)){
-          setVistaSelectOptions();
-          // auto-select unlocked vista for flow
-          $('vistaSelect').value = v.id;
-          setVista(v.id);
-        } else {
-          // show requirement
-          const need = (S.level < v.unlockLevel) ? `Need Level ${v.unlockLevel}` : `Need ${v.unlockCost} coins`;
-          toast(need, 850);
-        }
-      });
+// Tap outside panel closes overlay
+$('vistaOverlay').addEventListener('pointerdown', (e) => {
+  if (e.target && e.target.id === 'vistaOverlay') closeVistaOverlay();
+});
 
-      // Visibility pause: stop casting animation cleanly
+// Vista list interactions (tap row to switch, tap unlock icon to unlock)
+$('vistaList').addEventListener('click', (e) => {
+  const unlockBtn = e.target.closest && e.target.closest('[data-action="unlock"]');
+  const item = e.target.closest && e.target.closest('.vistaItem');
+  if (!item) return;
+
+  const id = item.dataset.vista;
+  const v = VISTAS.find(x=>x.id===id);
+  if (!v) return;
+
+  if (unlockBtn){
+    if (unlockVista(v)){
+      setVista(v.id);
+      closeVistaOverlay();
+    } else {
+      const need = (S.level < v.unlockLevel) ? `Need Level ${v.unlockLevel}` : `Need ${v.unlockCost} coins`;
+      toast(need);
+    }
+    return;
+  }
+
+  if (!S.unlocked[id]){
+    toast('Locked — tap unlock');
+    tone(180,'sawtooth',0.08,0.05);
+    vibrate([60]);
+    return;
+  }
+
+  setVista(id);
+  closeVistaOverlay();
+});
+// Visibility pause: stop casting animation cleanly
       document.addEventListener('visibilitychange', () => {
         if (document.hidden){
           if (castRaf) cancelAnimationFrame(castRaf);
@@ -2180,6 +2524,46 @@
         else scheduleBite(false);
       }
       if (currentVista.mechanic === 'drill') updateIceUI();
+
+      // iOS soft nudge: show once for iOS Safari users not in standalone mode
+      showIOSNudgeIfNeeded();
+    }
+
+    /**********************
+     * iOS SOFT NUDGE
+     **********************/
+    const IOS_NUDGE_KEY = 'reelloop_ios_nudge_dismissed';
+
+    function showIOSNudgeIfNeeded(){
+      // Only show for iOS browsers not running as PWA
+      if (!IS_IOS) return;
+      if (IS_STANDALONE) return;
+      
+      // Check if already dismissed
+      try {
+        if (localStorage.getItem(IOS_NUDGE_KEY)) return;
+      } catch(e) {}
+      
+      // Show after a short delay to not interrupt initial load
+      setTimeout(() => {
+        const nudge = $('iosNudge');
+        if (nudge) nudge.classList.add('show');
+      }, 2000);
+    }
+
+    function dismissIOSNudge(){
+      const nudge = $('iosNudge');
+      if (nudge) nudge.classList.remove('show');
+      
+      // Remember dismissal
+      try {
+        localStorage.setItem(IOS_NUDGE_KEY, '1');
+      } catch(e) {}
+    }
+
+    // Wire up dismiss button
+    if ($('iosNudgeDismiss')){
+      $('iosNudgeDismiss').addEventListener('click', dismissIOSNudge);
     }
 
     init();
