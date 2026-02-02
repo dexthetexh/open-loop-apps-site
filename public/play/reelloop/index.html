@@ -2,1270 +2,2187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#06101d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <link rel="manifest" href="./manifest.json" />
-
-  <title>ReelLoop | v2.3.0 Ice Tundra</title>
+  <title>ReelLoop | Open Loop Apps</title>
 
   <style>
-    /* === CORE VARIABLES === */
-    :root {
-      --accent: #2aa7ff;
-      --bg-dark: #0b1a2e;
-      --bg-darker: #06101d;
-      --text: #e8f1ff;
-      --sunrise: #f2c14e;
-      --danger: #ff5a5f;
-      --bobber-color: #ff6b6b;
+    :root{
+      --accent:#2aa7ff;
+      --sunrise:#f2c14e;
+      --danger:#ff5a5f;
+      --text:#e8f1ff;
 
-      /* Ice */
-      --ice-1: #e0f2fe;
-      --ice-2: #bae6fd;
-      --ice-3: #38bdf8;
-      --ice-hole: #082f49;
+      --bg1:#0b1a2e;
+      --bg2:#06101d;
+
+      --panel:rgba(255,255,255,0.06);
+      --panel2:rgba(255,255,255,0.09);
+      --stroke:rgba(255,255,255,0.14);
+
+      /* Bayou anchors */
+      --bayou-olive:#556B2F;
+      --bayou-slate:#2F4F4F;
+      --bayou-water:#2E3B2B;
+
+      /* Ice anchors */
+      --ice1:#e0f2fe;
+      --ice2:#bae6fd;
+      --ice3:#38bdf8;
+      --iceHole:#082f49;
+
+      /* Dynamic viewport height (iOS safe) */
+      --vh: 1vh;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      touch-action: none;
-      transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+    html,body{
+      height:100%;
+      margin:0;
+      padding:0;
+      overflow:hidden;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      touch-action:none;
+      overscroll-behavior:none;
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-      color: var(--text);
-      min-height: 100vh;
-      overflow: hidden;
-      position: relative;
-      transition: background 0.8s ease;
+    body.vista-sunny { background:linear-gradient(180deg,#0b1a2e 0%, #06101d 100%); }
+    body.vista-ice   { background:linear-gradient(180deg,#06243a 0%, #04131f 100%); }
+    body.vista-bayou { background:linear-gradient(180deg,#2F4F4F 0%, #1C3334 100%); }
+
+    /* Pseudo fullscreen fallback for iOS */
+    body.pseudo-fs{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:calc(var(--vh)*100);
+      overflow:hidden;
+      background:inherit;
     }
 
-    body.tense { background: linear-gradient(180deg, #1a0f12 0%, #2a1010 100%); }
-
-    /* === ATMOSPHERE === */
-    .waves { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
-    .wave { position: absolute; width: 220%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation: wave-flow linear infinite; }
-    .wave-layer-1 { top: 0; opacity: 0.04; animation-duration: 12s; filter: blur(1px); }
-    .wave-layer-2 { top: 20%; opacity: 0.06; animation-duration: 8s; filter: blur(2px); animation-direction: reverse; }
-    .wave-layer-3 { top: 40%; opacity: 0.03; animation-duration: 15s; filter: blur(3px); }
-    @keyframes wave-flow { 0% { transform: translateX(-55%); } 100% { transform: translateX(0%); } }
-
-    .danger-vignette { position: fixed; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(255, 90, 95, 0.4)); pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 500; }
-    .danger-vignette.active { opacity: 1; animation: vignette-pulse 0.8s ease-in-out infinite; }
-    @keyframes vignette-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-
-    /* === LAYOUT === */
-    .container { max-width: 680px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 18px; position: relative; z-index: 10; }
-    header { text-align: center; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 12px; }
-    h1 { font-size: 1.8rem; color: var(--accent); text-shadow: 0 0 18px rgba(42, 167, 255, 0.65); letter-spacing: 0.5px; margin-right: auto; }
-
-    .icon-btn {
-      font-size: 1.2rem;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.9);
-      border-radius: 8px;
-      padding: 6px 12px;
-      cursor: pointer;
-    }
-    .icon-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
-
-    /* === VISTA PANEL === */
-    .vista-panel {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      backdrop-filter: blur(5px);
-    }
-    .vista-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .vista-badge {
-      font-size: 0.85rem;
-      opacity: 0.9;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(42,167,255,0.12);
-      white-space: nowrap;
-    }
-    .vista-select {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.18);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      outline: none;
-    }
-    .vista-banner {
-      width: 100%;
-      height: 72px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.03);
-      position: relative;
-    }
-    .vista-banner img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.95;
-      transform: scale(1.02);
-    }
-    .vista-banner .label {
-      position: absolute;
-      left: 10px;
-      bottom: 8px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      text-shadow: 0 6px 18px rgba(0,0,0,0.55);
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.12);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.9rem;
+    .app{
+      height:calc(var(--vh)*100);
+      padding:
+        calc(12px + env(safe-area-inset-top))
+        12px
+        calc(12px + env(safe-area-inset-bottom))
+        12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-width:720px;
+      margin:0 auto;
     }
 
-    /* === STATS === */
-    .stats { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-    .stat-box {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 8px 6px;
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
-      backdrop-filter: blur(4px);
-    }
-    .stat-label { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-    .stat-value { font-size: 1.15rem; font-weight: 850; color: #fff; font-variant-numeric: tabular-nums; }
-    .stat-value.accent { color: var(--accent); }
-
-    .game-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-
-    /* === GAME ELEMENTS === */
-    .bobber {
-      width: 44px; height: 44px;
-      background: radial-gradient(circle at 30% 30%, #fff, var(--bobber-color));
-      border-radius: 50%; margin-top: 100px;
-      box-shadow: 0 0 20px var(--bobber-color);
-      animation: float 3s ease-in-out infinite; z-index: 2;
-    }
-    .bobber.nibbling { animation: nibble 0.1s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    @keyframes nibble { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(4px) rotate(-5deg); } 75% { transform: translateY(-4px) rotate(5deg); } }
-
-    .strike-button {
-      background: linear-gradient(135deg, var(--sunrise), #ff9f1c);
-      color: #15223a; border: none; border-radius: 50%;
-      width: 150px; height: 150px;
-      font-size: 1.6rem; font-weight: 900; cursor: pointer;
-      box-shadow: 0 0 40px rgba(242, 193, 78, 0.4);
-      animation: breathe 2s ease-in-out infinite;
-    }
-    .strike-button:active { transform: scale(0.92); animation: none; }
-    @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(242, 193, 78, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(242, 193, 78, 0.6); } }
-
-    /* === FISH ART === */
-    .fish-display { text-align: center; margin-bottom: 20px; }
-    .fish-art img { width: 120px; height: 120px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); animation: struggle 0.5s infinite; }
-    @keyframes struggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-    .fish-name { font-size: 1.5rem; font-weight: 800; margin-top: 10px; }
-    .fish-rarity { font-size: 0.9rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-
-    /* === GAUGES === */
-    .gauge-wrapper { width: 100%; margin: 15px 0; }
-    .gauge-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: flex; justify-content: space-between; opacity: 0.8; }
-    .gauge-bar { height: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-    .gauge-fill { height: 100%; width: 0%; transition: width 0.05s linear; }
-    #tensionFill { background: linear-gradient(90deg, #4ade80, #facc15, #ef4444); }
-    .gauge-fill.danger { animation: tension-pulse 0.2s infinite; filter: brightness(1.3); }
-    @keyframes tension-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    #progressFill { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-    .sweet-spot { position: absolute; left: 60%; width: 20%; height: 100%; background: rgba(255,255,255,0.05); border-left: 1px dashed rgba(255,255,255,0.3); border-right: 1px dashed rgba(255,255,255,0.3); }
-
-    /* === TAP AREA === */
-    .tap-area {
-      width: 100%; max-width: 380px; height: 240px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 2px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 24px;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 1.4rem; font-weight: 700;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      animation: border-pulse 3s infinite;
-    }
-    .tap-area:active { background: rgba(42, 167, 255, 0.1); transform: scale(0.98); border-color: var(--accent); border-style: solid; }
-    @keyframes border-pulse { 0%, 100% { border-color: rgba(255,255,255,0.2); } 50% { border-color: rgba(42,167,255,0.5); } }
-
-    .tap-indicator { position: absolute; font-weight: 900; pointer-events: none; animation: tap-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 20; -webkit-text-stroke: 1px rgba(0,0,0,0.5); }
-    @keyframes tap-pop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; } }
-
-    /* === ROTATION TUTORIAL === */
-    .reel-handle-container { position: absolute; width: 160px; height: 160px; border: 4px dashed rgba(255, 255, 255, 0.3); border-radius: 50%; display: none; justify-content: center; align-items: center; pointer-events: none; }
-    .reel-handle { width: 30px; height: 30px; background: var(--accent); border-radius: 50%; position: absolute; top: -15px; box-shadow: 0 0 15px var(--accent); }
-    .rotate-anim { animation: spin-handle 2s linear infinite; }
-    @keyframes spin-handle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    .tutorial-finger { position: absolute; font-size: 4rem; animation: finger-circle 2s infinite linear; z-index: 30; filter: drop-shadow(0 0 10px black); opacity: 0.8; }
-    @keyframes finger-circle { from { transform: rotate(0deg) translate(70px) rotate(0deg); } to { transform: rotate(360deg) translate(70px) rotate(-360deg); } }
-
-    /* === SUCCESS/COLLECTION === */
-    .fish-jump { position: fixed; font-size: 6rem; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0); z-index: 100; pointer-events: none; animation: fish-leap 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
-    @keyframes fish-leap { 0% { transform: translate(-50%, 50%) scale(0) rotate(-20deg); } 50% { transform: translate(-50%, -80%) scale(1.5) rotate(10deg); } 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
-
-    .particle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: explode 0.8s ease-out forwards; }
-    @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
-
-    .overlay { position: fixed; inset: 0; background: rgba(6, 16, 29, 0.95); z-index: 1000; display: none; padding: 20px; overflow-y: auto; backdrop-filter: blur(10px); }
-    .overlay.active { display: block; animation: fade-in 0.3s ease; }
-    @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding-bottom: 40px; }
-    .fish-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; text-align: center; }
-    .fish-card.locked { opacity: 0.4; filter: grayscale(1); }
-    .fish-card img { width: 64px; height: 64px; margin-bottom: 10px; }
-
-    .bobber-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 12px; }
-    .bobber-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-    .bobber-opt.selected { border-color: #fff; box-shadow: 0 0 10px #fff; transform: scale(1.2); }
-
-    .btn { background: linear-gradient(135deg, var(--accent), #1b6fa6); color: white; border: none; padding: 16px 32px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; cursor: pointer; margin: 10px; box-shadow: 0 4px 20px rgba(42, 167, 255, 0.3); transition: opacity 0.3s; }
-    .btn.disabled { opacity: 0; pointer-events: none; }
-    .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; }
-    .hidden { display: none !important; }
-
-    /* === ICE FISHING (DRILL) === */
-    .ice-surface {
-      width: 100%;
-      max-width: 380px;
-      height: 140px;
-      background: linear-gradient(135deg, var(--ice-1) 0%, var(--ice-2) 100%);
-      border: 3px solid var(--ice-3);
-      border-radius: 20px;
-      position: relative;
-      cursor: pointer;
-      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.28);
-      margin-bottom: 14px;
-      overflow: hidden;
-    }
-    .ice-hole {
-      position: absolute;
-      width: 64px; height: 64px;
-      background: radial-gradient(circle, #0c4a6e, var(--ice-hole));
-      border-radius: 50%;
-      border: 4px solid #0ea5e9;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
-      animation: ripple-hole 2s infinite;
-    }
-    @keyframes ripple-hole {
-      0%, 100% { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 0 0 rgba(14,165,233,0.7); }
-      50% { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 0 16px rgba(14,165,233,0); }
-    }
-    .drill-animation {
-      position: absolute;
-      font-size: 3rem;
-      animation: drill-spin 0.3s linear;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
-    }
-    @keyframes drill-spin {
-      from { transform: translate(-50%, -50%) rotate(0deg) scale(0.55); opacity: 0; }
-      to { transform: translate(-50%, -50%) rotate(720deg) scale(1.35); opacity: 0; }
+    body.pseudo-fs .app{
+      max-width:none;
+      margin:0;
+      padding:
+        calc(10px + env(safe-area-inset-top))
+        10px
+        calc(10px + env(safe-area-inset-bottom))
+        10px;
     }
 
-    .near-miss {
-      animation: wobble 0.45s ease-in-out 2;
-      transform-origin: center;
+    header{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:44px;
     }
-    @keyframes wobble {
-      0% { transform: translateX(0) rotate(0deg); }
-      25% { transform: translateX(-6px) rotate(-2deg); }
-      50% { transform: translateX(6px) rotate(2deg); }
-      75% { transform: translateX(-4px) rotate(-1deg); }
-      100% { transform: translateX(0) rotate(0deg); }
+    h1{
+      font-size:1.35rem;
+      margin:0;
+      color:var(--accent);
+      letter-spacing:.3px;
+      text-shadow:0 0 18px rgba(42,167,255,.55);
+    }
+    .hdrRight{margin-left:auto; display:flex; gap:8px; align-items:center;}
+
+    .btn{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.18);
+      color:rgba(255,255,255,0.92);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:.95rem;
+      cursor:pointer;
+      line-height:1;
+      white-space:nowrap;
+    }
+    .btn:active{transform:scale(.98); background:rgba(255,255,255,0.14);}
+    .btn.primary{background:rgba(42,167,255,0.16); border-color:rgba(42,167,255,0.35);}
+    .btn.danger{background:rgba(255,90,95,0.12); border-color:rgba(255,90,95,0.28);}
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--stroke);
+      border-radius:14px;
+      padding:10px;
+      backdrop-filter:blur(6px);
     }
 
-    @media (max-width: 420px) {
-      .container { padding: 14px; }
-      .stat-box { min-width: 105px; }
+    .vistaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .badge{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(42,167,255,0.12);
+      font-size:.85rem;
+      opacity:.95;
+    }
+    .select{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.18);
+      color:#fff;
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:1rem;
+      outline:none;
+      cursor:pointer;
+    }
+
+    .banner{
+      width:100%;
+      height:72px;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.03);
+      position:relative;
+    }
+    .banner .label{
+      position:absolute;
+      left:10px; bottom:8px;
+      background:rgba(0,0,0,0.22);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.9rem;
+      letter-spacing:.2px;
+      text-shadow:0 6px 18px rgba(0,0,0,0.55);
+    }
+    .banner .img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.95;
+      transform:scale(1.02);
+      display:none;
+    }
+    .banner .fallback{
+      position:absolute; inset:0;
+      opacity:.95;
+    }
+    .fallback.sunny{ background:linear-gradient(90deg,#1b4d7a 0%, #1d7aa8 40%, #0b2a46 100%); }
+    .fallback.ice  { background:linear-gradient(90deg,#0b3a5a 0%, #0a6aa1 40%, #05243a 100%); }
+    .fallback.bayou{ background:linear-gradient(90deg,#2F4F4F 0%, #2E3B2B 45%, #1C3334 100%); }
+
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .stat{
+      flex:1;
+      min-width:120px;
+      text-align:center;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:12px;
+      padding:8px 6px;
+      backdrop-filter:blur(4px);
+    }
+    .stat .k{font-size:.68rem; opacity:.72; text-transform:uppercase; letter-spacing:.55px; margin-bottom:2px;}
+    .stat .v{font-weight:850; font-size:1.1rem; font-variant-numeric:tabular-nums;}
+    .stat .v.accent{color:var(--accent);}
+
+    .game{
+      flex:1;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:0;
+    }
+
+    .state{
+      width:100%;
+      max-width:520px;
+      display:none;
+      text-align:center;
+      position:relative;
+    }
+    .state.active{display:block;}
+
+    /* WAITING (bobber) */
+    .bobberWrap{display:flex; justify-content:center; align-items:center; height:260px; position:relative;}
+    .bobber{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, #fff, #ff6b6b);
+      box-shadow:0 0 20px rgba(255,107,107,.65);
+      animation:float 3s ease-in-out infinite;
+    }
+    .bobber.nibbling{animation:nibble .10s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+    @keyframes nibble{
+      0%,100%{transform:translateY(0) rotate(0deg);}
+      25%{transform:translateY(4px) rotate(-4deg);}
+      50%{transform:translateY(-4px) rotate(4deg);}
+      75%{transform:translateY(3px) rotate(-3deg);}
+    }
+
+    .hint{opacity:.82; margin-top:6px; font-size:.98rem;}
+    .subhint{opacity:.62; margin-top:6px; font-size:.85rem; line-height:1.2;}
+
+    /* PRECISION CASTING (DOM-based, GPU transforms) */
+    .castingBox{
+      width:100%;
+      max-width:420px;
+      margin:0 auto;
+      background:rgba(255,255,255,0.03);
+      border:1px dashed rgba(255,255,255,0.18);
+      border-radius:16px;
+      padding:14px 12px 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .bayouFog{
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse at center, transparent 30%, rgba(47,79,79,0.28));
+      opacity:.55;
+      pointer-events:none;
+      animation:fogDrift 8s ease-in-out infinite;
+    }
+    @keyframes fogDrift{0%,100%{transform:translateX(0);}50%{transform:translateX(10px);} }
+
+    .arcStage{
+      position:relative;
+      height:190px;
+      width:100%;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+    }
+    .arc{
+      position:absolute;
+      bottom:10px;
+      width:320px; height:160px;
+      border:3px solid rgba(255,255,255,0.14);
+      border-bottom:none;
+      border-radius:160px 160px 0 0;
+      left:50%;
+      transform:translateX(-50%);
+    }
+    .sweetSpot{
+      position:absolute;
+      bottom:10px;
+      width:64px; height:168px;
+      left:50%;
+      transform:translateX(-50%) rotate(0deg);
+      transform-origin:bottom center;
+      background:linear-gradient(180deg, transparent 0%, rgba(242,193,78,0.35) 100%);
+      border:2px solid var(--sunrise);
+      border-bottom:none;
+      border-radius:32px 32px 0 0;
+      box-shadow:0 0 20px rgba(242,193,78,0.25);
+      z-index:1;
+    }
+    .cursor{
+      position:absolute;
+      bottom:10px;
+      width:8px; height:168px;
+      left:50%;
+      transform:translateX(-50%) rotate(0deg);
+      transform-origin:bottom center;
+      border-radius:4px;
+      background:linear-gradient(180deg, transparent 0%, var(--accent) 100%);
+      box-shadow:0 0 18px rgba(42,167,255,.7);
+      z-index:2;
+      animation:cursorGlow .55s ease-in-out infinite;
+    }
+    @keyframes cursorGlow{
+      0%,100%{box-shadow:0 0 16px rgba(42,167,255,.6);}
+      50%{box-shadow:0 0 26px rgba(42,167,255,.9);}
+    }
+    .castFlash{
+      position:absolute; inset:0;
+      opacity:0;
+      pointer-events:none;
+      background:radial-gradient(circle at 50% 80%, rgba(242,193,78,0.24), transparent 60%);
+    }
+    .castFlash.on{
+      opacity:1;
+      animation:flash .28s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes flash{0%{transform:scale(.98);}100%{transform:scale(1);} }
+
+    .castStats{
+      margin-top:10px;
+      opacity:.85;
+      font-size:.9rem;
+      line-height:1.25;
+    }
+    .goldTxt{color:var(--sunrise); font-weight:800;}
+    .mini{opacity:.65; font-size:.85rem; margin-top:4px;}
+
+    .particle{
+      position:absolute;
+      width:6px; height:6px;
+      border-radius:50%;
+      background:var(--sunrise);
+      pointer-events:none;
+      animation:burst .6s ease-out forwards;
+    }
+    @keyframes burst{
+      0%{transform:translate(0,0) scale(1); opacity:1;}
+      100%{transform:translate(var(--px), var(--py)) scale(0); opacity:0;}
+    }
+
+    /* ICE DRILLING */
+    .iceBox{
+      width:100%;
+      max-width:420px;
+      margin:0 auto;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;
+      padding:14px 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .iceSurface{
+      height:180px;
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(186,230,253,0.15), rgba(56,189,248,0.07));
+      border:1px solid rgba(255,255,255,0.12);
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:10px;
+    }
+    .iceHole{
+      width:90px; height:90px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, rgba(56,189,248,0.28), var(--iceHole));
+      border:2px solid rgba(224,242,254,0.25);
+      box-shadow:0 0 24px rgba(56,189,248,0.25);
+      display:none;
+    }
+    .iceHole.on{display:block;}
+    .drillBar{
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.12);
+      overflow:hidden;
+    }
+    .drillFill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, rgba(56,189,248,0.3), rgba(224,242,254,0.55));
+      transition:width .08s linear;
+    }
+    .iceMeta{opacity:.75; margin-top:8px; font-size:.9rem; line-height:1.2;}
+
+    /* REELING UI */
+    .fightBox{
+      width:100%;
+      max-width:520px;
+      margin:0 auto;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .fishName{
+      font-weight:900;
+      letter-spacing:.25px;
+      font-size:1.15rem;
+      margin-bottom:6px;
+    }
+    .fishMeta{opacity:.75; font-size:.9rem; margin-bottom:10px;}
+
+    .bars{display:flex; flex-direction:column; gap:10px; margin:10px 0;}
+    .bar{
+      height:14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      overflow:hidden;
+      position:relative;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      transition:width .06s linear;
+    }
+    .fill.progress{background:linear-gradient(90deg, rgba(42,167,255,0.35), rgba(42,167,255,0.9));}
+    .fill.tension{background:linear-gradient(90deg, rgba(242,193,78,0.15), rgba(255,90,95,0.85));}
+
+    .sweetBand{
+      position:absolute;
+      top:0; bottom:0;
+      left:60%;
+      width:20%;
+      background:rgba(242,193,78,0.16);
+      border-left:1px solid rgba(242,193,78,0.22);
+      border-right:1px solid rgba(242,193,78,0.22);
+      pointer-events:none;
+    }
+
+    .controlsHint{
+      margin-top:8px;
+      opacity:.85;
+      font-size:.95rem;
+      line-height:1.25;
+    }
+
+    .dangerVignette{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(circle, transparent 40%, rgba(255,90,95,0.35));
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .16s;
+      z-index:999;
+    }
+    .dangerVignette.on{
+      opacity:1;
+      animation:vPulse .8s ease-in-out infinite;
+    }
+    @keyframes vPulse{0%,100%{opacity:.55;}50%{opacity:1;}}
+
+    .toast{
+      position:absolute;
+      left:50%;
+      top:12px;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:.9rem;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      white-space:nowrap;
+    }
+    .toast.on{
+      opacity:1;
+      transform:translateX(-50%) translateY(2px);
+    }
+
+    .hidden{display:none !important;}
+
+    /* CAST MODE TOGGLE */
+    .toggleRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:8px;
+      justify-content:center;
+    }
+    .toggleLabel{font-size:.85rem; opacity:.8;}
+    .toggle{
+      position:relative;
+      width:52px; height:28px;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+      border-radius:999px;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    .toggle.on{background:rgba(42,167,255,0.35); border-color:rgba(42,167,255,0.5);}
+    .toggle::after{
+      content:'';
+      position:absolute;
+      top:3px; left:3px;
+      width:20px; height:20px;
+      background:#fff;
+      border-radius:50%;
+      transition:transform .2s;
+    }
+    .toggle.on::after{transform:translateX(24px);}
+
+    /* TROPHY ROOM OVERLAY */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(6,16,29,0.96);
+      z-index:1000;
+      display:none;
+      flex-direction:column;
+      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .overlay.open{display:flex;}
+    .overlayHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    .overlayTitle{font-size:1.2rem; font-weight:800; color:var(--accent);}
+    .overlayClose{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.18);
+      color:#fff;
+      width:36px; height:36px;
+      border-radius:50%;
+      font-size:1.2rem;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .overlayBody{
+      flex:1;
+      overflow-y:auto;
+      padding:16px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .trophySection{margin-bottom:24px;}
+    .trophySection h3{
+      font-size:.9rem;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      opacity:.7;
+      margin:0 0 12px 0;
+    }
+
+    /* Fish Collection Grid */
+    .fishGrid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));
+      gap:10px;
+    }
+    .fishCard{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      padding:10px 8px;
+      text-align:center;
+      position:relative;
+    }
+    .fishCard.locked{opacity:.4; filter:grayscale(1);}
+    .fishCard .icon{font-size:1.8rem;}
+    .fishCard .name{font-size:.7rem; margin-top:4px; opacity:.85; line-height:1.2;}
+    .fishCard .count{
+      position:absolute;
+      top:6px; right:6px;
+      background:var(--accent);
+      color:#000;
+      font-size:.65rem;
+      font-weight:800;
+      padding:2px 5px;
+      border-radius:999px;
+    }
+    .fishCard.locked .count{display:none;}
+
+    /* Bobber / Reel Selection */
+    .itemGrid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .itemCard{
+      width:70px;
+      background:rgba(255,255,255,0.04);
+      border:2px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      padding:10px 6px;
+      text-align:center;
+      cursor:pointer;
+      transition:border-color .15s, background .15s;
+    }
+    .itemCard:hover{background:rgba(255,255,255,0.08);}
+    .itemCard.selected{border-color:var(--accent); background:rgba(42,167,255,0.12);}
+    .itemCard.locked{opacity:.4; pointer-events:none;}
+    .itemCard .preview{font-size:1.6rem;}
+    .itemCard .label{font-size:.65rem; margin-top:4px; opacity:.8;}
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .bobber{animation:none;}
+      .bayouFog{animation:none;}
+      .cursor{animation:none;}
+    }
+
+    /* Desktop fullscreen polishing */
+    :fullscreen .app{
+      max-width:none;
+      margin:0;
     }
   </style>
 </head>
 
-<body>
-  <div class="danger-vignette" id="dangerVignette"></div>
-  <div class="waves">
-    <div class="wave wave-layer-1"></div>
-    <div class="wave wave-layer-2"></div>
-    <div class="wave wave-layer-3"></div>
+<body class="vista-sunny">
+  <div class="dangerVignette" id="dangerVignette"></div>
+
+  <!-- TROPHY ROOM OVERLAY -->
+  <div class="overlay" id="trophyOverlay">
+    <div class="overlayHeader">
+      <div class="overlayTitle">🏆 Trophy Room</div>
+      <button class="overlayClose" id="trophyClose">✕</button>
+    </div>
+    <div class="overlayBody">
+      <div class="trophySection">
+        <h3>🎣 Bobber</h3>
+        <div class="itemGrid" id="bobberGrid"></div>
+      </div>
+      <div class="trophySection">
+        <h3>🎡 Reel</h3>
+        <div class="itemGrid" id="reelGrid"></div>
+      </div>
+      <div class="trophySection">
+        <h3>🐟 Collection</h3>
+        <div class="fishGrid" id="fishGrid"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="container">
+  <div class="app" id="app">
     <header>
-      <h1>🎣 ReelLoop</h1>
-      <button class="icon-btn" id="btnFS">⛶</button>
-      <button class="icon-btn" id="btnSound">🔊</button>
+      <h1>ReelLoop</h1>
+      <div class="hdrRight">
+        <button class="btn" id="trophyBtn" aria-label="Trophy Room">🏆</button>
+        <button class="btn" id="soundBtn" aria-label="Sound">🔊</button>
+        <button class="btn primary" id="fsBtn" aria-label="Fullscreen">⛶</button>
+      </div>
     </header>
 
-    <!-- Vista + Unlock -->
-    <div class="vista-panel">
-      <div class="vista-top">
-        <div class="vista-badge" id="vistaBadge">☀️ Sunny Lake</div>
-        <select id="vistaSelector" class="vista-select" aria-label="Select Vista">
-          <option value="sunny_lake">☀️ Sunny Lake</option>
-          <option value="frozen_tundra" id="frozenTundraOption" disabled>❄️ Ice Tundra (Lvl 25 • 500🪙)</option>
-        </select>
+    <div class="panel">
+      <div class="vistaRow">
+        <div class="badge" id="vistaBadge">Vista: Sunny Lake</div>
+
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <select class="select" id="vistaSelect">
+            <option value="sunny_lake">☀️ Sunny Lake</option>
+            <option value="frozen_tundra" id="optIce">❄️ Frozen Tundra</option>
+            <option value="bayou_blackwater" id="optBayou">🐊 Bayou Blackwater</option>
+          </select>
+          <button class="btn" id="unlockBtn">Unlock</button>
+        </div>
       </div>
-      <div class="vista-banner" title="Vista Assets Reference (static image)">
-        <!-- Place your uploaded image at: public/play/reelloop/assets/vistas.png -->
-        <img src="./assets/vistas.png" alt="Vista Assets" />
-        <div class="label" id="vistaBannerLabel">Sunny Lake</div>
+
+      <div class="banner" id="banner">
+        <div class="fallback sunny" id="bannerFallback"></div>
+        <img class="img" id="bannerImg" alt="Vista banner" />
+        <div class="label" id="bannerLabel">Sunny Lake</div>
       </div>
     </div>
 
     <div class="stats">
-      <div class="stat-box"><div class="stat-label">Level</div><div class="stat-value accent" id="playerLevel">1</div></div>
-      <div class="stat-box"><div class="stat-label">Coins</div><div class="stat-value" id="playerCoins">0</div></div>
-      <div class="stat-box"><div class="stat-label">Caught</div><div class="stat-value" id="totalCaught">0</div></div>
-      <div class="stat-box"><div class="stat-label">Discovered</div><div class="stat-value" id="uniqueFish">0/5</div></div>
-      <div class="stat-box"><div class="stat-label">Vista</div><div class="stat-value" id="vistaName">Sunny Lake</div></div>
+      <div class="stat">
+        <div class="k">Level</div>
+        <div class="v accent" id="lvl">1</div>
+      </div>
+      <div class="stat">
+        <div class="k">Coins</div>
+        <div class="v" id="coins">0</div>
+      </div>
+      <div class="stat">
+        <div class="k">Perfect Cast</div>
+        <div class="v" id="castRate">0%</div>
+      </div>
+      <div class="stat">
+        <div class="k">Catches</div>
+        <div class="v" id="catches">0</div>
+      </div>
     </div>
 
-    <div class="game-area">
-      <div id="waitingState">
-        <!-- ICE MODE (hidden unless vista.mechanic === 'drill') -->
-        <div id="iceDrillMode" class="hidden">
-          <div class="ice-surface" id="iceSurface">
-            <div id="iceHole" class="ice-hole hidden"></div>
-          </div>
-          <p style="text-align: center; opacity: 0.72;">Tap ice to drill a hole (5 catches per hole)</p>
-          <p style="text-align: center; font-size: 0.9rem; margin-top: 8px; opacity: 0.85;">
-            Hole Uses: <span id="holeUseCount">0</span>/5
-          </p>
-          <p style="text-align: center; font-size: 0.85rem; margin-top: 6px; opacity: 0.65;" id="iceHint">
-            Drill to start fishing.
-          </p>
-        </div>
-
-        <!-- STANDARD MODE -->
-        <div id="bobberMode">
+    <div class="game">
+      <!-- WAITING -->
+      <div class="state active" id="stateWaiting">
+        <div class="bobberWrap" id="bobberMode">
           <div class="bobber" id="bobber"></div>
-          <p style="text-align: center; margin-top: 30px; opacity: 0.6;">Waiting for bite...</p>
+        </div>
+
+        <!-- ICE DRILL -->
+        <div class="iceBox hidden" id="iceMode">
+          <div class="iceSurface" id="iceSurface">
+            <div class="iceHole" id="iceHole"></div>
+            <div class="toast" id="iceToast">Tap to drill a hole</div>
+          </div>
+          <div class="drillBar"><div class="drillFill" id="drillFill"></div></div>
+          <div class="iceMeta" id="iceMeta">Hole uses: 0 / 5</div>
+          <div style="margin-top:10px; display:flex; gap:8px; justify-content:center;">
+            <button class="btn primary" id="drillBtn">Drill Hole</button>
+          </div>
+        </div>
+
+        <!-- PRECISION CAST -->
+        <div class="castingBox hidden" id="castMode">
+          <div class="bayouFog" id="bayouFog"></div>
+          <div class="arcStage" id="arcStage">
+            <div class="arc"></div>
+            <div class="sweetSpot" id="sweetSpot"></div>
+            <div class="cursor" id="castCursor"></div>
+            <div class="castFlash" id="castFlash"></div>
+          </div>
+          <div class="castStats">
+            Tap when cursor is in the <span class="goldTxt">GOLD ZONE</span>.
+            <div class="mini">
+              Perfect: <span id="perfectCastCount">0</span>/<span id="totalCastCount">0</span>
+            </div>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:8px; justify-content:center;">
+            <button class="btn primary" id="castTapBtn">Tap to Cast</button>
+          </div>
+        </div>
+
+        <div class="hint" id="waitingHint">Tap to start.</div>
+        <div class="subhint" id="waitingSubhint">Sunny & Bayou use Precision Casting. Ice uses drilling.</div>
+        
+        <!-- Cast Mode Toggle (only for precision_cast vistas) -->
+        <div class="toggleRow hidden" id="castToggleRow">
+          <span class="toggleLabel">Classic</span>
+          <div class="toggle on" id="castModeToggle"></div>
+          <span class="toggleLabel">Precision</span>
         </div>
       </div>
 
-      <div id="strikeState" class="hidden">
-        <button class="strike-button" id="strikeButton">HOOK!</button>
+      <!-- NIBBLING -->
+      <div class="state" id="stateNibbling">
+        <div class="hint">Bite detected.</div>
+        <div class="subhint">Tap quickly to hook.</div>
       </div>
 
-      <div id="reelState" class="hidden">
-        <div class="fish-display">
-          <div class="fish-art"><img id="fishArtImg" alt="Fish" /></div>
-          <div class="fish-name" id="fishName">Fish</div>
-          <div class="fish-rarity" id="fishRarity">Common</div>
-        </div>
+      <!-- REELING -->
+      <div class="state" id="stateReel">
+        <div class="fightBox" id="fightBox">
+          <div class="toast" id="toast"></div>
+          <img id="fishSprite"
+               alt="Catchable"
+               style="width:260px; max-width:70vw; height:120px; object-fit:contain; display:block; margin:0 auto 10px auto; filter:drop-shadow(0 14px 18px rgba(0,0,0,0.35));"
+               />
+          <div class="fishName" id="fishName">Fish</div>
+          <div class="fishMeta" id="fishMeta">—</div>
 
-        <div class="gauge-wrapper">
-          <div class="gauge-label"><span>Line Tension</span><span id="tensionVal">0%</span></div>
-          <div class="gauge-bar"><div class="sweet-spot"></div><div class="gauge-fill" id="tensionFill"></div></div>
-        </div>
+          <div class="bars">
+            <div class="bar">
+              <div class="fill progress" id="progressFill"></div>
+            </div>
+            <div class="bar">
+              <div class="sweetBand"></div>
+              <div class="fill tension" id="tensionFill"></div>
+            </div>
+          </div>
 
-        <div class="gauge-wrapper">
-          <div class="gauge-label"><span>Reel Progress</span></div>
-          <div class="gauge-bar"><div class="gauge-fill" id="progressFill"></div></div>
-        </div>
+          <div class="controlsHint" id="controlsHint">
+            Tap to reel.
+          </div>
 
-        <div class="tap-area" id="tapArea">
-          <div id="reelHandle" class="reel-handle-container"><div class="reel-handle"></div></div>
-          <span id="tapPrompt" style="position: relative; z-index: 2;">REEL FAST!</span>
+          <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn primary" id="reelTapBtn">Reel</button>
+            <button class="btn" id="releaseBtn">Release</button>
+          </div>
         </div>
       </div>
 
-      <div id="successState" class="hidden">
-        <div style="text-align: center; padding: 20px;">
-          <div style="font-size: 5rem;" id="successFishIcon">🐟</div>
-          <h2 style="font-size: 2rem; margin: 10px 0;" id="caughtFishName"></h2>
-          <div style="color: var(--sunrise); font-weight: 800; letter-spacing: 1px;" id="newDiscovery"></div>
-          <div style="margin-top: 10px; opacity: 0.75; font-weight: 700;" id="rewardLine"></div>
+      <!-- RESULT -->
+      <div class="state" id="stateResult">
+        <div class="hint" id="resultTitle">Success</div>
+        <div class="subhint" id="resultDetail">—</div>
+        <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
+          <button class="btn primary" id="nextBtn">Continue</button>
         </div>
-        <button class="btn disabled" id="castAgainButton">Cast Again</button>
-      </div>
-
-      <div id="failState" class="hidden">
-        <div style="text-align: center; padding: 20px;">
-          <div style="font-size: 4rem; margin-bottom: 10px;">💔</div>
-          <h2 style="color: var(--danger);" id="failTitle">Line Snapped</h2>
-          <p style="opacity: 0.7;" id="failBody">Too much tension!</p>
-        </div>
-        <button class="btn" id="tryAgainButton">Try Again</button>
       </div>
     </div>
-
-    <div style="text-align: center; margin-top: auto;">
-      <button class="btn btn-secondary" id="collectionButton">🏆 Trophy Room</button>
-    </div>
-  </div>
-
-  <div class="overlay" id="collectionOverlay">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="font-size: 1.5rem;">🏆 Trophy Room</h2>
-      <button class="btn-secondary" style="padding: 8px 16px; margin: 0;" id="closeCollection">Done</button>
-    </div>
-
-    <div style="margin-bottom: 20px;">
-      <div style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7;">Bobber Color</div>
-      <div class="bobber-selector" id="bobberSelector"></div>
-    </div>
-
-    <div style="margin-bottom: 14px; opacity: 0.85; font-weight: 800;" id="collectionSubhead">All Fish</div>
-    <div class="collection-grid" id="collectionGrid"></div>
   </div>
 
   <script>
-    /* =========================
-       DATA: Fish + Vistas
-       ========================= */
+    /**********************
+     * FULLSCREEN + iOS VH FIX (stable)
+     **********************/
+    const $ = (id) => document.getElementById(id);
 
-    const BASE_FISH = [
-      { id: "fish_bluegill", name: "Bluegill", color: "#60a5fa", vibration: [30, 40], requiredTaps: 12, rarity: "Common", icon: "🐟", reelType: "tap" },
-      { id: "fish_perch", name: "Yellow Perch", color: "#facc15", vibration: [40, 30], requiredTaps: 16, rarity: "Common", icon: "🐠", reelType: "tap" },
-      { id: "fish_trout", name: "Rainbow Trout", color: "#4ade80", vibration: [60, 40], requiredTaps: 28, rarity: "Uncommon", icon: "🐟", reelType: "hold" },
-      { id: "fish_bass", name: "Largemouth Bass", color: "#22c55e", vibration: [80, 40], requiredTaps: 45, rarity: "Rare", icon: "🐟", reelType: "rotate" },
-      { id: "fish_muskie", name: "Muskie", color: "#a855f7", vibration: [120, 60, 120], requiredTaps: 85, rarity: "Legendary", icon: "🦈", reelType: "rotate", isJackpot: true }
-    ];
+    // Convert underscore IDs to kebab-case for asset paths
+    function toKebab(s){
+      return (s || '').replaceAll('_','-');
+    }
 
-    // Ice fish per spec 
-    const ICE_FISH = [
-      { id: "ice_minnow",  name: "Ice Minnow",  color: "#67e8f9", vibration: [20, 30], requiredTaps: 8,   rarity: "Common",   icon: "🐟", reelType: "tap",    vista: "frozen_tundra", coin: 10 },
-      { id: "frost_perch", name: "Frost Perch", color: "#7dd3fc", vibration: [40, 35], requiredTaps: 18,  rarity: "Common",   icon: "🐠", reelType: "tap",    vista: "frozen_tundra", coin: 35 },
-      { id: "glacier_bass",name: "Glacier Bass",color: "#38bdf8", vibration: [60, 45], requiredTaps: 32,  rarity: "Uncommon", icon: "🐟", reelType: "hold",   vista: "frozen_tundra", coin: 80 },
-      { id: "arctic_pike", name: "Arctic Pike", color: "#0ea5e9", vibration: [90, 50], requiredTaps: 55,  rarity: "Rare",     icon: "🐟", reelType: "rotate", vista: "frozen_tundra", coin: 200, nearMissChance: 0.30 },
-      { id: "frost_wyrm",  name: "Frost Wyrm",  color: "#0284c7", vibration: [150,80,150], requiredTaps: 100, rarity: "Legendary", icon: "🐉", reelType: "rotate", vista: "frozen_tundra", coin: 800, isJackpot: true }
-    ];
+    function setViewportUnits(){
+      const vv = window.visualViewport;
+      const h = vv ? vv.height : window.innerHeight;
+      document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+    }
+    setViewportUnits();
+    window.addEventListener('resize', setViewportUnits, {passive:true});
+    window.addEventListener('orientationchange', () => setTimeout(setViewportUnits, 150), {passive:true});
+    if (window.visualViewport){
+      window.visualViewport.addEventListener('resize', setViewportUnits, {passive:true});
+      window.visualViewport.addEventListener('scroll', setViewportUnits, {passive:true});
+    }
 
-    const FISH_DICTIONARY = [...BASE_FISH, ...ICE_FISH];
+    function isIOS(){
+      return /iP(hone|od|ad)/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function enterPseudoFullscreen(){
+      document.body.classList.add('pseudo-fs');
+      // Hard lock scrolling in case browser tries to scroll
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      setViewportUnits();
+    }
+
+    function exitPseudoFullscreen(){
+      document.body.classList.remove('pseudo-fs');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      setViewportUnits();
+    }
+
+    async function toggleFullscreen(){
+      const root = $('app');
+      // Real fullscreen (desktop browsers)
+      const doc = document;
+      const fsEl = doc.fullscreenElement || doc.webkitFullscreenElement;
+
+      if (fsEl){
+        try {
+          if (doc.exitFullscreen) await doc.exitFullscreen();
+          else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+        } catch {}
+        exitPseudoFullscreen();
+        return;
+      }
+
+      // Try real fullscreen first (works on macOS Safari / Chrome)
+      let didReal = false;
+      try{
+        if (root.requestFullscreen){
+          await root.requestFullscreen({ navigationUI: 'hide' });
+          didReal = true;
+        } else if (root.webkitRequestFullscreen){
+          root.webkitRequestFullscreen();
+          didReal = true;
+        }
+      } catch {
+        didReal = false;
+      }
+
+      // iOS Safari: fallback pseudo fullscreen
+      if (!didReal){
+        enterPseudoFullscreen();
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      // When leaving real fullscreen, clear pseudo state too
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!fsEl) exitPseudoFullscreen();
+      setViewportUnits();
+    });
+
+    /**********************
+     * AUDIO / HAPTICS
+     **********************/
+    let audioEnabled = true;
+    let audioCtx = null;
+    let pitchMul = 1.0;
+
+    function ensureAudio(){
+      if (!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+    }
+
+    function tone(freq=440, type='sine', dur=0.08, gain=0.05){
+      if (!audioEnabled) return;
+      ensureAudio();
+      try{
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = Math.max(40, freq * pitchMul);
+        g.gain.value = gain;
+
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        const t0 = audioCtx.currentTime;
+        o.start(t0);
+        g.gain.setValueAtTime(gain, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        o.stop(t0 + dur + 0.02);
+      }catch{}
+    }
+
+    function vibrate(pattern){
+      try {
+        if (navigator.vibrate) navigator.vibrate(pattern);
+      } catch(e) {
+        // iOS Safari throws — fail silently
+      }
+    }
+
+    /**********************
+     * DATA MODEL
+     **********************/
+    const STATE = {
+      WAITING: 'waiting',
+      CASTING: 'casting',
+      NIBBLING: 'nibbling',
+      REEL: 'reel',
+      RESULT: 'result'
+    };
 
     const VISTAS = [
       {
-        id: "sunny_lake",
-        name: "Sunny Lake",
-        emoji: "☀️",
-        unlocked: true,
-        bgGradient: "linear-gradient(180deg, #0b1a2e 0%, #06101d 100%)",
-        fishPool: ["fish_bluegill", "fish_perch", "fish_trout", "fish_bass", "fish_muskie"],
-        mechanic: "bobber"
+        id:'sunny_lake',
+        name:'Sunny Lake',
+        unlockLevel:1,
+        unlockCost:0,
+        mechanic:'precision_cast',
+        fallbackClass:'sunny'
       },
       {
-        id: "frozen_tundra",
-        name: "Ice Tundra",
-        emoji: "❄️",
-        unlocked: false,
-        unlockLevel: 25,
-        unlockCost: 500,
-        bgGradient: "linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%)",
-        fishPool: ["ice_minnow", "frost_perch", "glacier_bass", "arctic_pike", "frost_wyrm"],
-        mechanic: "drill"
+        id:'frozen_tundra',
+        name:'Frozen Tundra',
+        unlockLevel:5,
+        unlockCost:200,
+        mechanic:'drill',
+        fallbackClass:'ice'
+      },
+      {
+        id:'bayou_blackwater',
+        name:'Bayou Blackwater',
+        unlockLevel:10,
+        unlockCost:500,
+        mechanic:'precision_cast',
+        fallbackClass:'bayou'
       }
     ];
 
-    const BOBBER_COLORS = ['#ff6b6b', '#51cf66', '#339af0', '#fcc419', '#cc5de8'];
+    // Minimal fish sets (5 per vista)
+    // spawnWeight is treated as weight (not required to sum to 1.0)
+    const FISH = [
+      // SUNNY
+      { id:'bluegill', name:'Bluegill', vista:'sunny_lake', rarity:'Common',  reelType:'tap',    spawnWeight:80, coins:10,  color:'#3b82f6', vibration:[25,30], requiredTaps:10 },
+      { id:'yellow_perch', name:'Yellow Perch', vista:'sunny_lake', rarity:'Common', reelType:'tap', spawnWeight:55, coins:25, color:'#fbbf24', vibration:[30,30], requiredTaps:16 },
+      { id:'rainbow_trout', name:'Rainbow Trout', vista:'sunny_lake', rarity:'Uncommon', reelType:'hold', spawnWeight:30, coins:60, color:'#a855f7', vibration:[50,40], requiredTaps:26 },
+      { id:'largemouth_bass', name:'Largemouth Bass', vista:'sunny_lake', rarity:'Rare', reelType:'rotate', spawnWeight:10, coins:180, color:'#22c55e', vibration:[70,60], requiredTaps:52 },
+      { id:'muskie', name:'Muskie', vista:'sunny_lake', rarity:'Legendary', reelType:'rotate', spawnWeight:2, coins:600, color:'#eab308', vibration:[120,80,120], requiredTaps:88, isJackpot:true },
 
-    /* =========================
-       HI-FI SVG ART (extended)
-       ========================= */
+      // ICE
+      { id:'ice_minnow', name:'Ice Minnow', vista:'frozen_tundra', rarity:'Common', reelType:'tap', spawnWeight:85, coins:10, color:'#93c5fd', vibration:[25,30], requiredTaps:10 },
+      { id:'frost_perch', name:'Frost Perch', vista:'frozen_tundra', rarity:'Common', reelType:'tap', spawnWeight:60, coins:35, color:'#60a5fa', vibration:[30,30], requiredTaps:18 },
+      { id:'glacier_trout', name:'Glacier Trout', vista:'frozen_tundra', rarity:'Uncommon', reelType:'hold', spawnWeight:35, coins:80, color:'#38bdf8', vibration:[50,40], requiredTaps:30 },
+      { id:'arctic_pike', name:'Arctic Pike', vista:'frozen_tundra', rarity:'Rare', reelType:'rotate', spawnWeight:15, coins:200, color:'#22d3ee', vibration:[70,60], requiredTaps:62, mechanic:'near_miss' },
+      { id:'frost_wyrm', name:'Frost Wyrm', vista:'frozen_tundra', rarity:'Legendary', reelType:'rotate', spawnWeight:2, coins:800, color:'#a7f3d0', vibration:[120,80,120], requiredTaps:110, isJackpot:true },
 
-    function fishSvg(species, body, accent) {
-      switch (species) {
-        case "bluegill":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M20 64c0-18 20-32 44-32s44 14 44 32-20 32-44 32S20 82 20 64z" fill="url(#g)"/><path d="M90 64l26-18v36L90 64z" fill="${accent}" opacity="0.9"/><circle cx="52" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "perch":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 66c0-16 22-30 46-30s46 14 46 30-22 30-46 30S18 82 18 66z" fill="url(#g)"/><path d="M90 66l26-16v32L90 66z" fill="${accent}" opacity="0.95"/><path d="M42 44v44" stroke="rgba(0,0,0,0.18)" stroke-width="5"/><path d="M54 42v48" stroke="rgba(0,0,0,0.14)" stroke-width="5"/><circle cx="52" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "trout":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M16 64c0-14 26-26 52-26s44 12 44 26-18 26-44 26S16 78 16 64z" fill="url(#g)"/><path d="M90 64l24-14v28L90 64z" fill="${accent}" opacity="0.9"/><path d="M36 64c14 8 30 12 48 12" stroke="rgba(255,255,255,0.22)" stroke-width="3"/><circle cx="48" cy="60" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "bass":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-18 22-32 48-32s44 14 44 32-18 32-44 32S18 82 18 64z" fill="url(#g)"/><path d="M92 64l24-18v36L92 64z" fill="${accent}" opacity="0.95"/><path d="M44 72c18 10 40 10 58 0" stroke="rgba(255,255,255,0.18)" stroke-width="3"/><circle cx="50" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "muskie":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M14 64c0-14 30-26 56-26s44 12 44 26-18 26-44 26S14 78 14 64z" fill="url(#g)"/><path d="M92 64l24-14v28L92 64z" fill="${accent}" opacity="0.95"/><circle cx="46" cy="58" r="4" fill="#0b1a2e" opacity="0.85"/></svg>`;
-        case "ice_minnow":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-12 24-22 48-22s44 10 44 22-20 22-44 22S18 76 18 64z" fill="url(#g)"/><path d="M92 64l22-12v24L92 64z" fill="${accent}" opacity="0.95"/><path d="M30 64c18 6 38 6 58 0" stroke="rgba(255,255,255,0.22)" stroke-width="3"/><circle cx="48" cy="60" r="4" fill="#06101d" opacity="0.85"/></svg>`;
-        case "frost_perch":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 66c0-15 22-28 46-28s46 13 46 28-22 28-46 28S18 81 18 66z" fill="url(#g)"/><path d="M90 66l26-16v32L90 66z" fill="${accent}" opacity="0.95"/><path d="M42 46v40" stroke="rgba(255,255,255,0.18)" stroke-width="5"/><circle cx="52" cy="60" r="4" fill="#06101d" opacity="0.85"/></svg>`;
-        case "glacier_bass":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M18 64c0-18 22-32 48-32s44 14 44 32-18 32-44 32S18 82 18 64z" fill="url(#g)"/><path d="M92 64l24-18v36L92 64z" fill="${accent}" opacity="0.95"/><path d="M36 64c18 10 42 10 62 0" stroke="rgba(255,255,255,0.16)" stroke-width="3"/><circle cx="50" cy="58" r="4" fill="#06101d" opacity="0.85"/></svg>`;
-        case "arctic_pike":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M12 64c0-12 34-22 60-22s44 10 44 22-18 22-44 22S12 76 12 64z" fill="url(#g)"/><path d="M92 64l26-14v28L92 64z" fill="${accent}" opacity="0.95"/><path d="M30 58h56" stroke="rgba(255,255,255,0.18)" stroke-width="3"/><path d="M30 70h52" stroke="rgba(255,255,255,0.12)" stroke-width="3"/><circle cx="46" cy="58" r="4" fill="#06101d" opacity="0.85"/></svg>`;
-        case "frost_wyrm":
-          return `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="${body}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs><path d="M16 80c10-26 24-40 46-44 22-4 40 8 50 30-10 14-24 22-42 24-18 2-34-2-54-10z" fill="url(#g)"/><path d="M28 70c10 10 22 16 36 18" stroke="rgba(255,255,255,0.22)" stroke-width="3" fill="none"/><path d="M70 44l18 8-6 18-18-8z" fill="${accent}" opacity="0.9"/><circle cx="58" cy="56" r="4" fill="#06101d" opacity="0.85"/></svg>`;
-        default:
-          return fishSvg("muskie", body, accent);
+      // BAYOU (per spec)
+      { id:'swamp_guppy', name:'Swamp Guppy', vista:'bayou_blackwater', rarity:'Common', reelType:'tap', spawnWeight:80, coins:15, color:'#556B2F', vibration:[25,30], requiredTaps:10, mechanic:'jerk' },
+      { id:'mud_catfish', name:'Mud Catfish', vista:'bayou_blackwater', rarity:'Common', reelType:'hold', spawnWeight:55, coins:45, color:'#6B8E23', vibration:[50,40], requiredTaps:22, mechanic:'heavy_drag' },
+      { id:'snapping_turtle', name:'Snapping Turtle', vista:'bayou_blackwater', rarity:'Uncommon', reelType:'tap', spawnWeight:30, coins:90, color:'#2F4F4F', vibration:[120,30], requiredTaps:38, mechanic:'snap_tension' },
+      { id:'ghost_gar', name:'Ghost Gar', vista:'bayou_blackwater', rarity:'Rare', reelType:'rotate', spawnWeight:10, coins:250, color:'#708090', vibration:[90,60], requiredTaps:65, mechanic:'fake_out', nearMissChance:0.35 },
+      { id:'king_croc', name:'King Croc', vista:'bayou_blackwater', rarity:'Legendary', reelType:'rotate', spawnWeight:1, coins:1500, color:'#1C4E36', vibration:[200,100,200], requiredTaps:120, mechanic:'three_phase', isJackpot:true }
+    ];
+
+    // BOBBERS (cosmetic customization)
+    const BOBBERS = [
+      { id:'classic', name:'Classic', preview:'🔴', unlockLevel:1 },
+      { id:'golden', name:'Golden', preview:'🟡', unlockLevel:5 },
+      { id:'emerald', name:'Emerald', preview:'🟢', unlockLevel:10 },
+      { id:'sapphire', name:'Sapphire', preview:'🔵', unlockLevel:15 },
+      { id:'amethyst', name:'Amethyst', preview:'🟣', unlockLevel:20 },
+      { id:'obsidian', name:'Obsidian', preview:'⚫', unlockLevel:30 },
+      { id:'diamond', name:'Diamond', preview:'💎', unlockLevel:50 }
+    ];
+
+    // REELS (cosmetic customization)
+    const REELS = [
+      { id:'basic', name:'Basic', preview:'⚙️', unlockLevel:1 },
+      { id:'bronze', name:'Bronze', preview:'🥉', unlockLevel:8 },
+      { id:'silver', name:'Silver', preview:'🥈', unlockLevel:18 },
+      { id:'gold', name:'Gold', preview:'🥇', unlockLevel:28 },
+      { id:'platinum', name:'Platinum', preview:'✨', unlockLevel:40 },
+      { id:'legendary', name:'Legendary', preview:'🌟', unlockLevel:60 }
+    ];
+
+    /**********************
+     * PERSISTENCE
+     **********************/
+    const SAVE_KEY = 'reelloop_save_v4';
+    const defaultSave = () => ({
+      coins: 0,
+      catches: 0,
+      level: 1,
+      unlocked: { sunny_lake: true, frozen_tundra: false, bayou_blackwater: false },
+      currentVista: 'sunny_lake',
+      cast: { perfect: 0, total: 0 },
+      // NEW: collection, gear, cast mode
+      collection: {},        // { fish_id: count }
+      bobber: 'classic',
+      reel: 'basic',
+      usePrecisionCast: true, // toggle: true = precision, false = classic
+      soundOn: true            // persist sound button
+    });
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(SAVE_KEY);
+        if(!raw) return defaultSave();
+        const data = JSON.parse(raw);
+        return Object.assign(defaultSave(), data);
+      }catch{
+        return defaultSave();
       }
     }
-
-    function fishArtDataUri(fish) {
-      const map = {
-        fish_bluegill: { s: "bluegill", a: "#b7e3ff" },
-        fish_perch:    { s: "perch",    a: "#ffda6b" },
-        fish_trout:    { s: "trout",    a: "#c7ffd7" },
-        fish_bass:     { s: "bass",     a: "#b0f2c2" },
-        fish_muskie:   { s: "muskie",   a: "#d2d8df" },
-
-        ice_minnow:    { s: "ice_minnow",    a: "#e0f2fe" },
-        frost_perch:   { s: "frost_perch",   a: "#dbeafe" },
-        glacier_bass:  { s: "glacier_bass",  a: "#bae6fd" },
-        arctic_pike:   { s: "arctic_pike",   a: "#a5f3fc" },
-        frost_wyrm:    { s: "frost_wyrm",    a: "#93c5fd" }
-      };
-
-      const entry = map[fish.id] || { s: "muskie", a: "#d2d8df" };
-      const svg = fishSvg(entry.s, fish.color, entry.a);
-      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    function save(){
+      localStorage.setItem(SAVE_KEY, JSON.stringify(S));
     }
 
-    /* =========================
-       STATE
-       ========================= */
+    let S = load();
 
-    let gameState = 'waiting';
+    function computeLevel(){
+      // Simple, stable: +1 level per 5 catches (predictable gating)
+      const lvl = 1 + Math.floor(S.catches / 5);
+      S.level = Math.max(1, lvl);
+    }
+
+    /**********************
+     * GAME RUNTIME
+     **********************/
+    let gameState = STATE.WAITING;
+    let currentVista = null;
     let currentFish = null;
-    let reelingProgress = 0;
-    let tension = 0;
-    let isHolding = false;
-    let holdInterval = null;
-    let reelInterval = null;
-    let tapCombo = 0;
-    let comboTimeout = null;
-    let lastAngle = null;
-    let totalRotation = 0;
 
-    // Progression
-    let playerLevel = 1;
-    let playerCoins = 0;
+    // Casting vars
+    let castingActive = false;
+    let castRaf = null;
+    let cursorDeg = 0;
+    let targetDeg = 0;
+    let castLocked = false;
+    let pendingRarityBonus = false;
 
-    // Ice hole
-    let iceHoleUses = 0;
+    // Ice drilling vars
     const MAX_HOLE_USES = 5;
+    let holeOpen = false;
+    let holeUses = 0;
+    let drilling = false;
+    let drillStart = 0;
+    let drillTimer = null;
+    let drillHapt = null;
 
-    // Vista
-    let currentVista = VISTAS[0];
+    // Fight vars
+    let progress = 0;
+    let tension = 0;
+    let tensionRate = 0.85;
+    let lastTick = 0;
 
-    // Collection
-    let caughtFish = JSON.parse(localStorage.getItem('reelLoopCaughtFish') || '[]');
+    // Special mechanics
+    let currentPhase = 0;
+    let snapTriggered = false;
+    let snapWindowUntil = 0;
+    let fakeOutActive = false;
+    let slackActive = false;
+    let slackInputs = 0;
 
-    // Audio
-    let soundEnabled = true;
-    let audioCtx = null;
+    // Input tracking
+    let pointerDown = false;
+    let lastRotateAngle = null;
+    let rotateAccum = 0;
 
-    // Cosmetics
-    let currentBobberColor = localStorage.getItem('reelLoopBobberColor') || BOBBER_COLORS[0];
+    // Reduced motion accessibility
+    const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* =========================
-       DOM
-       ========================= */
-
-    const getEl = (id) => document.getElementById(id);
-    const states = {
-      waiting: getEl('waitingState'),
-      strike: getEl('strikeState'),
-      reel: getEl('reelState'),
-      success: getEl('successState'),
-      fail: getEl('failState')
-    };
-
-    const bobber = getEl('bobber');
-    const tapArea = getEl('tapArea');
-    const pFill = getEl('progressFill');
-    const tFill = getEl('tensionFill');
-
-    /* =========================
-       AUDIO
-       ========================= */
-
-    function ensureAudio() {
-      if (!audioCtx && soundEnabled) {
-        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
-      }
-      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    /**********************
+     * UI HELPERS
+     **********************/
+    function setBodyVistaClass(vistaId){
+      document.body.classList.remove('vista-sunny','vista-ice','vista-bayou');
+      if(vistaId === 'frozen_tundra') document.body.classList.add('vista-ice');
+      else if(vistaId === 'bayou_blackwater') document.body.classList.add('vista-bayou');
+      else document.body.classList.add('vista-sunny');
     }
 
-    function playTone(freq, type = 'sine', pitchMul = 1.0) {
-      if (!audioCtx) return;
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.connect(g); g.connect(audioCtx.destination);
-      o.type = type;
-      o.frequency.value = freq * pitchMul;
-      g.gain.value = 0.10;
-      g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.10);
-      o.start();
-      o.stop(audioCtx.currentTime + 0.12);
+    function updateStats(){
+      computeLevel();
+      $('lvl').textContent = S.level;
+      $('coins').textContent = S.coins;
+      $('catches').textContent = S.catches;
+
+      const rate = S.cast.total > 0 ? Math.round((S.cast.perfect / S.cast.total) * 100) : 0;
+      $('castRate').textContent = rate + '%';
+      $('perfectCastCount').textContent = S.cast.perfect;
+      $('totalCastCount').textContent = S.cast.total;
+
+      // Vista badge + banner
+      $('vistaBadge').textContent = `Vista: ${currentVista.name}`;
+      $('bannerLabel').textContent = currentVista.name;
+
+      const img = $('bannerImg');
+      const fallback = $('bannerFallback');
+      fallback.className = 'fallback ' + currentVista.fallbackClass;
+
+      // Attempt load banner image; fall back to gradient if missing
+      img.onerror = () => { img.style.display='none'; };
+      img.onload  = () => { img.style.display='block'; };
+      img.src = `./assets/vistas/${toKebab(currentVista.id)}/banner.png`;
     }
 
-    /* =========================
-       PROGRESSION
-       ========================= */
+    function setVistaSelectOptions(){
+      const optIce = $('optIce');
+      const optBayou = $('optBayou');
 
-    function gainXP(amount) {
-      // Simple, stable: each level costs level*10 taps-worth.
-      const xpNeeded = playerLevel * 10;
-      const gainedLevels = Math.floor(amount / xpNeeded);
-      if (gainedLevels > 0) playerLevel += gainedLevels;
-      localStorage.setItem('reelLoopLevel', String(playerLevel));
-      updateVistaUnlockUI();
-      updateStats();
+      // show lock state in label (stable, no UI drift)
+      optIce.textContent = S.unlocked.frozen_tundra ? '❄️ Frozen Tundra' : '❄️ Frozen Tundra (Lvl 5 • 200🪙)';
+      optBayou.textContent = S.unlocked.bayou_blackwater ? '🐊 Bayou Blackwater' : '🐊 Bayou Blackwater (Lvl 10 • 500🪙)';
+
+      // Keep options enabled so Unlock button can target locked vistas
+      optIce.disabled = false;
+      optBayou.disabled = false;
+
+      $('vistaSelect').value = currentVista.id;
     }
 
-    function gainCoins(amount) {
-      playerCoins += amount;
-      localStorage.setItem('reelLoopCoins', String(playerCoins));
-      updateStats();
+    function showState(id){
+      $('stateWaiting').classList.remove('active');
+      $('stateNibbling').classList.remove('active');
+      $('stateReel').classList.remove('active');
+      $('stateResult').classList.remove('active');
+      $(id).classList.add('active');
     }
 
-    function spendCoins(amount) {
-      if (playerCoins < amount) return false;
-      playerCoins -= amount;
-      localStorage.setItem('reelLoopCoins', String(playerCoins));
-      updateStats();
-      return true;
+    function toast(msg, ms=650){
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('on');
+      setTimeout(()=>t.classList.remove('on'), ms);
     }
 
-    /* =========================
-       GAME LOGIC
-       ========================= */
-
-    function applyBobberColor() {
-      document.documentElement.style.setProperty('--bobber-color', currentBobberColor);
-    }
-
-    function setBackgroundForVista() {
-      document.body.style.background = currentVista.bgGradient;
-      getEl('vistaName').innerText = currentVista.name;
-      getEl('vistaBadge').innerText = `${currentVista.emoji} ${currentVista.name}`;
-      getEl('vistaBannerLabel').innerText = currentVista.name;
-    }
-
-    function getVistaFishList() {
-      const ids = new Set(currentVista.fishPool);
-      return FISH_DICTIONARY.filter(f => ids.has(f.id));
-    }
-
-    function pickFishWeighted(vistaFish) {
-      // Common: heavy, Uncommon: mid, Rare: light, Legendary: minimal
-      const weights = vistaFish.map(f => {
-        if (f.rarity === 'Common') return 40;
-        if (f.rarity === 'Uncommon') return 25;
-        if (f.rarity === 'Rare') return 15;
-        return 5;
-      });
-
-      const total = weights.reduce((a,b) => a + b, 0);
-      let r = Math.random() * total;
-      for (let i = 0; i < vistaFish.length; i++) {
-        r -= weights[i];
-        if (r <= 0) return vistaFish[i];
-      }
-      return vistaFish[vistaFish.length - 1];
-    }
-
-    function resetDanger() {
-      bobber.classList.remove('nibbling');
-      document.body.classList.remove('tense');
-      getEl('dangerVignette').classList.remove('active');
-      tFill.classList.remove('danger');
-      getEl('failTitle').innerText = 'Line Snapped';
-      getEl('failBody').innerText = 'Too much tension!';
-      tapArea.classList.remove('near-miss');
-    }
-
-    function startWaiting() {
-      setState('waiting');
-      resetDanger();
-      applyBobberColor();
-
-      const isIce = currentVista.mechanic === 'drill';
-
-      // Toggle waiting UI
-      getEl('iceDrillMode').classList.toggle('hidden', !isIce);
-      getEl('bobberMode').classList.toggle('hidden', isIce);
-
-      if (isIce) {
-        // If no hole or exhausted, do not start bite timer.
-        const hole = getEl('iceHole');
-        const holeVisible = !hole.classList.contains('hidden');
-        const holeUsable = iceHoleUses < MAX_HOLE_USES;
-
-        getEl('holeUseCount').innerText = String(iceHoleUses);
-        getEl('iceHint').innerText = holeVisible
-          ? (holeUsable ? 'Waiting for bite...' : 'Hole exhausted. Drill again.')
-          : 'Drill to start fishing.';
-
-        if (holeVisible && holeUsable) {
-          setTimeout(() => { if (gameState === 'waiting') startNibbling(); }, 2000 + Math.random() * 3000);
-        }
+    function danger(on, ms=500){
+      const v = $('dangerVignette');
+      if(on){
+        v.classList.add('on');
+        setTimeout(()=>v.classList.remove('on'), ms);
       } else {
-        setTimeout(() => { if (gameState === 'waiting') startNibbling(); }, 2000 + Math.random() * 3000);
+        v.classList.remove('on');
       }
     }
 
-    function startNibbling() {
-      if (gameState !== 'waiting') return;
-
-      // In ice mode, only nibble if hole exists and has uses.
-      if (currentVista.mechanic === 'drill') {
-        const holeVisible = !getEl('iceHole').classList.contains('hidden');
-        if (!holeVisible || iceHoleUses >= MAX_HOLE_USES) return;
-      }
-
-      bobber.classList.add('nibbling');
-      let nibbles = 0;
-
-      const i = setInterval(() => {
-        if (gameState !== 'waiting') { clearInterval(i); return; }
-        if (navigator.vibrate) navigator.vibrate(20);
-        nibbles++;
-        if (nibbles > 2) { clearInterval(i); setTimeout(showStrike, 600); }
-      }, 800);
+    /**********************
+     * TROPHY ROOM
+     **********************/
+    function openTrophyRoom(){
+      renderTrophyRoom();
+      $('trophyOverlay').classList.add('open');
     }
 
-    function showStrike() {
-      const vistaFish = getVistaFishList();
-      currentFish = pickFishWeighted(vistaFish);
-
-      setState('strike');
-      if (navigator.vibrate) navigator.vibrate(200);
-      ensureAudio();
-      playTone(400, 'triangle');
-
-      setTimeout(() => { if (gameState === 'strike') startWaiting(); }, 2000);
+    function closeTrophyRoom(){
+      $('trophyOverlay').classList.remove('open');
     }
 
-    function startReeling() {
-      ensureAudio();
-      setState('reel');
-
-      reelingProgress = 0;
-      tension = 0;
-      isHolding = false;
-      tapCombo = 0;
-      totalRotation = 0;
-      lastAngle = null;
-
-      getEl('fishName').textContent = currentFish.name;
-      getEl('fishRarity').textContent = currentFish.rarity;
-      getEl('fishArtImg').src = fishArtDataUri(currentFish);
-
-      const prompts = { tap: "TAP TAP TAP!", hold: "HOLD IT!", rotate: "SPIN IT!" };
-      getEl('tapPrompt').textContent = prompts[currentFish.reelType] || "REEL!";
-
-      const handle = getEl('reelHandle');
-      if (currentFish.reelType === 'rotate') {
-        handle.style.display = 'flex';
-        handle.classList.add('rotate-anim');
-
-        // One-time rotate tutorial
-        if (!localStorage.getItem('reelLoopRotTute')) {
-          const finger = document.createElement('div');
-          finger.className = 'tutorial-finger';
-          finger.innerText = '👆';
-          tapArea.appendChild(finger);
-          localStorage.setItem('reelLoopRotTute', '1');
-          setTimeout(() => finger.remove(), 4000);
-        }
-      } else {
-        handle.style.display = 'none';
-        handle.classList.remove('rotate-anim');
-      }
-
-      if (reelInterval) clearInterval(reelInterval);
-      reelInterval = setInterval(gameLoop, 50);
+    function renderTrophyRoom(){
+      renderBobberGrid();
+      renderReelGrid();
+      renderFishGrid();
     }
 
-    function gameLoop() {
-      if (!isHolding) tension = Math.max(0, tension - 2);
-
-      if (tension > 80) {
-        tFill.classList.add('danger');
-        getEl('dangerVignette').classList.add('active');
-        document.body.classList.add('tense');
-      } else {
-        tFill.classList.remove('danger');
-        getEl('dangerVignette').classList.remove('active');
-        document.body.classList.remove('tense');
-      }
-
-      if (tension >= 100) finish(false);
-      if (reelingProgress >= 100) finish(true);
-
-      tFill.style.width = tension + '%';
-      pFill.style.width = reelingProgress + '%';
-      getEl('tensionVal').textContent = Math.floor(tension) + '%';
-    }
-
-    function increment(amount) {
-      let gain = amount * (100 / currentFish.requiredTaps);
-      if (tension >= 60 && tension <= 80) gain *= 1.3; // sweet spot
-
-      reelingProgress = Math.min(100, reelingProgress + gain);
-      tension = Math.min(100, tension + (currentFish.reelType === 'hold' ? 1.5 : 4));
-
-      // Force UI
-      pFill.style.width = reelingProgress + '%';
-      tFill.style.width = tension + '%';
-
-      if (currentFish.reelType === 'tap') {
-        tapCombo++;
-        clearTimeout(comboTimeout);
-        comboTimeout = setTimeout(() => tapCombo = 0, 800);
-        showTapFeedback();
-        playTone(600 + (tapCombo * 50));
-      }
-    }
-
-    function showTapFeedback() {
-      const el = document.createElement('div');
-      el.className = 'tap-indicator';
-      el.innerText = `+${tapCombo}`;
-      const size = Math.min(1.5 + (tapCombo * 0.1), 3);
-      el.style.fontSize = size + 'rem';
-      el.style.left = (50 + Math.random() * 20 - 10) + '%';
-      el.style.top = (50 + Math.random() * 20 - 10) + '%';
-      el.style.color = currentFish.color;
-      tapArea.appendChild(el);
-      setTimeout(() => el.remove(), 600);
-    }
-
-    function createConfetti(mult = 1) {
-      const count = 30 * mult;
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.background = currentFish.color;
-        p.style.left = '50%'; p.style.top = '50%';
-        p.style.setProperty('--tx', (Math.random() * 320 - 160) + 'px');
-        p.style.setProperty('--ty', (Math.random() * 320 - 160) + 'px');
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 1000);
-      }
-    }
-
-    function nearMissFail() {
-      // NMM: wobble + dull thud, then fail.
-      tapArea.classList.add('near-miss');
-      ensureAudio();
-      playTone(200, 'sawtooth');
-      getEl('failTitle').innerText = 'So Close';
-      getEl('failBody').innerText = 'It slipped at the last second.';
-      setTimeout(() => finish(false, { fromNearMiss: true }), 280);
-    }
-
-    function finish(win, opts = {}) {
-      clearInterval(reelInterval);
-      clearInterval(holdInterval);
-
-      if (win) {
-        // Near-miss chance (applies to Arctic Pike by design)
-        if (currentFish.nearMissChance && Math.random() < currentFish.nearMissChance) {
-          nearMissFail();
-          return;
-        }
-
-        const existing = caughtFish.find(f => f.id === currentFish.id);
-        const firstTime = !existing;
-
-        if (existing) existing.count++;
-        else caughtFish.push({ ...currentFish, count: 1 });
-
-        localStorage.setItem('reelLoopCaughtFish', JSON.stringify(caughtFish));
-
-        // Ice hole uses
-        if (currentVista.mechanic === 'drill') {
-          iceHoleUses++;
-          getEl('holeUseCount').innerText = String(iceHoleUses);
-
-          if (iceHoleUses >= MAX_HOLE_USES) {
-            // Force re-drill
-            getEl('iceHint').innerText = 'Hole exhausted. Drill again.';
-          }
-        }
-
-        // Rewards
-        const coins = typeof currentFish.coin === 'number'
-          ? currentFish.coin
-          : ({ Common: 10, Uncommon: 35, Rare: 80, Legendary: 800 }[currentFish.rarity] || 10);
-
-        gainCoins(coins);
-        gainXP(currentFish.requiredTaps);
-
-        getEl('caughtFishName').textContent = currentFish.name;
-        getEl('successFishIcon').textContent = currentFish.icon;
-        getEl('newDiscovery').textContent = firstTime ? 'NEW DISCOVERY!' : '';
-        getEl('rewardLine').textContent = `+${coins}🪙`;
-
-        // Jackpot (VRR)
-        if (currentFish.isJackpot) {
-          createConfetti(2);
-          playTone(600, 'square', 1.10);
-          setTimeout(() => playTone(800, 'square', 1.10), 90);
-          setTimeout(() => playTone(1200, 'square', 1.10), 180);
-          if (navigator.vibrate) navigator.vibrate([90, 40, 90, 40, 140]);
-        } else {
-          createConfetti(1);
-          playTone(600, 'square');
-          setTimeout(() => playTone(800, 'square'), 100);
-          setTimeout(() => playTone(1000, 'square'), 200);
-        }
-
-        const btn = getEl('castAgainButton');
-        btn.classList.add('disabled');
-        setState('success');
-        updateStats();
-        setTimeout(() => btn.classList.remove('disabled'), 1200);
-
-      } else {
-        setState('fail');
-        ensureAudio();
-        if (!opts.fromNearMiss) playTone(200, 'sawtooth');
-      }
-    }
-
-    function setState(newState) {
-      Object.values(states).forEach(el => el.classList.add('hidden'));
-      states[newState].classList.remove('hidden');
-      gameState = newState;
-    }
-
-    function updateStats() {
-      const totalCaught = caughtFish.reduce((s, f) => s + (f.count || 0), 0);
-      getEl('totalCaught').innerText = String(totalCaught);
-
-      const vistaFish = getVistaFishList();
-      const caughtInVista = vistaFish.filter(f => caughtFish.some(cf => cf.id === f.id)).length;
-      getEl('uniqueFish').innerText = `${caughtInVista}/${vistaFish.length}`;
-
-      getEl('playerLevel').innerText = String(playerLevel);
-      getEl('playerCoins').innerText = String(playerCoins);
-
-      getEl('vistaName').innerText = currentVista.name;
-      setBackgroundForVista();
-    }
-
-    /* =========================
-       ICE DRILLING
-       ========================= */
-
-    function createIceParticles(x, y) {
-      const surface = getEl('iceSurface');
-      for (let i = 0; i < 14; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = x + 'px';
-        p.style.top = y + 'px';
-        p.style.background = '#bae6fd';
-        p.style.setProperty('--tx', `${(Math.random() - 0.5) * 170}px`);
-        p.style.setProperty('--ty', `${(Math.random() - 0.5) * 170}px`);
-        surface.appendChild(p);
-        setTimeout(() => p.remove(), 820);
-      }
-    }
-
-    function drillIceHole(e) {
-      if (currentVista.mechanic !== 'drill') return;
-
-      // If exhausted, reset and require drill again
-      if (iceHoleUses >= MAX_HOLE_USES) {
-        iceHoleUses = 0;
-        getEl('holeUseCount').innerText = String(iceHoleUses);
-        getEl('iceHole').classList.add('hidden');
-        getEl('iceHint').innerText = 'Drill to start fishing.';
-      }
-
-      const surface = getEl('iceSurface');
-      const rect = surface.getBoundingClientRect();
-
-      // Support touch (pointer events)
-      const x = (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || rect.left + rect.width / 2) - rect.left;
-      const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || rect.top + rect.height / 2) - rect.top;
-
-      // Drill animation
-      const drill = document.createElement('div');
-      drill.className = 'drill-animation';
-      drill.textContent = '🪛';
-      drill.style.left = x + 'px';
-      drill.style.top = y + 'px';
-      surface.appendChild(drill);
-      setTimeout(() => drill.remove(), 320);
-
-      // Haptic pulse (coarse approximation of 0.3s intervals)
-      if (navigator.vibrate) navigator.vibrate([90, 90, 90]);
-
-      ensureAudio();
-      playTone(400, 'square');
-      setTimeout(() => playTone(520, 'square'), 90);
-      setTimeout(() => playTone(640, 'square'), 180);
-
-      setTimeout(() => {
-        const hole = getEl('iceHole');
-        hole.classList.remove('hidden');
-        hole.style.left = (x - 32) + 'px';
-        hole.style.top = (y - 32) + 'px';
-        createIceParticles(x, y);
-        getEl('iceHint').innerText = 'Waiting for bite...';
-        startWaiting();
-      }, 280);
-    }
-
-    /* =========================
-       VISTA UNLOCK + SELECTOR
-       ========================= */
-
-    function updateVistaUnlockUI() {
-      const tundraOpt = getEl('frozenTundraOption');
-      const tundra = VISTAS.find(v => v.id === 'frozen_tundra');
-
-      // Persist unlock flag
-      const savedUnlock = localStorage.getItem('reelLoopVistaUnlocked_frozen_tundra');
-      if (savedUnlock === '1') tundra.unlocked = true;
-
-      if (playerLevel >= tundra.unlockLevel) {
-        tundraOpt.disabled = false;
-        tundraOpt.textContent = tundra.unlocked
-          ? `❄️ ${tundra.name}`
-          : `❄️ ${tundra.name} (Unlock: ${tundra.unlockCost}🪙)`;
-      } else {
-        tundraOpt.disabled = true;
-        tundraOpt.textContent = `❄️ ${tundra.name} (Lvl ${tundra.unlockLevel} • ${tundra.unlockCost}🪙)`;
-      }
-
-      // Ensure selector reflects current vista
-      getEl('vistaSelector').value = currentVista.id;
-    }
-
-    function setVistaById(id) {
-      const v = VISTAS.find(x => x.id === id) || VISTAS[0];
-      currentVista = v;
-      localStorage.setItem('reelLoopVista', currentVista.id);
-
-      // Reset ice hole on vista change
-      if (currentVista.mechanic === 'drill') {
-        iceHoleUses = 0;
-        getEl('holeUseCount').innerText = '0';
-        getEl('iceHole').classList.add('hidden');
-        getEl('iceHint').innerText = 'Drill to start fishing.';
-      }
-
-      setBackgroundForVista();
-      updateStats();
-      startWaiting();
-    }
-
-    getEl('vistaSelector').addEventListener('change', (e) => {
-      const selectedId = e.target.value;
-      const selected = VISTAS.find(v => v.id === selectedId);
-
-      if (!selected) return;
-
-      // Unlock flow for tundra
-      if (selected.id === 'frozen_tundra' && !selected.unlocked) {
-        if (playerLevel < selected.unlockLevel) {
-          alert(`Unlock at Level ${selected.unlockLevel}.`);
-          e.target.value = currentVista.id;
-          return;
-        }
-
-        if (spendCoins(selected.unlockCost)) {
-          selected.unlocked = true;
-          localStorage.setItem('reelLoopVistaUnlocked_frozen_tundra', '1');
-          alert(`Unlocked: ${selected.name}`);
-        } else {
-          alert(`Need ${selected.unlockCost} coins.`);
-          e.target.value = currentVista.id;
-          return;
-        }
-      }
-
-      setVistaById(selected.id);
-      updateVistaUnlockUI();
-    });
-
-    /* =========================
-       EVENT LISTENERS
-       ========================= */
-
-    function attach(id, fn) {
-      const el = getEl(id);
-      if (el) el.addEventListener('click', fn);
-    }
-
-    // Tap area interactions
-    tapArea.addEventListener('pointerdown', (e) => {
-      if (gameState !== 'reel') return;
-      e.preventDefault();
-
-      if (currentFish.reelType === 'tap') increment(1);
-
-      if (currentFish.reelType === 'hold') {
-        isHolding = true;
-        holdInterval = setInterval(() => { if (isHolding) increment(0.2); }, 50);
-      }
-
-      if (currentFish.reelType === 'rotate') {
-        const rect = tapArea.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        lastAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
-      }
-    });
-
-    tapArea.addEventListener('pointermove', (e) => {
-      if (gameState !== 'reel' || currentFish.reelType !== 'rotate' || lastAngle === null) return;
-      e.preventDefault();
-
-      const rect = tapArea.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
-
-      let delta = angle - lastAngle;
-      if (delta > 180) delta -= 360;
-      if (delta < -180) delta += 360;
-
-      totalRotation += Math.abs(delta);
-
-      if (totalRotation >= 45) {
-        increment(0.8);
-        playTone(600);
-        totalRotation = 0;
-      }
-
-      lastAngle = angle;
-    });
-
-    window.addEventListener('pointerup', () => {
-      isHolding = false;
-      clearInterval(holdInterval);
-      lastAngle = null;
-    });
-
-    // Strike -> Reel
-    getEl('strikeButton').addEventListener('pointerdown', (e) => { e.preventDefault(); startReeling(); });
-    attach('castAgainButton', startWaiting);
-    attach('tryAgainButton', startWaiting);
-
-    // Ice drilling surface (pointer)
-    getEl('iceSurface').addEventListener('pointerdown', (e) => {
-      if (gameState !== 'waiting') return;
-      e.preventDefault();
-      drillIceHole(e);
-    });
-
-    // Trophy room
-    attach('collectionButton', () => {
-      renderBobberSelector();
-      renderCollection();
-      getEl('collectionOverlay').classList.add('active');
-    });
-    attach('closeCollection', () => getEl('collectionOverlay').classList.remove('active'));
-
-    // Fullscreen
-    attach('btnFS', () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-      else document.exitFullscreen().catch(() => {});
-    });
-
-    // Sound toggle
-    attach('btnSound', () => {
-      soundEnabled = !soundEnabled;
-      getEl('btnSound').style.opacity = soundEnabled ? '1' : '0.5';
-      if (soundEnabled) ensureAudio();
-    });
-
-    function renderBobberSelector() {
-      const container = getEl('bobberSelector');
-      container.innerHTML = '';
-      BOBBER_COLORS.forEach(c => {
-        const div = document.createElement('div');
-        div.className = `bobber-opt ${c === currentBobberColor ? 'selected' : ''}`;
-        div.style.backgroundColor = c;
-        div.onclick = () => {
-          currentBobberColor = c;
-          localStorage.setItem('reelLoopBobberColor', c);
-          applyBobberColor();
-          renderBobberSelector();
-        };
-        container.appendChild(div);
-      });
-    }
-
-    function renderCollection() {
-      const grid = getEl('collectionGrid');
+    function renderBobberGrid(){
+      const grid = $('bobberGrid');
       grid.innerHTML = '';
-
-      // Show vista ordering: current vista fish first, then the rest
-      const vistaSet = new Set(currentVista.fishPool);
-      const ordered = [
-        ...FISH_DICTIONARY.filter(f => vistaSet.has(f.id)),
-        ...FISH_DICTIONARY.filter(f => !vistaSet.has(f.id))
-      ];
-
-      getEl('collectionSubhead').innerText = `All Fish (Current: ${currentVista.name})`;
-
-      ordered.forEach(fish => {
-        const caught = caughtFish.find(f => f.id === fish.id);
+      
+      BOBBERS.forEach(b => {
+        const unlocked = S.level >= b.unlockLevel;
+        const selected = S.bobber === b.id;
+        
         const card = document.createElement('div');
-        card.className = `fish-card ${!caught ? 'locked' : ''}`;
-        card.style.borderColor = fish.color;
+        card.className = 'itemCard' + (selected ? ' selected' : '') + (unlocked ? '' : ' locked');
         card.innerHTML = `
-          <img src="${fishArtDataUri(fish)}" alt="${fish.name}" />
-          <div style="font-weight:900">${caught ? fish.name : '???'}</div>
-          <div style="font-size:0.8rem; opacity:0.85">${caught ? `x${caught.count}` : ''}</div>
-          <div style="font-size:0.72rem; opacity:0.65; margin-top:6px">${fish.vista === 'frozen_tundra' ? 'Ice Tundra' : 'Sunny Lake'}</div>
+          <div class="preview">${b.preview}</div>
+          <div class="label">${b.name}${unlocked ? '' : ' (Lvl ' + b.unlockLevel + ')'}</div>
         `;
+        
+        if (unlocked){
+          card.addEventListener('click', () => {
+            S.bobber = b.id;
+            save();
+            renderBobberGrid();
+            updateBobberStyle();
+            tone(520,'sine',0.06,0.04);
+          });
+        }
+        
         grid.appendChild(card);
       });
     }
 
-    /* =========================
-       INIT (load saved progress)
-       ========================= */
+    function renderReelGrid(){
+      const grid = $('reelGrid');
+      grid.innerHTML = '';
+      
+      REELS.forEach(r => {
+        const unlocked = S.level >= r.unlockLevel;
+        const selected = S.reel === r.id;
+        
+        const card = document.createElement('div');
+        card.className = 'itemCard' + (selected ? ' selected' : '') + (unlocked ? '' : ' locked');
+        card.innerHTML = `
+          <div class="preview">${r.preview}</div>
+          <div class="label">${r.name}${unlocked ? '' : ' (Lvl ' + r.unlockLevel + ')'}</div>
+        `;
+        
+        if (unlocked){
+          card.addEventListener('click', () => {
+            S.reel = r.id;
+            save();
+            renderReelGrid();
+            tone(520,'sine',0.06,0.04);
+          });
+        }
+        
+        grid.appendChild(card);
+      });
+    }
 
-    (function init() {
-      playerLevel = parseInt(localStorage.getItem('reelLoopLevel') || '1', 10);
-      playerCoins = parseInt(localStorage.getItem('reelLoopCoins') || '0', 10);
+    function renderFishGrid(){
+      const grid = $('fishGrid');
+      grid.innerHTML = '';
+      
+      // Fish icons based on rarity
+      const icons = {
+        'Common': '🐟',
+        'Uncommon': '🐠',
+        'Rare': '🎣',
+        'Legendary': '👑'
+      };
+      
+      FISH.forEach(f => {
+        const count = (S.collection && S.collection[f.id]) || 0;
+        const caught = count > 0;
+        
+        const card = document.createElement('div');
+        card.className = 'fishCard' + (caught ? '' : ' locked');
+        card.innerHTML = `
+          <div class="icon" style="color:${f.color}">${caught ? (icons[f.rarity] || '🐟') : '❓'}</div>
+          <div class="name">${caught ? f.name : '???'}</div>
+          ${caught ? '<div class="count">×' + count + '</div>' : ''}
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
 
-      // Restore unlock
-      const tundra = VISTAS.find(v => v.id === 'frozen_tundra');
-      if (localStorage.getItem('reelLoopVistaUnlocked_frozen_tundra') === '1') tundra.unlocked = true;
-
-      // Restore vista (only if unlocked or base)
-      const savedVista = localStorage.getItem('reelLoopVista');
-      if (savedVista === 'frozen_tundra' && tundra.unlocked) currentVista = tundra;
-      else currentVista = VISTAS.find(v => v.id === savedVista) || VISTAS[0];
-
-      applyBobberColor();
-      updateVistaUnlockUI();
-      setBackgroundForVista();
+    /**********************
+     * VISTA SELECTION / UNLOCK
+     **********************/
+    function setVista(vistaId){
+      const v = VISTAS.find(x => x.id === vistaId) || VISTAS[0];
+      currentVista = v;
+      S.currentVista = v.id;  // Persist selection
+      setBodyVistaClass(v.id);
       updateStats();
-      startWaiting();
-    })();
+      setVistaSelectOptions();
+      configureWaitingUI();
+      save();
+    }
+
+    function canUnlock(v){
+      if (S.unlocked[v.id]) return false;
+      // per your spec: Level OR coins
+      return (S.level >= v.unlockLevel) || (S.coins >= v.unlockCost);
+    }
+
+    function unlockVista(v){
+      if (S.unlocked[v.id]) return true;
+      if (S.level >= v.unlockLevel){
+        S.unlocked[v.id] = true;
+        toast('Unlocked by level');
+        save();
+        return true;
+      }
+      if (S.coins >= v.unlockCost){
+        S.coins -= v.unlockCost;
+        S.unlocked[v.id] = true;
+        toast('Unlocked with coins');
+        save();
+        return true;
+      }
+      toast('Not eligible', 700);
+      vibrate([70]);
+      tone(180,'sawtooth',0.10,0.05);
+      return false;
+    }
+
+    /**********************
+     * WAITING UI CONFIG
+     **********************/
+    function configureWaitingUI(){
+      // Reset UI modes
+      $('bobberMode').classList.add('hidden');
+      $('iceMode').classList.add('hidden');
+      $('castMode').classList.add('hidden');
+      $('castToggleRow').classList.add('hidden');
+
+      if (currentVista.mechanic === 'drill'){
+        // Ice drilling vista
+        $('iceMode').classList.remove('hidden');
+        $('waitingHint').textContent = holeOpen ? 'Hole ready. Waiting for a bite…' : 'Drill a hole to fish.';
+        $('waitingSubhint').textContent = 'Holes disappear after 5 catches.';
+        updateIceUI();
+      } else if (currentVista.mechanic === 'precision_cast'){
+        // Show toggle for precision_cast vistas
+        $('castToggleRow').classList.remove('hidden');
+        updateCastToggleUI();
+
+        if (S.usePrecisionCast){
+          // Precision Cast mode
+          $('castMode').classList.remove('hidden');
+          $('waitingHint').textContent = 'Precision Casting';
+          $('waitingSubhint').textContent = 'Tap to cast. Perfect reduces wait and boosts rare fish.';
+          resetCastingUI();
+        } else {
+          // Classic Bobber mode
+          $('bobberMode').classList.remove('hidden');
+          $('waitingHint').textContent = 'Classic Mode';
+          $('waitingSubhint').textContent = 'Tap when the bobber bobs to hook a fish.';
+          updateBobberStyle();
+        }
+      }
+    }
+
+    function updateCastToggleUI(){
+      const toggle = $('castModeToggle');
+      toggle.classList.toggle('on', S.usePrecisionCast);
+    }
+
+    function updateBobberStyle(){
+      // Apply selected bobber style
+      const bobber = $('bobber');
+      const b = BOBBERS.find(x => x.id === S.bobber) || BOBBERS[0];
+      // Set color based on bobber type
+      const colors = {
+        classic: '#ff6b6b',
+        golden: '#fbbf24',
+        emerald: '#22c55e',
+        sapphire: '#3b82f6',
+        amethyst: '#a855f7',
+        obsidian: '#1f2937',
+        diamond: '#e0f2fe'
+      };
+      const col = colors[b.id] || '#ff6b6b';
+      bobber.style.background = `radial-gradient(circle at 30% 30%, #fff, ${col})`;
+      bobber.style.boxShadow = `0 0 20px ${col}99`;
+    }
+
+    /**********************
+     * ICE DRILLING
+     **********************/
+    function updateIceUI(){
+      $('iceHole').classList.toggle('on', holeOpen);
+      $('iceMeta').textContent = `Hole uses: ${holeUses} / ${MAX_HOLE_USES}`;
+      $('drillFill').style.width = '0%';
+      $('iceToast').classList.toggle('on', !holeOpen);
+      $('drillBtn').textContent = holeOpen ? 'Re-Drill' : 'Drill Hole';
+    }
+
+    function stopDrillTimers(){
+      if (drillTimer){ clearInterval(drillTimer); drillTimer=null; }
+      if (drillHapt){ clearInterval(drillHapt); drillHapt=null; }
+      drilling = false;
+      $('drillFill').style.width = '0%';
+    }
+
+    function startDrill(){
+      if (drilling) return;
+      drilling = true;
+      holeOpen = false;
+      holeUses = 0;
+      $('iceHole').classList.remove('on');
+
+      drillStart = performance.now();
+      const DRILL_MS = 3000;
+
+      // haptic pulse (0.3s intervals)
+      if (navigator.vibrate){
+        drillHapt = setInterval(()=>vibrate([45]), 300);
+      }
+
+      drillTimer = setInterval(()=>{
+        const now = performance.now();
+        const t = Math.min(1, (now - drillStart) / DRILL_MS);
+        $('drillFill').style.width = Math.round(t * 100) + '%';
+
+        if (t >= 1){
+          stopDrillTimers();
+          holeOpen = true;
+          holeUses = 0;
+          $('iceHole').classList.add('on');
+          $('iceToast').classList.remove('on');
+          updateIceUI();
+
+          // release feedback
+          vibrate([30,60,30]);
+          tone(260,'square',0.08,0.06);
+          setTimeout(()=>tone(420,'square',0.08,0.06), 90);
+
+          // Immediately start bite cycle
+          scheduleBite(false);
+        }
+      }, 60);
+    }
+
+    /**********************
+     * PRECISION CASTING (per spec: 2Hz cursor, 15° window)
+     **********************/
+    function resetCastingUI(){
+      castingActive = false;
+      castLocked = false;
+      $('castFlash').classList.remove('on');
+      $('castCursor').style.opacity = '1';
+      $('castCursor').style.background = 'linear-gradient(180deg, transparent 0%, var(--accent) 100%)';
+    }
+
+    function startPrecisionCast(){
+      if (castingActive) return;
+      castingActive = true;
+      castLocked = false;
+
+
+      const speedHz = REDUCED_MOTION ? 1 : 2;         // accessibility
+      const amp = 60;                                  // ±60°
+      const omega = 2 * Math.PI * speedHz;             // rad/s
+      const now0 = performance.now();
+
+      targetDeg = (Math.random() - 0.5) * 120;         // ±60° (spec)
+      $('sweetSpot').style.transform = `translateX(-50%) rotate(${targetDeg}deg)`;
+
+      function frame(now){
+        if (!castingActive) return;
+        const t = (now - now0) / 1000;
+        cursorDeg = Math.sin(t * omega) * amp;
+        $('castCursor').style.transform = `translateX(-50%) rotate(${cursorDeg}deg)`;
+        castRaf = requestAnimationFrame(frame);
+      }
+      castRaf = requestAnimationFrame(frame);
+    }
+
+    function spawnGoldParticles(){
+      const stage = $('arcStage');
+      const rect = stage.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height - 12;
+
+      for (let i=0;i<15;i++){
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.setProperty('--px', `${(Math.random()-0.5)*200}px`);
+        p.style.setProperty('--py', `${-Math.random()*150}px`);
+        stage.appendChild(p);
+        setTimeout(()=>p.remove(), 650);
+      }
+    }
+
+    function resolveCast(){
+      if (!castingActive || castLocked) return;
+      castLocked = true;
+      castingActive = false;
+      if (castRaf) cancelAnimationFrame(castRaf);
+
+      // Stats: count only resolved casts (prevents inflation on auto-start/resume)
+      S.cast.total += 1;
+
+      const tolerance = REDUCED_MOTION ? 20 : 15; // per spec, + accessibility
+      const hit = Math.abs(cursorDeg - targetDeg) <= tolerance;
+
+      if (hit) S.cast.perfect += 1;
+      save();
+      updateStats();
+
+      if (hit){
+
+        $('castFlash').classList.add('on');
+        setTimeout(()=>$('castFlash').classList.remove('on'), 280);
+
+        spawnGoldParticles();
+        vibrate([50,50,50]);
+        tone(800,'square',0.07,0.06);
+        setTimeout(()=>tone(1000,'square',0.07,0.06), 90);
+
+        // 50% faster bite + +10% rarity (applied on selection)
+        pendingRarityBonus = true;
+        scheduleBite(true);
+      } else {
+        // Miss feedback (thud)
+        $('castCursor').style.opacity = '0.30';
+        $('castCursor').style.background = 'linear-gradient(180deg, transparent 0%, #666 100%)';
+        vibrate([90]);
+        tone(200,'sawtooth',0.10,0.05);
+
+        pendingRarityBonus = false;
+        scheduleBite(false);
+      }
+    }
+
+    /**********************
+     * BITE / NIBBLING
+     **********************/
+    let biteTimer = null;
+
+    function clearBiteTimer(){
+      if (biteTimer){ clearTimeout(biteTimer); biteTimer=null; }
+    }
+
+    function scheduleBite(perfect){
+      clearBiteTimer();
+
+      // Ice: only bite if hole open
+      if (currentVista.mechanic === 'drill' && !holeOpen) return;
+
+      const base = 5000 + Math.random()*3000;       // 5–8s (spec)
+      const fast = 2000 + Math.random()*1500;       // 2–3.5s (spec)
+      const ms = perfect ? fast : base;
+
+      // restore cast cursor visuals after miss delay to keep loop clean
+      if (!perfect){
+        setTimeout(()=>{
+          $('castCursor').style.opacity = '1';
+          $('castCursor').style.background = 'linear-gradient(180deg, transparent 0%, var(--accent) 100%)';
+        }, Math.min(900, ms));
+      }
+
+      biteTimer = setTimeout(startNibbling, ms);
+    }
+
+    function startNibbling(){
+      if (gameState !== STATE.WAITING) return;
+
+      gameState = STATE.NIBBLING;
+      showState('stateNibbling');
+
+      $('bobber').classList.add('nibbling');
+      vibrate([30, 40, 30]);
+      tone(440,'sine',0.07,0.05);
+
+      // auto-fail back to waiting if no hook
+      setTimeout(()=>{
+        if (gameState === STATE.NIBBLING){
+          $('bobber').classList.remove('nibbling');
+          gameState = STATE.WAITING;
+          showState('stateWaiting');
+          configureWaitingUI();
+          // restart cast/drill loop depending on vista and mode
+          if (currentVista.mechanic === 'precision_cast'){
+            if (S.usePrecisionCast) startPrecisionCast();
+            else scheduleBite(false);
+          } else if (currentVista.mechanic === 'drill' && holeOpen){
+            scheduleBite(false);
+          }
+        }
+      }, 1800);
+    }
+
+    function chooseFish(){
+      const pool = FISH.filter(f => f.vista === currentVista.id);
+      const weights = pool.map(f => {
+        let w = f.spawnWeight || 10;
+        // +10% to rare/legendary if perfect cast (spec)
+        if (pendingRarityBonus && (f.rarity === 'Rare' || f.rarity === 'Legendary')) w *= 1.1;
+        return w;
+      });
+
+      const total = weights.reduce((a,b)=>a+b,0);
+      let r = Math.random() * total;
+      for (let i=0;i<pool.length;i++){
+        r -= weights[i];
+        if (r <= 0) return pool[i];
+      }
+      return pool[0];
+    }
+
+    /**********************
+     * REELING (core)
+     **********************/
+    function startReel(){
+      if (gameState !== STATE.NIBBLING) return;
+
+      currentFish = chooseFish();
+      pendingRarityBonus = false;
+
+      // Consume ice hole use on hook start (stable accounting)
+      if (currentVista.mechanic === 'drill'){
+        holeUses += 1;
+        if (holeUses >= MAX_HOLE_USES){
+          holeOpen = false;
+          holeUses = 0;
+        }
+        updateIceUI();
+      }
+
+      // Reset fight vars
+      progress = 0;
+      tension = 30;                // initial tension baseline
+      tensionRate = 0.85;
+      lastTick = performance.now();
+
+      // Reset specials
+      currentPhase = 0;
+      snapTriggered = false;
+      snapWindowUntil = 0;
+      fakeOutActive = false;
+      slackActive = false;
+      slackInputs = 0;
+
+      // Jackpot pitch shift (boss vibe)
+      pitchMul = (currentFish.isJackpot ? 0.85 : 1.0);
+
+      $('fishName').textContent = currentFish.name;
+      $('fishName').style.color = currentFish.color;
+      $('fishMeta').textContent = `${currentFish.rarity} • ${currentVista.name} • Reward ${currentFish.coins} coins`;
+
+      // Load fish sprite
+      const vistaFolder = toKebab(currentVista.id);
+      const fishFile = toKebab(currentFish.id);
+      const fishPath = `./assets/fish/${vistaFolder}/${fishFile}.png`;
+
+      const fishEl = $('fishSprite');
+      fishEl.onerror = () => {
+        console.error('[fish missing]', fishPath);
+        fishEl.style.opacity = '0.12';
+      };
+      fishEl.onload = () => { fishEl.style.opacity = '1'; };
+      fishEl.style.opacity = '1';
+      fishEl.src = fishPath;
+
+      // Control hint
+      const hint =
+        currentFish.reelType === 'tap' ? 'Tap to reel. Keep tension in the gold band.' :
+        currentFish.reelType === 'hold' ? 'Hold REEL to pull steadily. Release if tension spikes.' :
+        'Rotate (drag in circles) to reel. Don’t spam during slack.';
+      $('controlsHint').textContent = hint;
+
+      // Show proper buttons
+      $('reelTapBtn').textContent = currentFish.reelType === 'hold' ? 'Hold' : 'Reel';
+      $('releaseBtn').classList.toggle('hidden', currentFish.reelType === 'tap');
+
+      gameState = STATE.REEL;
+      showState('stateReel');
+
+      vibrate(currentFish.vibration || [30,30]);
+      tone(520,'sine',0.08,0.05);
+
+      updateFightUI();
+      requestAnimationFrame(fightTick);
+    }
+
+    function updateFightUI(){
+      $('progressFill').style.width = Math.max(0, Math.min(100, progress)) + '%';
+      $('tensionFill').style.width = Math.max(0, Math.min(100, tension)) + '%';
+    }
+
+    function applyHeavyDragMultiplier(){
+      return (currentFish.mechanic === 'heavy_drag') ? 0.7 : 1.0;
+    }
+
+    function maybeJerk(now){
+      if (currentFish.mechanic !== 'jerk') return;
+      // jerky pulls: occasional quick tension kick
+      if (Math.random() < 0.02){
+        tension = Math.min(100, tension + 8);
+        tone(260,'square',0.05,0.04);
+      }
+    }
+
+    function maybeSnap(now){
+      if (currentFish.mechanic !== 'snap_tension') return;
+      if (snapTriggered) return;
+      // ~15% chance per "interval" (modeled as per-frame probability)
+      // stable: compute per-second chance rather than per-frame.
+      const pps = 0.35; // approx. chance per second to trigger
+      const dt = (now - lastTick) / 1000;
+      if (Math.random() < pps * dt){
+        snapTriggered = true;
+        tension = Math.max(tension, 80);
+        updateFightUI();
+        danger(true, 520);
+        toast('SNAP!');
+        vibrate([60]);
+        tone(1200,'sawtooth',0.08,0.05);
+
+        // Must release input for 0.8s (spec)
+        snapWindowUntil = now + 800;
+      }
+    }
+
+    function maybeFakeOut(now){
+      if (currentFish.mechanic !== 'fake_out') return;
+      if (fakeOutActive) return;
+      if (progress < 30 || progress > 70) return;
+
+      // Trigger once in mid-fight with stable per-second probability
+      const pps = 0.25;
+      const dt = (now - lastTick) / 1000;
+      if (Math.random() < pps * dt){
+        fakeOutActive = true;
+        slackActive = true;
+        slackInputs = 0;
+
+        // Slack
+        tension = 0;
+        updateFightUI();
+        toast('SLACK!');
+        tone(300,'sine',0.08,0.04);
+
+        // Spike after 0.45–0.7s (spec)
+        const delay = 450 + Math.random()*250;
+        setTimeout(()=>{
+          slackActive = false;
+          // spike to 90 + penalty if spammed during slack
+          const penalty = Math.min(10, slackInputs * 2);
+          tension = Math.min(100, 90 + penalty);
+          updateFightUI();
+          danger(true, 650);
+          toast('SPIKE!');
+          vibrate([150,50,150]);
+          tone(1400,'sawtooth',0.10,0.05);
+        }, delay);
+      }
+    }
+
+    function handleBossPhases(now){
+      if (currentFish.mechanic !== 'three_phase') return;
+      const phase = Math.floor(progress / 33.333); // 0..2
+      if (phase !== currentPhase){
+        currentPhase = phase;
+        // Phase transitions: shake + long pulses
+        danger(true, 700);
+        toast('PHASE SHIFT', 750);
+        vibrate([200,100,200]);
+        tone(150,'sawtooth',0.10,0.05);
+        setTimeout(()=>tone(200,'sawtooth',0.10,0.05), 200);
+        setTimeout(()=>tone(250,'sawtooth',0.10,0.05), 400);
+
+        // Difficulty ramps
+        // Phase 0: 0.85, Phase 1: 1.25, Phase 2: 1.65
+        tensionRate = 0.85 + (phase * 0.40);
+      }
+    }
+
+    function fightTick(now){
+      if (gameState !== STATE.REEL) return;
+
+      const dt = Math.min(0.05, (now - lastTick) / 1000); // cap for stability
+      lastTick = now;
+
+      // Tension passive behavior (decay + ambient rise)
+      const decay = 12 * dt;
+      tension = Math.max(0, tension - decay);
+
+      // Special mechanics
+      maybeJerk(now);
+      maybeSnap(now);
+      maybeFakeOut(now);
+      handleBossPhases(now);
+
+      // Snap window: if user inputs during window => break
+      // (We enforce in input handlers by checking snapWindowUntil.)
+      if (tension >= 100){
+        finish(false, 'Line snapped.');
+        return;
+      }
+
+      // Win
+      if (progress >= 100){
+        finish(true, 'Caught!');
+        return;
+      }
+
+      updateFightUI();
+      requestAnimationFrame(fightTick);
+    }
+
+    function applyReelInput(intensity){
+      if (gameState !== STATE.REEL) return;
+
+      const now = performance.now();
+
+      // Snap mechanic: during snap window, any input breaks
+      if (snapWindowUntil && now < snapWindowUntil){
+        finish(false, 'Snapped (you didn’t release).');
+        return;
+      }
+
+      // Fake-out slack: count spam inputs for penalty
+      if (slackActive){
+        slackInputs += 1;
+        // discourage spamming with subtle feedback
+        tone(220,'sine',0.04,0.03);
+        return;
+      }
+
+      // Core gain
+      const dragMul = applyHeavyDragMultiplier();
+      const base = 100 / (currentFish.requiredTaps || 40); // progress per "unit"
+      const add = base * intensity * dragMul;
+
+      progress = Math.min(100, progress + add);
+
+      // Tension increase depending on sweet band (60-80%)
+      const inSweet = (tension >= 60 && tension <= 80);
+      const tInc = (inSweet ? 7 : 16) * dtClamp(1/60); // approximate frame-based kick
+      tension = Math.min(100, tension + tInc * (0.6 + intensity));
+
+      // Audio / haptic micro-feedback (light)
+      if (Math.random() < 0.25) tone(420,'sine',0.04,0.03);
+    }
+
+    function dtClamp(x){ return Math.max(0.012, Math.min(0.02, x)); }
+
+    function finish(win, msg){
+      pitchMul = 1.0;
+      gameState = STATE.RESULT;
+      showState('stateResult');
+      $('bobber').classList.remove('nibbling');
+
+      if (win){
+        S.coins += currentFish.coins;
+        S.catches += 1;
+        // Track in collection
+        if (!S.collection) S.collection = {};
+        S.collection[currentFish.id] = (S.collection[currentFish.id] || 0) + 1;
+        computeLevel();
+        save();
+
+        $('resultTitle').textContent = 'Success';
+        $('resultTitle').style.color = '#a7f3d0';
+        $('resultDetail').textContent = `${currentFish.name} • +${currentFish.coins} coins. ${msg || ''}`.trim();
+
+        vibrate([40,60,40]);
+        tone(660,'square',0.08,0.06);
+        setTimeout(()=>tone(880,'square',0.08,0.06), 90);
+      } else {
+        $('resultTitle').textContent = 'Fail';
+        $('resultTitle').style.color = 'var(--danger)';
+        $('resultDetail').textContent = msg || 'Line broke.';
+
+        // near-miss style cue
+        danger(true, 650);
+        vibrate([90]);
+        tone(180,'sawtooth',0.10,0.05);
+      }
+
+      updateStats();
+      setVistaSelectOptions();
+    }
+
+    /**********************
+     * INPUT WIRING
+     **********************/
+    function attachInput(){
+      // Global “wake” for audio on first gesture
+      window.addEventListener('pointerdown', () => ensureAudio(), {once:true, passive:true});
+
+      // iOS: Prevent double-tap zoom
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+          e.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+
+      // iOS: Prevent pinch zoom
+      document.addEventListener('gesturestart', (e) => {
+        e.preventDefault();
+      });
+
+      // Waiting: cast/drill behavior
+      $('castTapBtn').addEventListener('click', () => {
+        if (currentVista.mechanic !== 'precision_cast') return;
+        if (!S.usePrecisionCast) return; // Classic mode active, ignore
+        // first tap starts the cursor if not running; second tap resolves
+        if (!castingActive) startPrecisionCast();
+        else resolveCast();
+      });
+
+      // G) Allow tapping arc stage directly for better UX
+      $('arcStage').addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (currentVista.mechanic !== 'precision_cast') return;
+        if (!S.usePrecisionCast) return;
+        if (!castingActive) startPrecisionCast();
+        else resolveCast();
+      });
+
+      $('drillBtn').addEventListener('click', () => {
+        if (currentVista.mechanic !== 'drill') return;
+        startDrill();
+      });
+
+      // Hook
+      $('stateNibbling').addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        startReel();
+      });
+
+      // Reel controls
+      $('reelTapBtn').addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        pointerDown = true;
+
+        if (currentFish && currentFish.reelType === 'hold'){
+          // hold ticks
+          const holdLoop = () => {
+            if (!pointerDown || gameState !== STATE.REEL) return;
+            applyReelInput(0.9);
+            requestAnimationFrame(holdLoop);
+          };
+          holdLoop();
+        } else {
+          applyReelInput(1.0);
+        }
+      });
+
+      window.addEventListener('pointerup', () => {
+        pointerDown = false;
+        lastRotateAngle = null;
+      }, {passive:true});
+
+      $('releaseBtn').addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        // release is meaningful for snap window and high tension moments
+        pointerDown = false;
+        lastRotateAngle = null;
+        // reduce tension quickly as "release"
+        tension = Math.max(0, tension - 20);
+        updateFightUI();
+        tone(260,'sine',0.04,0.03);
+      });
+
+      // Rotate reeling: track pointer movement around center of fightBox
+      $('fightBox').addEventListener('pointermove', (e) => {
+        if (gameState !== STATE.REEL || !currentFish) return;
+        if (currentFish.reelType !== 'rotate') return;
+        if (!pointerDown) return;
+
+        const rect = $('fightBox').getBoundingClientRect();
+        const cx = rect.left + rect.width/2;
+        const cy = rect.top + rect.height/2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const ang = Math.atan2(dy, dx);
+
+        if (lastRotateAngle == null){
+          lastRotateAngle = ang;
+          return;
+        }
+
+        let d = ang - lastRotateAngle;
+        // normalize -pi..pi
+        if (d > Math.PI) d -= 2*Math.PI;
+        if (d < -Math.PI) d += 2*Math.PI;
+
+        rotateAccum += Math.abs(d);
+        lastRotateAngle = ang;
+
+        // Every ~0.55 radians accumulated => apply reel tick
+        if (rotateAccum >= 0.55){
+          rotateAccum = 0;
+          applyReelInput(1.0);
+        }
+      });
+
+      // Waiting tap starts the flow depending on vista
+      $('stateWaiting').addEventListener('pointerdown', (e) => {
+        // prevent accidental interactions on select/button areas
+        const t = e.target;
+        if (t.closest('button') || t.closest('select') || t.closest('.toggle')) return;
+
+        if (gameState !== STATE.WAITING) return;
+
+        if (currentVista.mechanic === 'precision_cast'){
+          if (S.usePrecisionCast){
+            // Precision Cast mode: start cast if not already active
+            if (!castingActive) startPrecisionCast();
+          } else {
+            // Classic mode: schedule a bite on tap
+            scheduleBite(false);
+          }
+        } else if (currentVista.mechanic === 'drill'){
+          // If hole open, schedule bite; else prompt drill
+          if (holeOpen) scheduleBite(false);
+          else { $('iceToast').classList.add('on'); setTimeout(()=>$('iceToast').classList.remove('on'), 650); }
+        } else {
+          // standard (fallback)
+          scheduleBite(false);
+        }
+      });
+
+      // Result continue
+      $('nextBtn').addEventListener('click', () => {
+        currentFish = null;
+        progress = 0; tension = 0;
+        gameState = STATE.WAITING;
+        showState('stateWaiting');
+        configureWaitingUI();
+
+        if (currentVista.mechanic === 'precision_cast'){
+          if (S.usePrecisionCast) startPrecisionCast();
+          else scheduleBite(false);
+        } else if (currentVista.mechanic === 'drill' && holeOpen){
+          scheduleBite(false);
+        }
+      });
+
+      // Sound + fullscreen
+      $('soundBtn').addEventListener('click', () => {
+        audioEnabled = !audioEnabled;
+        S.soundOn = audioEnabled;
+        $('soundBtn').textContent = audioEnabled ? '🔊' : '🔇';
+        save();
+      });
+
+      $('fsBtn').addEventListener('click', () => toggleFullscreen());
+
+      // Trophy Room
+      $('trophyBtn').addEventListener('click', () => {
+        openTrophyRoom();
+        tone(440,'sine',0.06,0.04);
+      });
+
+      $('trophyClose').addEventListener('click', () => {
+        closeTrophyRoom();
+        tone(320,'sine',0.05,0.03);
+      });
+
+      // Cast Mode Toggle
+      $('castModeToggle').addEventListener('click', () => {
+        S.usePrecisionCast = !S.usePrecisionCast;
+        save();
+        updateCastToggleUI();
+        
+        // Stop any active casting animation
+        if (castRaf) cancelAnimationFrame(castRaf);
+        castingActive = false;
+        clearBiteTimer();
+        
+        // Reconfigure UI
+        configureWaitingUI();
+        
+        // Start appropriate flow
+        if (S.usePrecisionCast){
+          startPrecisionCast();
+        } else {
+          scheduleBite(false);
+        }
+        
+        tone(480,'sine',0.05,0.04);
+        vibrate([25]);
+      });
+
+      // Vista selection
+      $('vistaSelect').addEventListener('change', (e) => {
+        const id = e.target.value;
+        if (!S.unlocked[id]){
+          // keep selection so Unlock can target it
+          toast('Locked — press Unlock', 850);
+          vibrate([60]);
+          tone(180,'sawtooth',0.08,0.05);
+          return;
+        }
+        // reset state on vista change
+        clearBiteTimer();
+        resetCastingUI();
+        stopDrillTimers();
+        holeOpen = false; holeUses = 0;
+        gameState = STATE.WAITING;
+        showState('stateWaiting');
+        setVista(id);
+      });
+
+      $('unlockBtn').addEventListener('click', () => {
+        const id = $('vistaSelect').value;
+        const v = VISTAS.find(x=>x.id===id);
+        if (!v) return;
+
+        if (S.unlocked[v.id]){
+          toast('Already unlocked');
+          return;
+        }
+        if (unlockVista(v)){
+          setVistaSelectOptions();
+          // auto-select unlocked vista for flow
+          $('vistaSelect').value = v.id;
+          setVista(v.id);
+        } else {
+          // show requirement
+          const need = (S.level < v.unlockLevel) ? `Need Level ${v.unlockLevel}` : `Need ${v.unlockCost} coins`;
+          toast(need, 850);
+        }
+      });
+
+      // Visibility pause: stop casting animation cleanly
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden){
+          if (castRaf) cancelAnimationFrame(castRaf);
+          castRaf = null;
+          castingActive = false;
+          castLocked = false;
+        } else {
+          setViewportUnits();
+          if (gameState === STATE.WAITING && currentVista.mechanic === 'precision_cast' && S.usePrecisionCast){
+            startPrecisionCast();
+          }
+        }
+      }, {passive:true});
+    }
+
+    /**********************
+     * INIT
+     **********************/
+    function init(){
+      // sound persisted in save; default on
+      audioEnabled = (S.soundOn !== false);
+      $('soundBtn').textContent = audioEnabled ? '🔊' : '🔇';
+
+      // Choose vista
+      const v = VISTAS.find(x=>x.id === S.currentVista) || VISTAS[0];
+      if (!S.unlocked[v.id]) S.currentVista = 'sunny_lake';
+      setVista(S.currentVista);
+
+      attachInput();
+
+      // Default entry behavior
+      configureWaitingUI();
+      if (currentVista.mechanic === 'precision_cast'){
+        if (S.usePrecisionCast) startPrecisionCast();
+        else scheduleBite(false);
+      }
+      if (currentVista.mechanic === 'drill') updateIceUI();
+    }
+
+    init();
   </script>
 </body>
 </html>
