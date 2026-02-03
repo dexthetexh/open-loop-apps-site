@@ -880,63 +880,7 @@
     }
     .coinBtn:active{ transform: translateY(1px); }
     .coinBtn:focus{ outline:none; }
-
-  
-    /* v4.3.2 HOTFIX: Precision cast UI uses image assets (no SVG/CSS arc fallback) */
-    .arcStage{ height:190px; }
-    .castArcImg{
-      position:absolute;
-      bottom:10px;
-      left:50%;
-      transform:translateX(-50%);
-      width:320px;
-      height:auto;
-      opacity:0.92;
-      pointer-events:none;
-      filter: drop-shadow(0 10px 16px rgba(0,0,0,0.35));
-    }
-    .castTargetImg{
-      position:absolute;
-      bottom:10px;
-      left:50%;
-      width:320px;
-      height:auto;
-      transform:translateX(-50%) rotate(0deg);
-      transform-origin:50% calc(100% - 10px);
-      pointer-events:none;
-      opacity:0.95;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
-    }
-    .castNeedleImg{
-      position:absolute;
-      bottom:10px;
-      left:50%;
-      width:320px;
-      height:auto;
-      transform:translateX(-50%) rotate(0deg);
-      transform-origin:50% calc(100% - 10px);
-      pointer-events:none;
-      opacity:0.96;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
-    }
-    .castFxImg{
-      position:absolute;
-      left:50%;
-      bottom:0px;
-      transform:translateX(-50%);
-      width:340px;
-      height:auto;
-      pointer-events:none;
-      opacity:0.95;
-      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.35));
-    }
-    .castFxImg.hidden{ display:none; }
-
-    /* neutralize old div-based cast visuals if still present */
-    .arc, .sweetSpot, .cursor{ display:none !important; }
-
-  
-    /* v4.3.2: locked vista unlock icon can be disabled */
+/* v4.3.2: locked vista unlock icon can be disabled */
     .unlockIconBtn.disabled{
       opacity:0.45;
       filter: grayscale(1);
@@ -1059,11 +1003,9 @@
         <div class="castingBox hidden" id="castMode">
           <div class="bayouFog" id="bayouFog"></div>
           <div class="arcStage" id="arcStage">
-            <img class="castArcImg" id="castArcImg" src="./assets/ui/cast-arc.png" alt="Cast Arc" />
-            <img class="castTargetImg" id="sweetSpot" src="./assets/ui/cast-target-gold.png" alt="Target" />
-            <img class="castNeedleImg" id="castCursor" src="./assets/ui/cast-needle.png" alt="Needle" />
-            <img class="castFxImg hidden" id="castHitFx" src="./assets/ui/cast-hit-burst.png" alt="Hit FX" />
-            <img class="castFxImg hidden" id="castMissFx" src="./assets/ui/cast-miss-thud.png" alt="Miss FX" />
+            <div class="arc"></div>
+            <div class="sweetSpot" id="sweetSpot"></div>
+            <div class="cursor" id="castCursor"></div>
             <div class="castFlash" id="castFlash"></div>
           </div>
           <div class="castStats">
@@ -2576,14 +2518,7 @@ $('vistaList').addEventListener('click', (e) => {
      * INIT
      **********************/
     function init(){
-      // Cast asset diagnostics
-      ['cast-arc.png','cast-needle.png','cast-target-gold.png','cast-hit-burst.png','cast-miss-thud.png'].forEach(f=>{
-        const img = new Image();
-        img.onerror = () => console.error('[cast asset missing]', './assets/ui/' + f);
-        img.src = './assets/ui/' + f;
-      });
-
-      // sound persisted in save; default on
+// sound persisted in save; default on
       audioEnabled = (S.soundOn !== false);
       $('soundBtn').textContent = audioEnabled ? '🔊' : '🔇';
 
