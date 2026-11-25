@@ -1,47 +1,34 @@
 import { useEffect, useRef } from "react";
+import { ADS } from "../../lib/site";
 
-const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === "true";
-const CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
-
-export default function AdSlot({
-  slot,
-  className,
-  label = "Advertisement",
-  style,
-  disabled = false,
-}) {
-  const insRef = useRef(null);
+/** Renders an AdSense unit only when ads are enabled AND a real slot id exists. */
+export default function AdSlot({ slot }) {
+  const id = ADS.slots[slot] || "";
+  const ref = useRef(null);
+  const active = ADS.enabled && ADS.client && id;
 
   useEffect(() => {
-    if (!ADS_ENABLED || !CLIENT || !slot || disabled) return;
-
-    const el = insRef.current;
-    if (!el) return;
-
-    if (el.getAttribute("data-adsbygoogle-status")) return;
-
+    if (!active || !ref.current || ref.current.getAttribute("data-adsbygoogle-status")) return;
     try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
-      // ad blockers / script timing — safe to ignore
+      /* blocked or not loaded yet */
     }
-  }, [slot, disabled]);
+  }, [active]);
 
-  if (!ADS_ENABLED || !CLIENT || !slot || disabled) return null;
-
+  if (!active) return null;
   return (
-    <div className={className} style={style}>
-      <div className="ad-label">{label}</div>
+    <aside className="adSlot" aria-label="Advertisement">
+      <div className="adLabel">Advertisement</div>
       <ins
-        ref={insRef}
+        ref={ref}
         className="adsbygoogle"
         style={{ display: "block" }}
-        data-ad-client={CLIENT}
-        data-ad-slot={slot}
+        data-ad-client={ADS.client}
+        data-ad-slot={id}
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
-    </div>
+    </aside>
   );
 }

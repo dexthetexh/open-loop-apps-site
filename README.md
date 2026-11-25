@@ -1,38 +1,42 @@
-# Open Loop Apps Website
+# Open Loop Apps — openloopapps.com
 
-This simple web application provides a home for **Idle Cyber Defense** and **Tap Escape Speedrun**—two Android games created as part of the Open Loop Apps project.  It’s built with [Next.js](https://nextjs.org/) and can be deployed directly to [Vercel](https://vercel.com/).
+Static Next.js shell (Pages Router, `output: "export"`) hosting self-contained browser games. Deployed on Cloudflare Pages.
 
-## Running locally
+## Run
 
-1. **Install dependencies:** Make sure you have Node.js (>= 16) installed. In the project root run:
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # static site in out/ (+ sitemap.xml)
+npm run preview    # serve out/ locally
+```
 
-   ```bash
-   npm install
-   ```
+Node 22+.
 
-2. **Start the development server:**
+## Layout
 
-   ```bash
-   npm run dev
-   ```
+| Path | What |
+| --- | --- |
+| `lib/games.json` | **Catalog source of truth.** Add a game here; pages, cards and sitemap follow. |
+| `lib/site.js` | Site name, contact email, ad config (from env). |
+| `pages/games/[slug].js` | One landing page per catalog entry (embed, controls, JSON-LD). |
+| `public/play/<slug>/` | Game runtimes. Each is standalone: `index.html` entrypoint, no framework imports. Served at `/play/<slug>/`. |
+| `public/_headers` | Security and cache headers for Cloudflare Pages. |
+| `assets-src/` | Source art not shipped to the site (ReelLoop sheets). |
+| `docs/games/` | Per-game dev notes moved out of `public/`. |
+| `scripts/` | `postbuild.mjs` writes the sitemap; `pages-output.mjs` mirrors `out/` for Pages. |
 
-   Your application should now be running at `http://localhost:3000`.
+## Add a game
 
-## Deploying to Vercel
+1. Drop the runtime in `public/play/<slug>/index.html` (relative asset paths).
+2. Add an entry to `lib/games.json` (`frame`: `portrait` or `landscape`).
+3. `npm run build` and check `/games/<slug>/`.
 
-1. Sign in to Vercel and create a new project. When prompted, import this Git repository.
-2. Set up the project with the `open-loop-apps` directory as the root.
-3. Vercel will detect the Next.js framework automatically; no additional configuration is needed.
-4. Deploy! Vercel will install dependencies, build the site and host it at your chosen domain.
+## Deploy (Cloudflare Pages)
 
-## Structure
+Current project settings: build command `npm run build:pages`, output `.vercel/output/static`.
+`build:pages` builds the static export and copies it to that folder, so no dashboard change is needed.
+Optional cleanup: set build command to `npm run build` and output directory to `out`, then delete `scripts/pages-output.mjs`.
 
-- `pages/index.js` – The home page introducing the Open Loop Apps project.
-- `pages/games/index.js` – Lists available games with brief descriptions and links.
-- `pages/games/idle-cyber-defense.js` – Product page for Idle Cyber Defense summarising the idle strategy game and linking to the Play Store.
-- `pages/games/tap-escape-speedrun.js` – Product page for Tap Escape Speedrun, a reflex‑based tapping game.
-- `components/Navbar.js` and `components/Footer.js` – Reusable navigation and footer components.
-
-## Licence
-
-This project is provided for educational purposes and does not include any proprietary code or assets from the original games.  It’s licensed under the MIT licence; see `LICENSE` for details.
+Environment variables: see `.env.example`. Ads render only when `NEXT_PUBLIC_ADS_ENABLED=true` **and** a real
+slot id is set in `NEXT_PUBLIC_ADSENSE_SLOT_CATALOG` / `NEXT_PUBLIC_ADSENSE_SLOT_GAME`. Gameplay (`/play/*`) never shows ads.

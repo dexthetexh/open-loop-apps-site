@@ -1,0 +1,310 @@
+{
+  "vista_banner_sunny_lake": {
+    "png": "assets-src/reelloop/vistas/vista_banner_sunny_lake.png",
+    "svg": "assets-src/reelloop/vistas/vista_banner_sunny_lake.svg",
+    "box": [
+      20,
+      10,
+      760,
+      120
+    ],
+    "size": [
+      740,
+      110
+    ]
+  },
+  "vista_banner_ice_tundra": {
+    "png": "assets-src/reelloop/vistas/vista_banner_ice_tundra.png",
+    "svg": "assets-src/reelloop/vistas/vista_banner_ice_tundra.svg",
+    "box": [
+      20,
+      520,
+      820,
+      640
+    ],
+    "size": [
+      800,
+      120
+    ]
+  },
+  "vista_panel_sunny_lake": {
+    "png": "assets-src/reelloop/vistas/vista_panel_sunny_lake.png",
+    "svg": "assets-src/reelloop/vistas/vista_panel_sunny_lake.svg",
+    "box": [
+      20,
+      135,
+      1340,
+      385
+    ],
+    "size": [
+      1320,
+      250
+    ]
+  },
+  "vista_panel_ice_tundra": {
+    "png": "assets-src/reelloop/vistas/vista_panel_ice_tundra.png",
+    "svg": "assets-src/reelloop/vistas/vista_panel_ice_tundra.svg",
+    "box": [
+      20,
+      650,
+      1340,
+      900
+    ],
+    "size": [
+      1320,
+      250
+    ]
+  },
+  "reel_sunny_lake": {
+    "png": "assets-src/reelloop/reels/reel_sunny_lake.png",
+    "svg": "assets-src/reelloop/reels/reel_sunny_lake.svg",
+    "box": [
+      1375,
+      125,
+      1635,
+      360
+    ],
+    "size": [
+      260,
+      235
+    ]
+  },
+  "reel_ice_tundra": {
+    "png": "assets-src/reelloop/reels/reel_ice_tundra.png",
+    "svg": "assets-src/reelloop/reels/reel_ice_tundra.svg",
+    "box": [
+      1375,
+      650,
+      1635,
+      885
+    ],
+    "size": [
+      260,
+      235
+    ]
+  },
+  "bobber_sunny_lake": {
+    "png": "assets-src/reelloop/bobbers/bobber_sunny_lake.png",
+    "svg": "assets-src/reelloop/bobbers/bobber_sunny_lake.svg",
+    "box": [
+      1640,
+      115,
+      1760,
+      360
+    ],
+    "size": [
+      120,
+      245
+    ]
+  },
+  "bobber_ice_tundra": {
+    "png": "assets-src/reelloop/bobbers/bobber_ice_tundra.png",
+    "svg": "assets-src/reelloop/bobbers/bobber_ice_tundra.svg",
+    "box": [
+      1640,
+      670,
+      1760,
+      900
+    ],
+    "size": [
+      120,
+      230
+    ]
+  },
+  "fish_bluegill": {
+    "png": "assets-src/reelloop/fish/fish_bluegill.png",
+    "svg": "assets-src/reelloop/fish/fish_bluegill.svg",
+    "box": [
+      60,
+      365,
+      360,
+      505
+    ],
+    "size": [
+      300,
+      140
+    ]
+  },
+  "fish_yellow_perch": {
+    "png": "assets-src/reelloop/fish/fish_yellow_perch.png",
+    "svg": "assets-src/reelloop/fish/fish_yellow_perch.svg",
+    "box": [
+      380,
+      360,
+      720,
+      510
+    ],
+    "size": [
+      340,
+      150
+    ]
+  },
+  "fish_rainbow_trout": {
+    "png": "assets-src/reelloop/fish/fish_rainbow_trout.png",
+    "svg": "assets-src/reelloop/fish/fish_rainbow_trout.svg",
+    "box": [
+      740,
+      360,
+      1160,
+      510
+    ],
+    "size": [
+      420,
+      150
+    ]
+  },
+  "fish_largemouth_bass": {
+    "png": "assets-src/reelloop/fish/fish_largemouth_bass.png",
+    "svg": "assets-src/reelloop/fish/fish_largemouth_bass.svg",
+    "box": [
+      1200,
+      360,
+      1600,
+      520
+    ],
+    "size": [
+      400,
+      160
+    ]
+  },
+  "fish_muskie": {
+    "png": "assets-src/reelloop/fish/fish_muskie.png",
+    "svg": "assets-src/reelloop/fish/fish_muskie.svg",
+    "box": [
+      1580,
+      360,
+      2040,
+      520
+    ],
+    "size": [
+      460,
+      160
+    ]
+  },
+  "bobber_red": {
+    "png": "assets-src/reelloop/bobbers/bobber_red.png",
+    "svg": "assets-src/reelloop/bobbers/bobber_red.svg",
+    "box": [
+      80,
+      840,
+      240,
+      1010
+    ],
+    "size": [
+      160,
+      170
+    ]
+  },
+  "bobber_green": {
+    "png": "assets-src/reelloop/bobbers/bobber_green.png",
+    "svg": "assets-src/reelloop/bobbers/bobber_green.svg",
+    "box": [
+      255,
+      840,
+      415,
+      1010
+    ],
+    "size": [
+      160,
+      170
+    ]
+  },
+  "bobber_blue": {
+    "png": "assets-src/reelloop/bobbers/bobber_blue.png",
+    "svg": "assets-src/reelloop/bobbers/bobber_blue.svg",
+    "box": [
+      430,
+      840,
+      590,
+      1010
+    ],
+    "size": [
+      160,
+      170
+    ]
+  },
+  "bobber_purple": {
+    "png": "assets-src/reelloop/bobbers/bobber_purple.png",
+    "svg": "assets-src/reelloop/bobbers/bobber_purple.svg",
+    "box": [
+      605,
+      840,
+      765,
+      1010
+    ],
+    "size": [
+      160,
+      170
+    ]
+  },
+  "fish_frost_perch": {
+    "png": "assets-src/reelloop/fish/fish_frost_perch.png",
+    "svg": "assets-src/reelloop/fish/fish_frost_perch.svg",
+    "box": [
+      780,
+      840,
+      1120,
+      1010
+    ],
+    "size": [
+      340,
+      170
+    ]
+  },
+  "fish_glacial_trout": {
+    "png": "assets-src/reelloop/fish/fish_glacial_trout.png",
+    "svg": "assets-src/reelloop/fish/fish_glacial_trout.svg",
+    "box": [
+      1120,
+      850,
+      1540,
+      1010
+    ],
+    "size": [
+      420,
+      160
+    ]
+  },
+  "fish_legendary_frost_wyrm": {
+    "png": "assets-src/reelloop/fish/fish_legendary_frost_wyrm.png",
+    "svg": "assets-src/reelloop/fish/fish_legendary_frost_wyrm.svg",
+    "box": [
+      1540,
+      830,
+      2040,
+      1015
+    ],
+    "size": [
+      500,
+      185
+    ]
+  },
+  "vista_bg_sunny_lake": {
+    "png": "assets-src/reelloop/vistas/vista_bg_sunny_lake.png",
+    "svg": "assets-src/reelloop/vistas/vista_bg_sunny_lake.svg",
+    "box": [
+      120,
+      1015,
+      980,
+      1115
+    ],
+    "size": [
+      860,
+      100
+    ]
+  },
+  "vista_bg_ice_tundra": {
+    "png": "assets-src/reelloop/vistas/vista_bg_ice_tundra.png",
+    "svg": "assets-src/reelloop/vistas/vista_bg_ice_tundra.svg",
+    "box": [
+      1080,
+      1015,
+      1940,
+      1115
+    ],
+    "size": [
+      860,
+      100
+    ]
+  }
+}

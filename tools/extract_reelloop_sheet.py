@@ -10,7 +10,7 @@ import json, zipfile
 SHEET_PATH = Path("Fish and Vistas levels 1 2.png")  # or full path if needed
 
 # Output root (recommend within your Next.js repo)
-OUT_ROOT = Path("public/games/reelloop/assets")
+OUT_ROOT = Path("assets-src/reelloop")
 
 # If your sheet path is elsewhere, use absolute path:
 # SHEET_PATH = Path(r"C:\Users\pc\Projects\open-loop-apps\path\to\sheet.png")
