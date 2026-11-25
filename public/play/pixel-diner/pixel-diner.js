@@ -229,6 +229,8 @@
     ordersServedEl.textContent = String(gameState.ordersServed);
     bestComboEl.textContent = String(gameState.bestCombo);
     gameOverScreen.classList.add("active");
+    // Natural break on the game-over screen
+    if (window.OLAds) window.OLAds.gameBreak("game_over");
   }
 
   function tick() {

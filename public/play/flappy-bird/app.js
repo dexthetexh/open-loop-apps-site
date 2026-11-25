@@ -123,6 +123,8 @@
       bestEl.textContent = String(best);
       setBest(best);
     }
+    // Natural break after a crash; the board is already stopped
+    if (window.OLAds) window.OLAds.gameBreak("game_over");
   }
 
   function flap() {

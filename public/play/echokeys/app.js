@@ -368,7 +368,11 @@ function showResult() {
     setStatus("❌ Not quite...", "error");
     toast("❌ Miss", "bad");
     updateDisplay();
-    setTimeout(() => showButtons(["replay", "retry"]), 450);
+    setTimeout(() => {
+      showButtons(["replay", "retry"]);
+      // Natural break after a missed sequence (round over)
+      if (window.OLAds) window.OLAds.gameBreak("round_missed");
+    }, 450);
   }
 }
 

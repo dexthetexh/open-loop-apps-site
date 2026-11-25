@@ -43,6 +43,8 @@ export default function GamePage({ game, prev, next }) {
         }}
       />
 
+      <AdSlot placement="game_top" />
+
       <nav className="crumbs" aria-label="Breadcrumb">
         <Link href="/games">Games</Link> <span aria-hidden="true">/</span> <span>{game.title}</span>
       </nav>
@@ -82,7 +84,7 @@ export default function GamePage({ game, prev, next }) {
         ) : null}
       </section>
 
-      <AdSlot slot="game" />
+      <AdSlot placement="game_bottom" />
 
       <nav className="pager" aria-label="More games">
         {prev ? <Link href={`/games/${prev.slug}`}>← {prev.title}</Link> : <span />}

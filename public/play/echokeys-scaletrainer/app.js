@@ -318,6 +318,9 @@ function advance() {
 
     updateHeader();
 
+    // Natural break between levels; the next level starts after the timeout
+    if (window.OLAds) window.OLAds.gameBreak("level_end");
+
     setTimeout(() => {
       state.questionNumber = 1;
       state.correctAnswers = 0;

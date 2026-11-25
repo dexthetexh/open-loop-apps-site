@@ -30,10 +30,10 @@ export default function Privacy() {
         <h2 className="h2">Advertising</h2>
         {ADS.enabled ? (
           <p>
-            Game landing pages may show ads from Google AdSense. Google and its partners may use cookies to serve
-            and measure ads. You can manage this at{" "}
-            <a href="https://adssettings.google.com" rel="noopener">adssettings.google.com</a>. Gameplay screens
-            never show ads.
+            Pages and games may show ads from Google AdSense. Inside games, ads appear only between rounds,
+            never during play. Google and its partners may use cookies to serve and measure ads. You can manage
+            ad personalization at{" "}
+            <a href="https://adssettings.google.com" rel="noopener">adssettings.google.com</a>.
           </p>
         ) : (
           <p>The site currently shows no ads. This section will be updated before any are enabled.</p>

@@ -367,6 +367,7 @@
       display: none;
     }
   </style>
+  <script src="/ads/games.js" defer></script>
 </head>
 <body>
   <div id="game">
@@ -693,6 +694,8 @@
 
       saveProgress();
       updateUI();
+      // Natural break: between runs, never during one
+      if (window.OLAds) OLAds.gameBreak(won ? 'run_won' : 'run_lost');
     }
 
     function stopRun() {

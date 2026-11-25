@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { SITE } from "../lib/site";
+import AdSlot from "./ads/AdSlot";
 
 const NAV = [
   { href: "/games", label: "Games" },
@@ -37,6 +38,7 @@ export default function Layout({ children }) {
 
       <main id="main" className="wrap main">
         {children}
+        {pathname !== "/404" ? <AdSlot placement="site_footer" /> : null}
       </main>
 
       <footer className="siteFooter">

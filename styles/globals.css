@@ -191,9 +191,24 @@ img { max-width: 100%; }
 .prose { max-width: 70ch; }
 .prose p { color: var(--muted); }
 
-/* Ads */
-.adSlot { margin: 32px 0; min-height: 100px; }
+/* Ads: reserve height so loading units don't shift the layout */
+.adSlot { margin: 28px 0; min-height: 100px; }
 .adLabel { font-size: 12px; color: var(--faint); margin-bottom: 6px; }
+.adPreview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 2px dashed #f59e0b;
+  border-radius: var(--radius);
+  background: rgba(245, 158, 11, 0.07);
+  font-size: 14px;
+}
+.adPreview strong { color: #fbbf24; font-family: ui-monospace, Menlo, monospace; }
+.adPreview span { color: var(--muted); }
+.adPreview .ok { color: #4ade80; }
+.adPreview .warn { color: #f87171; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }

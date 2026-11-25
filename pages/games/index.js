@@ -29,13 +29,13 @@ export default function GamesIndex() {
         <p className="lead">Everything here runs in your browser. Tap a card to play.</p>
       </header>
 
+      <AdSlot placement="catalog_top" />
+
       <div className="grid">
         {web.map((g) => (
           <GameCard key={g.slug} game={g} />
         ))}
       </div>
-
-      <AdSlot slot="catalog" />
 
       {soon.length ? (
         <section aria-labelledby="coming-soon">
@@ -47,6 +47,8 @@ export default function GamesIndex() {
           </div>
         </section>
       ) : null}
+
+      <AdSlot placement="catalog_bottom" />
     </>
   );
 }

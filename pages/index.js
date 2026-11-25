@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Seo from "../components/Seo";
 import GameCard from "../components/GameCard";
+import AdSlot from "../components/ads/AdSlot";
 import { WEB_GAMES, playPath } from "../lib/games";
 import { SITE } from "../lib/site";
 
@@ -42,6 +43,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <AdSlot placement="home_inline" />
 
       <section className="facts" aria-label="How it works">
         <div><strong>Instant</strong><span>Opens in a tab. Works on phone and desktop.</span></div>
