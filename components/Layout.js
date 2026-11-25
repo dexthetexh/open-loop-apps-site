@@ -1,40 +1,56 @@
-// File: /components/Layout.js
-import Head from 'next/head';
-import Link from 'next/link';
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { SITE } from "../lib/site";
+import AdSlot from "./ads/AdSlot";
+
+const NAV = [
+  { href: "/games", label: "Games" },
+  { href: "/privacy", label: "Privacy", hideSm: true },
+  { href: "/contact", label: "Contact" },
+];
 
 export default function Layout({ children }) {
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      <Head>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  const { pathname } = useRouter();
+  const isActive = (href) => pathname === href || pathname.startsWith(`${href}/`);
 
-      {/* Global Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-blue-600">
-            Open Loop Apps
+  return (
+    <>
+      <a className="skip" href="#main">Skip to content</a>
+      <header className="siteHeader">
+        <div className="wrap siteHeaderInner">
+          <Link href="/" className="brand" aria-label={`${SITE.name} home`}>
+            <img src="/icon.svg" alt="" width="28" height="28" />
+            <span>{SITE.name}</span>
           </Link>
-          <nav className="flex gap-4 text-sm font-medium text-gray-600">
-            <Link href="/games" className="hover:text-blue-600">Games</Link>
-            <Link href="/contact" className="hover:text-blue-600">Contact</Link>
+          <nav aria-label="Primary">
+            <ul className="navList">
+              {NAV.map((n) => (
+                <li key={n.href} className={n.hideSm ? "navHideSm" : undefined}>
+                  <Link href={n.href} aria-current={isActive(n.href) ? "page" : undefined}>
+                    {n.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main>
+      <main id="main" className="wrap main">
         {children}
+        {pathname !== "/404" ? <AdSlot placement="site_footer" /> : null}
       </main>
 
-      {/* Global Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12 py-8 text-center text-sm text-gray-500">
-        <p>© {new Date().getFullYear()} Open Loop Apps. All rights reserved.</p>
-        <div className="mt-2 space-x-4">
-          <Link href="/privacy" className="hover:underline">Privacy</Link>
-          <Link href="/terms" className="hover:underline">Terms</Link>
+      <footer className="siteFooter">
+        <div className="wrap siteFooterInner">
+          <span>© {new Date().getFullYear()} {SITE.name}</span>
+          <nav className="footLinks" aria-label="Footer">
+            <Link href="/games">Games</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/contact">Contact</Link>
+          </nav>
         </div>
       </footer>
-    </div>
+    </>
   );
 }

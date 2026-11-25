@@ -1,38 +1,62 @@
-# Open Loop Apps Website
+# Open Loop Apps — openloopapps.com
 
-This simple web application provides a home for **Idle Cyber Defense** and **Tap Escape Speedrun**—two Android games created as part of the Open Loop Apps project.  It’s built with [Next.js](https://nextjs.org/) and can be deployed directly to [Vercel](https://vercel.com/).
+Static Next.js shell (Pages Router, `output: "export"`) hosting self-contained browser games. Deployed on Cloudflare Pages.
 
-## Running locally
+## Run
 
-1. **Install dependencies:** Make sure you have Node.js (>= 16) installed. In the project root run:
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # static site in out/ (+ sitemap.xml)
+npm run preview    # serve out/ locally
+```
 
-   ```bash
-   npm install
-   ```
+Node 22+.
 
-2. **Start the development server:**
+## Layout
 
-   ```bash
-   npm run dev
-   ```
+| Path | What |
+| --- | --- |
+| `lib/games.json` | **Catalog source of truth.** Add a game here; pages, cards and sitemap follow. |
+| `lib/site.js` | Site name, contact email, ad config (from env). |
+| `pages/games/[slug].js` | One landing page per catalog entry (embed, controls, JSON-LD). |
+| `public/play/<slug>/` | Game runtimes. Each is standalone: `index.html` entrypoint, no framework imports. Served at `/play/<slug>/`. |
+| `public/_headers` | Security and cache headers for Cloudflare Pages. |
+| `assets-src/` | Source art not shipped to the site (ReelLoop sheets). |
+| `docs/games/` | Per-game dev notes moved out of `public/`. |
+| `scripts/` | `postbuild.mjs` writes the sitemap; `pages-output.mjs` mirrors `out/` for Pages. |
 
-   Your application should now be running at `http://localhost:3000`.
+## Add a game
 
-## Deploying to Vercel
+1. Drop the runtime in `public/play/<slug>/index.html` (relative asset paths).
+2. Add an entry to `lib/games.json` (`frame`: `portrait` or `landscape`).
+3. `npm run build` and check `/games/<slug>/`.
 
-1. Sign in to Vercel and create a new project. When prompted, import this Git repository.
-2. Set up the project with the `open-loop-apps` directory as the root.
-3. Vercel will detect the Next.js framework automatically; no additional configuration is needed.
-4. Deploy! Vercel will install dependencies, build the site and host it at your chosen domain.
+## Deploy (Cloudflare Pages)
 
-## Structure
+Current project settings: build command `npm run build:pages`, output `.vercel/output/static`.
+`build:pages` builds the static export and copies it to that folder, so no dashboard change is needed.
+Optional cleanup: set build command to `npm run build` and output directory to `out`, then delete `scripts/pages-output.mjs`.
 
-- `pages/index.js` – The home page introducing the Open Loop Apps project.
-- `pages/games/index.js` – Lists available games with brief descriptions and links.
-- `pages/games/idle-cyber-defense.js` – Product page for Idle Cyber Defense summarising the idle strategy game and linking to the Play Store.
-- `pages/games/tap-escape-speedrun.js` – Product page for Tap Escape Speedrun, a reflex‑based tapping game.
-- `components/Navbar.js` and `components/Footer.js` – Reusable navigation and footer components.
+## Ads
 
-## Licence
+All ad settings are env vars (see `.env.example`); nothing is hard-coded.
 
-This project is provided for educational purposes and does not include any proprietary code or assets from the original games.  It’s licensed under the MIT licence; see `LICENSE` for details.
+| Placement | Env var | Where |
+| --- | --- | --- |
+| `site_footer` | `NEXT_PUBLIC_ADSENSE_SLOT_SITE_FOOTER` | Every page, above the footer (not 404) |
+| `home_inline` | `NEXT_PUBLIC_ADSENSE_SLOT_HOME_INLINE` | Home, after the game grid |
+| `catalog_top` | `NEXT_PUBLIC_ADSENSE_SLOT_CATALOG_TOP` | `/games/`, above the grid |
+| `catalog_bottom` | `NEXT_PUBLIC_ADSENSE_SLOT_CATALOG_BOTTOM` | `/games/`, bottom |
+| `game_top` | `NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP` | `/games/<slug>/`, above the title |
+| `game_bottom` | `NEXT_PUBLIC_ADSENSE_SLOT_GAME_BOTTOM` | `/games/<slug>/`, after details |
+| In-game breaks | `NEXT_PUBLIC_ADS_GAMES_ENABLED`, `NEXT_PUBLIC_ADS_GAMES_FREQUENCY` | All six games, at round end |
+
+A display placement renders only when `NEXT_PUBLIC_ADS_ENABLED=true`, a client id is set, and its slot var holds a real ad unit id.
+
+In-game ads use the [H5 Games Ad Placement API](https://developers.google.com/ad-placement/apis): `public/ads/games.js` loads
+`/ads/config.json` (written at build time) and games call `OLAds.gameBreak(name)` at game over / level end. AdSense applies
+the frequency cap. No banners sit inside game screens, which keeps tap-heavy games clear of accidental-click policy issues.
+
+**Preview every placement:** add `?adslots` to any URL (for example `/games/reelloop/?adslots`). Display slots show as
+labelled outlines with their configuration status, and in-game breaks show an overlay naming the break, with no real ads.

@@ -1,23 +1,19 @@
 {
   "name": "open-loop-apps",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "engines": {
-    "node": ">=22 <=23"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:pages": "next build && npx @cloudflare/next-on-pages@1"
+    "build": "next build && node scripts/postbuild.mjs",
+    "build:pages": "npm run build && node scripts/pages-output.mjs",
+    "preview": "npx --yes serve@14 out -l 3000"
   },
   "dependencies": {
-    "next": "^16.1.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "^25.0.10",
-    "@types/react": "^19.2.10",
-    "typescript": "^5.9.3"
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }

@@ -836,7 +836,11 @@
     requestAnimationFrame(() => drawCardFish(fish, true));
     cardAction = () => { closeCard(); afterResult(); };
   }
-  function afterResult() { sfx.ui(); enterReady(); }
+  function afterResult() {
+    sfx.ui(); enterReady();
+    // Natural break after the catch/loss card is dismissed
+    if (window.OLAds) window.OLAds.gameBreak("cast_result");
+  }
 
   /* ============ HUD / CONTROLS ============ */
   let shownCoins = S.coins, coinAnim = null;

@@ -7,6 +7,8 @@
     content="width=device-width, initial-scale=1, viewport-fit=cover"
   />
   <title>Flappy Bird · Open Loop Apps</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+
 
   <meta name="application-name" content="Flappy Bird (Open Loop Apps)" />
   <meta name="author" content="Open Loop Apps" />
@@ -15,6 +17,7 @@
     content="A clean, offline, standalone Flappy-style game. Tap to flap. Beat your best."
   />
   <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#0b1220" />
 
   <style>
     :root {
@@ -49,6 +52,17 @@
       width: 100%;
       max-width: 980px;
       padding: 20px;
+    }
+
+    @media (max-height: 900px) {
+      .app { padding: 12px; }
+      header { margin-bottom: 8px; }
+    }
+
+    @media (max-width: 480px) {
+      /* Narrow screens wrap the HUD and header, so leave more room for chrome */
+      .canvasWrap canvas { width: min(100%, calc((100svh - 320px) * 0.7)); }
+      .app > footer { display: none; }
     }
 
     header {
@@ -104,8 +118,9 @@
     }
 
     canvas {
-      width: 100%;
-      max-width: 420px;
+      /* Fit the 7:10 board inside the viewport so nothing scrolls, even in an embed */
+      width: min(100%, 420px, calc((100svh - 290px) * 0.7));
+      min-width: 220px;
       aspect-ratio: 7 / 10;
       background: #050a16;
       border: 1px solid var(--border);
@@ -160,6 +175,7 @@
     footer span { white-space: nowrap; }
     code { color: #93c5fd; }
   </style>
+  <script src="/ads/games.js" defer></script>
 </head>
 
 <body>

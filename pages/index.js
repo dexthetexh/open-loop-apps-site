@@ -1,50 +1,56 @@
 import Link from "next/link";
+import Seo from "../components/Seo";
+import GameCard from "../components/GameCard";
+import AdSlot from "../components/ads/AdSlot";
+import { WEB_GAMES, playPath } from "../lib/games";
+import { SITE } from "../lib/site";
 
 export default function Home() {
+  const featured = WEB_GAMES[0];
   return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>Open Loop Apps</h1>
-      <p style={styles.paragraph}>
-        Open Loop Apps builds lightweight games with clear loops and long-term maintainability.
-        This site is the stable shell; games run as self-contained web apps.
-      </p>
+    <>
+      <Seo
+        path="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: SITE.name,
+          url: SITE.url,
+          description: SITE.description,
+        }}
+      />
 
-      <div style={styles.card}>
-        <h2 style={styles.h2}>Play</h2>
-        <p style={styles.paragraph}>
-          Browse the catalog and launch games instantly in your browser.
+      <section className="hero">
+        <h1 className="h1">Small games with tight loops.</h1>
+        <p className="lead">
+          Free to play in your browser. No accounts, no installs. Progress is saved on your device.
         </p>
-        <Link href="/games" style={styles.primaryButton}>
-          View Games
-        </Link>
-      </div>
-    </div>
+        <div className="heroActions">
+          <Link className="btn btnPrimary" href={playPath(featured.slug)}>
+            Play {featured.title}
+          </Link>
+          <Link className="btn btnGhost" href="/games">
+            All games
+          </Link>
+        </div>
+      </section>
+
+      <section aria-labelledby="play-now">
+        <h2 id="play-now" className="h2">Play now</h2>
+        <div className="grid">
+          {WEB_GAMES.map((g) => (
+            <GameCard key={g.slug} game={g} />
+          ))}
+        </div>
+      </section>
+
+      <AdSlot placement="home_inline" />
+
+      <section className="facts" aria-label="How it works">
+        <div><strong>Instant</strong><span>Opens in a tab. Works on phone and desktop.</span></div>
+        <div><strong>Private</strong><span>No sign-up. Saves stay in your browser.</span></div>
+        <div><strong>Offline-friendly</strong><span>Games are self-contained and lightweight.</span></div>
+      </section>
+    </>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "960px",
-    margin: "0 auto",
-    padding: "32px 20px",
-    color: "#e5e7eb",
-  },
-  heading: { fontSize: "40px", margin: "0 0 12px 0" },
-  h2: { margin: "0 0 10px 0" },
-  paragraph: { color: "#cbd5e1", lineHeight: 1.7, margin: "0 0 14px 0" },
-  card: {
-    backgroundColor: "#020617",
-    border: "1px solid #1e293b",
-    borderRadius: "12px",
-    padding: "18px",
-  },
-  primaryButton: {
-    display: "inline-block",
-    padding: "10px 16px",
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    textDecoration: "none",
-    borderRadius: "8px",
-    fontWeight: 700,
-  },
-};

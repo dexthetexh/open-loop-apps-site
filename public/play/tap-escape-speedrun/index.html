@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tap Escape: Pure Speedrun</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Tap Escape Speedrun: tap to escape before time runs out. Earn shards, upgrade strength and efficiency.">
+  <meta name="theme-color" content="#050510">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <title>Tap Escape Speedrun | Open Loop Apps</title>
   <style>
     * {
       margin: 0;
@@ -18,12 +21,17 @@
       color: #E6E8F2;
       -webkit-user-select: none;
       user-select: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     
     #game {
       position: relative;
-      width: 100vw;
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
     
@@ -359,6 +367,7 @@
       display: none;
     }
   </style>
+  <script src="/ads/games.js" defer></script>
 </head>
 <body>
   <div id="game">
@@ -429,7 +438,7 @@
       <!-- Tap Button -->
       <div class="tap-container">
         <div style="text-align: center;">
-          <button class="tap-button" id="tapButton" onclick="handleTap()">
+          <button class="tap-button" id="tapButton" aria-label="Tap">
             READY
           </button>
           <div style="font-size: 11px; color: #9AA0B4; margin-top: 12px; letter-spacing: 1px;">
@@ -685,6 +694,8 @@
 
       saveProgress();
       updateUI();
+      // Natural break: between runs, never during one
+      if (window.OLAds) OLAds.gameBreak(won ? 'run_won' : 'run_lost');
     }
 
     function stopRun() {
@@ -875,29 +886,38 @@
     }
 
     // ==================== KEYBOARD INPUT ====================
+    // Keys that should never count as a tap
+    const IGNORED_KEYS = new Set(['Tab', 'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Escape', 'ContextMenu']);
+    const anyModalOpen = () =>
+      ['settingsModal', 'resetModal', 'aboutModal'].some(id => !document.getElementById(id).classList.contains('hidden'));
+
     window.addEventListener('keydown', (event) => {
-      // Prevent default for spacebar to avoid page scroll
-      if (event.code === 'Space') {
-        event.preventDefault();
-      }
-      
-      // Don't handle keys when modals are open
-      if (!document.getElementById('settingsModal').classList.contains('hidden') ||
-          !document.getElementById('resetModal').classList.contains('hidden') ||
-          !document.getElementById('aboutModal').classList.contains('hidden')) {
-        return;
-      }
-      
-      // Trigger tap on any key press
+      if (anyModalOpen()) return;
+      // Holding a key must not auto-fire taps: one press = one tap
+      if (event.repeat) { event.preventDefault(); return; }
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (IGNORED_KEYS.has(event.key) || /^F\d{1,2}$/.test(event.key)) return;
+
+      // Stop Space/Enter from scrolling or activating a focused button (double tap)
+      event.preventDefault();
       handleTap();
-      
-      // Visual feedback on tap button
+
       const tapButton = document.getElementById('tapButton');
       tapButton.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        tapButton.style.transform = 'scale(1)';
-      }, 100);
+      setTimeout(() => { tapButton.style.transform = 'scale(1)'; }, 100);
     });
+
+    // A focused button activates on Space keyup; swallow it so keyboard taps count once
+    window.addEventListener('keyup', (event) => {
+      if (!anyModalOpen() && (event.code === 'Space' || event.code === 'Enter')) event.preventDefault();
+    });
+
+    // Pointer taps register on press (faster than click) and never steal keyboard focus
+    (() => {
+      const btn = document.getElementById('tapButton');
+      btn.addEventListener('pointerdown', (e) => { e.preventDefault(); handleTap(); });
+      btn.addEventListener('click', (e) => { if (e.detail === 0) handleTap(); }); // keyboard/AT activation only
+    })();
 
     // ==================== INITIALIZATION ====================
     window.addEventListener('DOMContentLoaded', () => {

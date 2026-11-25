@@ -1,0 +1,79 @@
+[
+  {
+    "slug": "reelloop",
+    "title": "ReelLoop",
+    "tagline": "Cozy trophy fishing with crisp haptics.",
+    "description": "Cast, hook and land trophy fish across unlockable vistas. Manage line tension, upgrade your tackle and fill the trophy room.",
+    "genre": "Casual",
+    "controls": ["Tap to cast and hook", "Hold to reel, ease off when tension spikes", "Space / Enter on keyboard"],
+    "frame": "portrait",
+    "accent": "#38bdf8",
+    "platforms": { "web": true }
+  },
+  {
+    "slug": "tap-escape-speedrun",
+    "title": "Tap Escape Speedrun",
+    "tagline": "A pure tap speedrun: escape before time runs out.",
+    "description": "Every tap pushes the escape meter forward and costs a sliver of time. Clear each sector, earn shards and spend them on strength and efficiency.",
+    "genre": "Arcade",
+    "controls": ["Tap the button or press any key", "Upgrade between runs"],
+    "frame": "portrait",
+    "accent": "#00f0ff",
+    "platforms": { "web": true, "android": "coming-soon" }
+  },
+  {
+    "slug": "echokeys",
+    "title": "EchoKeys",
+    "tagline": "Musical memory: hear it, play it back.",
+    "description": "Listen to a growing sequence of notes and repeat it. Ear training that gets harder the better you get.",
+    "genre": "Music",
+    "controls": ["Tap the note pads", "Enter to start, R to replay"],
+    "frame": "portrait",
+    "accent": "#818cf8",
+    "platforms": { "web": true }
+  },
+  {
+    "slug": "echokeys-scaletrainer",
+    "title": "EchoKeys ScaleTrainer",
+    "tagline": "Learn to read music, one note at a time.",
+    "description": "Identify notes on the staff by sight and sound. Short daily sessions build note recognition fast.",
+    "genre": "Music",
+    "controls": ["Tap the matching note"],
+    "frame": "portrait",
+    "accent": "#6366f1",
+    "platforms": { "web": true }
+  },
+  {
+    "slug": "pixel-diner",
+    "title": "Pixel Diner",
+    "tagline": "Serve, upgrade, and survive the rush.",
+    "description": "Match orders before customers lose patience. A fast pixel-art cooking sprint.",
+    "genre": "Arcade",
+    "controls": ["Tap ingredients to build the order"],
+    "frame": "portrait",
+    "accent": "#f87171",
+    "platforms": { "web": true }
+  },
+  {
+    "slug": "flappy-bird",
+    "title": "Flappy Bird",
+    "tagline": "A lightweight arcade tap classic.",
+    "description": "Tap to flap through the gaps. Deterministic physics, offline play, local best score.",
+    "genre": "Arcade",
+    "controls": ["Tap or click to flap", "Space / Up to flap, P to pause, R to restart"],
+    "frame": "portrait",
+    "accent": "#fbbf24",
+    "platforms": { "web": true }
+  },
+  {
+    "slug": "idle-cyber-defense",
+    "title": "Idle Cyber Defense",
+    "tagline": "Idle network defense for Android.",
+    "description": "Build sensors and firewalls that earn threat points while you are away. Coming to Android.",
+    "genre": "Idle",
+    "controls": [],
+    "frame": "portrait",
+    "accent": "#22c55e",
+    "platforms": { "android": "coming-soon" }
+  }
+]

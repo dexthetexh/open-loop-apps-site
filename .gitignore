@@ -28,3 +28,6 @@ Fish and Vistas levels 1 2.png
 # Local tooling outputs (keep scripts, ignore generated zips)
 tools/**/*.zip
 tools/**/export/
+
+# Static export output
+.vercel/

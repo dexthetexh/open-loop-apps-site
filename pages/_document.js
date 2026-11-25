@@ -1,27 +1,22 @@
 import { Html, Head, Main, NextScript } from "next/document";
-
-const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === "true";
-const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "";
-const ADS_TEST_MODE = process.env.NEXT_PUBLIC_ADS_TEST_MODE === "true";
+import { ADS, SITE } from "../lib/site";
 
 export default function Document() {
   const adSrc =
-    ADS_ENABLED && ADSENSE_CLIENT
-      ? `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(
-          ADSENSE_CLIENT
-        )}`
+    ADS.enabled && ADS.client
+      ? `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(ADS.client)}`
       : "";
 
   return (
     <Html lang="en">
       <Head>
+        <meta name="theme-color" content={SITE.themeColor} />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         {adSrc ? (
-          <script
-            async
-            src={adSrc}
-            crossOrigin="anonymous"
-            data-adtest={ADS_TEST_MODE ? "on" : undefined}
-          />
+          <script async src={adSrc} crossOrigin="anonymous" data-adtest={ADS.testMode ? "on" : undefined} />
         ) : null}
       </Head>
       <body>

@@ -1,83 +1,54 @@
-import Head from "next/head";
-import Link from "next/link";
+import Seo from "../../components/Seo";
+import GameCard from "../../components/GameCard";
 import AdSlot from "../../components/ads/AdSlot";
-import { WEB_GAMES } from "../../lib/games";
-
-const CANONICAL_BASE = "https://openloopapps.com";
-
-const ANDROID_PLACEHOLDERS = [
-  {
-    slug: "idle-cyber-defense",
-    title: "Idle Cyber Defense",
-    desc: "Android app (placeholder).",
-  },
-  {
-    slug: "tap-escape-speedrun",
-    title: "Tap Escape Speedrun",
-    desc: "Android app (placeholder).",
-  },
-];
+import { ALL_GAMES } from "../../lib/games";
+import { absoluteUrl } from "../../lib/site";
 
 export default function GamesIndex() {
-  const canonical = `${CANONICAL_BASE}/games`;
-
-  // Hub list: all playable web games (from lib) + android placeholders (local)
-  const items = [
-    ...WEB_GAMES.map((g) => ({
-      ...g,
-      kind: "web",
-      href: `/games/${g.slug}`, // wrapper-first for consistency + monetization stance
-      cta: "Play →",
-    })),
-    ...ANDROID_PLACEHOLDERS.map((g) => ({
-      ...g,
-      kind: "android",
-      href: `/games/${g.slug}`,
-      cta: "Details →",
-    })),
-  ];
-
+  const web = ALL_GAMES.filter((g) => g.platforms.web);
+  const soon = ALL_GAMES.filter((g) => !g.platforms.web);
   return (
     <>
-      <Head>
-        <title>{`Games | Open Loop Apps`}</title>
-        <meta
-          name="description"
-          content="Browse lightweight games from Open Loop Apps."
-        />
-        <link rel="canonical" href={canonical} />
-      </Head>
+      <Seo
+        title="Games"
+        path="/games"
+        description="Browse free browser games from Open Loop Apps: fishing, music training, arcade speedruns and more."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          itemListElement: ALL_GAMES.map((g, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: absoluteUrl(`/games/${g.slug}`),
+            name: g.title,
+          })),
+        }}
+      />
+      <header className="pageHead">
+        <h1 className="h1">Games</h1>
+        <p className="lead">Everything here runs in your browser. Tap a card to play.</p>
+      </header>
 
-      <main className="page">
-        <header className="page-header">
-          <h1 className="h1">Games</h1>
-          <p className="subtitle">
-            Web games run in your browser. Android titles are listed as placeholders
-            until store pages go live.
-          </p>
-        </header>
+      <AdSlot placement="catalog_top" />
 
-        {/* Ads on catalog pages only */}
-        <AdSlot slot="1234567890" className="ad-slot" />
+      <div className="grid">
+        {web.map((g) => (
+          <GameCard key={g.slug} game={g} />
+        ))}
+      </div>
 
-        <section className="grid" aria-label="Game catalog">
-          {items.map((g) => (
-            <Link key={g.slug} href={g.href} className="card">
-              <h2 className="h2">{g.title}</h2>
-              <p className="cardText">{g.desc}</p>
-              <span className="cardCta">{g.cta}</span>
-            </Link>
-          ))}
+      {soon.length ? (
+        <section aria-labelledby="coming-soon">
+          <h2 id="coming-soon" className="h2">Coming to Android</h2>
+          <div className="grid">
+            {soon.map((g) => (
+              <GameCard key={g.slug} game={g} />
+            ))}
+          </div>
         </section>
+      ) : null}
 
-        <AdSlot slot="2345678901" className="ad-slot" />
-
-        <footer className="footerNote">
-          Tip: If a game feels off on mobile, rotate your device or try a different browser.
-        </footer>
-
-        <AdSlot slot="3456789012" className="ad-slot" />
-      </main>
+      <AdSlot placement="catalog_bottom" />
     </>
   );
 }
