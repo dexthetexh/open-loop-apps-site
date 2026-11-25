@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Circuit Shift | Open Loop Apps</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1320;color:#e7f5ff;font:16px system-ui}
+main{max-width:520px;margin:auto;padding:18px}h1{margin:0;color:#8ce9ef}p{color:#a9c2d0}
+.stats{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:16px 0}
+#board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;aspect-ratio:1}
+button{cursor:pointer}.tile{background:#192d42;border:1px solid #42607a;border-radius:9px;display:grid;place-items:center;position:relative;touch-action:manipulation;padding:0}
+.tile:focus-visible,button:focus-visible{outline:3px solid white}.tile svg{width:90%;height:90%}
+.tile.connected{background:#17474d;border-color:#62e8d4}.tile.source{border:2px solid #ffcd67}.tile.target{border:2px solid #f59db9}
+.tile span{position:absolute;bottom:2px;right:3px;font-size:9px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.actions button{background:#23445b;color:#fff;border:1px solid #537b90;border-radius:8px;padding:12px}
+#notice{min-height:24px;color:#8ce9ef}small{color:#8ca9bb}
+</style></head><body><main>
+<small>OPEN LOOP APPS · PLAYABLE PROOF OF CONCEPT · v0.1</small>
+<h1>Circuit Shift</h1><p>Rotate circuit tiles to connect the yellow source to the pink endpoint.</p>
+<div class="stats"><strong id="level">Level 1</strong><span id="moves">Moves: 0</span><span id="best">Best: —</span></div>
+<div id="board" aria-label="Circuit puzzle"></div>
+<div class="actions"><button id="restart">Restart</button><button id="hint">Hint (3)</button><button id="next" hidden>Next level</button><button id="how">How to play</button></div>
+<p id="notice" role="status" aria-live="polite"></p>
+<p><small>Prototype: progress is stored locally on this device. No ads, accounts, or online services. Gameplay is being tested.</small></p>
+</main><script>
+(()=>{'use strict';
+const N=5,DIR=[[0,-1],[1,0],[0,1],[-1,0]],OP=[2,3,0,1],$=id=>document.getElementById(id);
+let level=1,moves=0,tiles=[],solution=[],won=false,hintsUsed=0;
+const key='circuit-shift-progress-v1';
+try{level=Math.max(1,Math.min(10000,Number(localStorage.getItem(key))||1))}catch{}
+function rotate(mask,n){for(let j=0;j<n;j++)mask=((mask<<1)&15)|(mask>>3);return mask}
+function reachable(){const queue=[0],seen=new Set(queue);while(queue.length){const i=queue.shift(),mask=tiles[i].mask;for(let d=0;d<4;d++){if(!(mask&(1<<d)))continue;const x=i%N+DIR[d][0],y=Math.floor(i/N)+DIR[d][1];if(x<0||y<0||x>=N||y>=N)continue;const ni=y*N+x;if(!(tiles[ni].mask&(1<<OP[d]))||seen.has(ni))continue;seen.add(ni);queue.push(ni)}}return seen}
+function build(){const path=[0],seen=new Set(path);
+function walk(i){if(i===24)return true;const dirs=[0,1,2,3].sort(()=>Math.random()-.5);for(const d of dirs){const x=i%N+DIR[d][0],y=Math.floor(i/N)+DIR[d][1],ni=y*N+x;if(x<0||y<0||x>=N||y>=N||seen.has(ni))continue;seen.add(ni);path.push(ni);if(walk(ni))return true;path.pop();seen.delete(ni)}return false}
+if(!walk(0))throw Error('Could not create puzzle');
+const masks=Array(25).fill(0);for(let j=1;j<path.length;j++){const a=path[j-1],b=path[j],d=DIR.findIndex(([dx,dy])=>a%N+dx===b%N&&Math.floor(a/N)+dy===Math.floor(b/N));masks[a]|=1<<d;masks[b]|=1<<OP[d]}
+solution=masks;shuffle()}
+function shuffle(){tiles=solution.map(m=>({mask:rotate(m,Math.floor(Math.random()*4)),original:m}));moves=0;won=false;hintsUsed=0;$('notice').textContent='';$('next').hidden=true;if(reachable().has(24))tiles[0].mask=rotate(tiles[0].mask,1);render()}
+function render(){const seen=reachable();$('board').replaceChildren();tiles.forEach((t,i)=>{const b=document.createElement('button');b.className='tile'+(seen.has(i)?' connected':'')+(i===0?' source':'')+(i===24?' target':'');b.setAttribute('aria-label','Rotate tile '+(i+1));const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');for(let d=0;d<4;d++)if(t.mask&(1<<d)){const xy=[[50,0],[100,50],[50,100],[0,50]][d],line=document.createElementNS('http://www.w3.org/2000/svg','line');for(const [k,v] of Object.entries({x1:50,y1:50,x2:xy[0],y2:xy[1],stroke:seen.has(i)?'#7bffe6':'#80a9e1','stroke-width':12,'stroke-linecap':'round'}))line.setAttribute(k,v);svg.append(line)}const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');for(const [k,v] of Object.entries({cx:50,cy:50,r:10,fill:i===0?'#ffcd67':i===24?'#f59db9':'#bed7ff'}))circle.setAttribute(k,v);svg.append(circle);b.append(svg);if(i===0||i===24){const s=document.createElement('span');s.textContent=i===0?'START':'END';b.append(s)}b.onclick=()=>{if(won)return;t.mask=rotate(t.mask,1);moves++;render()};$('board').append(b)});
+$('level').textContent='Level '+level;$('moves').textContent='Moves: '+moves;$('hint').textContent='Hint ('+(3-hintsUsed)+')';let best;try{best=localStorage.getItem('circuit-shift-best-'+level)}catch{}$('best').textContent='Best: '+(best||'—');
+if(!won&&seen.has(24)){won=true;$('notice').textContent='Circuit complete. Level solved.';$('next').hidden=false;try{if(!best||moves<Number(best))localStorage.setItem('circuit-shift-best-'+level,String(moves))}catch{}}}
+$('restart').onclick=shuffle;
+$('hint').onclick=()=>{if(won)return;if(hintsUsed>=3){$('notice').textContent='Three free hints used. Ad-supported hints are not available in this prototype.';return}const candidates=tiles.map((t,i)=>({i,needed:t.original})).filter(x=>tiles[x.i].mask!==x.needed);if(!candidates.length)return;const x=candidates[Math.floor(Math.random()*candidates.length)];tiles[x.i].mask=x.needed;moves++;hintsUsed++;$('notice').textContent='Hint '+hintsUsed+'/3';render()};
+$('how').onclick=()=>{$('notice').textContent='Tap a tile to rotate clockwise. Match open ends to create a path from START to END.'};
+$('next').onclick=()=>{level=Math.min(10000,level+1);try{localStorage.setItem(key,String(level))}catch{}build()};build();
+})();
+</script></body></html>
