@@ -21,16 +21,53 @@ Node 22+.
 | `lib/site.js` | Site name, contact email, ad config (from env). |
 | `pages/games/[slug].js` | One landing page per catalog entry (embed, controls, JSON-LD). |
 | `public/play/<slug>/` | Game runtimes. Each is standalone: `index.html` entrypoint, no framework imports. Served at `/play/<slug>/`. |
+| `public/kit/ol-kit.js` | **Open Loop Kit**: shared game runtime (storage, haptics, audio, input, lifecycle, ads). |
+| `templates/game-starter/` | Starting point for new games, already wired to the kit. |
 | `public/_headers` | Security and cache headers for Cloudflare Pages. |
 | `assets-src/` | Source art not shipped to the site (ReelLoop sheets). |
 | `docs/games/` | Per-game dev notes moved out of `public/`. |
-| `scripts/` | `postbuild.mjs` writes the sitemap; `pages-output.mjs` mirrors `out/` for Pages. |
+| `scripts/` | `postbuild.mjs` writes the sitemap and ad config; `pages-output.mjs` mirrors `out/` for Pages; `new-game.mjs` and `package.mjs` (below). |
 
 ## Add a game
 
-1. Drop the runtime in `public/play/<slug>/index.html` (relative asset paths).
-2. Add an entry to `lib/games.json` (`frame`: `portrait` or `landscape`).
-3. `npm run build` and check `/games/<slug>/`.
+```bash
+npm run new:game -- sky-hop "Sky Hop" "Hop between clouds." --genre=Arcade --accent=#38bdf8
+```
+
+This copies `templates/game-starter/` to `public/play/sky-hop/` and adds a **draft** entry to `lib/games.json`.
+Drafts are playable at `/play/<slug>/` but hidden from the catalog, game pages and sitemap. Replace the gameplay in
+`game.js`, then remove `"draft": true` to publish.
+
+## Open Loop Kit
+
+Every game loads `../../kit/ol-kit.js` before its own script and uses `window.OL`:
+
+| API | Use |
+| --- | --- |
+| `OL.store.get/set/getNumber/getBool/getJSON/setJSON` | localStorage with try/catch and an in-memory fallback. Keys are used as given, so existing saves keep working. |
+| `OL.haptics.vibrate(p)`, `.tap()`, `.success()`, `.error()` | Vibration with one shared switch (`OL.haptics.enabled`). |
+| `OL.audio.context()`, `.resume()`, `.setMuted()` | One AudioContext per page, unlocked on the first gesture; muted during ads. |
+| `OL.input.onPress(el, fn)`, `OL.input.onKey(fn)` | Pointerdown taps; key handler that ignores held-key repeats and modifier keys. |
+| `OL.game.loadingDone()`, `.gameplayStart()`, `.gameplayStop()`, `.happyTime()` | Lifecycle signals. Portals require these; the kit forwards them to the channel adapter. |
+| `OL.ads.break(name, {pause, resume})` | Interstitial at a natural break only. `resume` always runs once. |
+
+Every game calls `loadingDone` once, `gameplayStart`/`gameplayStop` around active play, and `OL.ads.break` only at
+game over or level end. The kit also fires `ol:*` window events (`ol:gameplay-start`, `ol:ad-break`, …) for debugging.
+
+**Channels.** On openloopapps.com the kit reads `/ads/config.json` and uses the `site` adapter (AdSense H5 Games Ads).
+A packaged build pins `window.OL_CONFIG = {channel}` instead. Adapters register with `OL.registerAdapter({name, init,
+interstitial, loadingDone, gameplayStart, gameplayStop, happyTime})`.
+
+## Package for portals and app wrappers
+
+```bash
+npm run package -- all              # every published game
+npm run package -- reelloop         # one game
+```
+
+Writes `dist/packages/<channel>/<slug>.zip`: the game, the kit and any shared files it references (icon, fonts and
+their licence), with paths rewritten to `./`. The only channel today is `none` (no ads), suitable for itch.io and app
+wrappers. Portal adapters (CrazyGames, Poki, GameDistribution) are phase 2 of the growth plan.
 
 ## Deploy (Cloudflare Pages)
 

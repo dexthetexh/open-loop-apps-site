@@ -39,17 +39,17 @@
   /* ============ SAVE ============ */
   function loadSave() {
     try {
-      const raw = localStorage.getItem(RL.SAVE_KEY);
-      if (raw) return RL.normalizeSave(JSON.parse(raw));
-      const old = localStorage.getItem(RL.OLD_KEY);
-      if (old) return RL.normalizeSave(RL.migrateV4(JSON.parse(old)));
+      const cur = OL.store.getJSON(RL.SAVE_KEY);
+      if (cur) return RL.normalizeSave(cur);
+      const old = OL.store.getJSON(RL.OLD_KEY);
+      if (old) return RL.normalizeSave(RL.migrateV4(old));
     } catch (e) {}
     return RL.defaultSave();
   }
   let S = loadSave();
   let saveQueued = false;
   function save() {
-    try { localStorage.setItem(RL.SAVE_KEY, JSON.stringify(S)); } catch (e) { /* private mode / quota: play on */ }
+    OL.store.setJSON(RL.SAVE_KEY, S); // falls back to memory in private mode
   }
   function saveSoon() { if (!saveQueued) { saveQueued = true; setTimeout(() => { saveQueued = false; save(); }, 400); } }
 
@@ -64,9 +64,9 @@
     try { window.dispatchEvent(new CustomEvent('reelloop:track', { detail: ev })); } catch (err) {}
     try {
       const k = 'reelloop_events';
-      const arr = JSON.parse(localStorage.getItem(k) || '[]');
+      const arr = OL.store.getJSON(k, []);
       arr.push(ev); while (arr.length > 200) arr.shift();
-      localStorage.setItem(k, JSON.stringify(arr));
+      OL.store.setJSON(k, arr);
     } catch (err) {}
   }
 
@@ -75,7 +75,8 @@
   function ensureAudio() {
     if (!S.soundOn) return null;
     try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtx) audioCtx = OL.audio.context();
+      if (!audioCtx) return null;
       if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
     } catch (e) { audioCtx = null; }
     return audioCtx;
@@ -101,7 +102,7 @@
     } catch (e) {}
   }
   let pitchMul = 1;
-  function vibrate(p) { if (!S.hapticsOn) return; try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  function vibrate(p) { if (!S.hapticsOn) return; OL.haptics.vibrate(p); }
   const sfx = {
     splash: (big) => { noise(big ? 0.45 : 0.25, big ? 0.12 : 0.07, big ? 600 : 1100); },
     click: () => tone(1800, 'square', 0.015, 0.012),
@@ -528,6 +529,7 @@
 
   /* ---------- precision cast ---------- */
   function startCastMeter() {
+    OL.game.gameplayStart();
     const w = REDUCED_MOTION ? 0.17 : 0.12;
     const c = rand(0.45 + w / 2, 0.95 - w / 2);
     castGold = [c - w / 2, c + w / 2];
@@ -799,6 +801,7 @@
   function openCard(cls) { const card = $('card'); card.className = 'card ' + (cls || ''); $('cardWrap').classList.add('open'); }
   function closeCard() { $('cardWrap').classList.remove('open'); }
   function showCatchCard(o) {
+    OL.game.gameplayStop();
     const { fish, size, rw, jackpot, firstEver, pb, setBonus, tutorialWin } = o;
     $('cardTitle').textContent = jackpot ? 'JACKPOT CATCH!' : fish.rarity === 'Legendary' ? 'LEGENDARY!' : 'Caught!';
     $('cardTitle').style.color = jackpot || fish.rarity === 'Legendary' ? 'var(--gold)' : '#a7f3d0';
@@ -820,6 +823,7 @@
     cardAction = () => { closeCard(); afterResult(); };
   }
   function showLossCard(fish, fr, nearMiss) {
+    OL.game.gameplayStop();
     $('cardTitle').textContent = nearMiss ? 'SO CLOSE!' : fr.result === 'snap' ? 'Line snapped' : 'It got away';
     $('cardTitle').style.color = 'var(--danger)';
     const known = S.dex[fish.id] && S.dex[fish.id].n > 0;
@@ -839,7 +843,7 @@
   function afterResult() {
     sfx.ui(); enterReady();
     // Natural break after the catch/loss card is dismissed
-    if (window.OLAds) window.OLAds.gameBreak("cast_result");
+    OL.ads.break("cast_result");
   }
 
   /* ============ HUD / CONTROLS ============ */
@@ -964,7 +968,7 @@
     $('vistaPill').addEventListener('click', (e) => { e.stopPropagation(); openVistas(); });
     $('sheetClose').addEventListener('click', closeSheet);
     $('sheetWrap').addEventListener('pointerdown', (e) => { if (e.target.id === 'sheetWrap') closeSheet(); });
-    $('iosNudgeDismiss').addEventListener('click', () => { $('iosNudge').classList.remove('show'); try { localStorage.setItem('reelloop_ios_nudge_dismissed', '1'); } catch (e) {} });
+    $('iosNudgeDismiss').addEventListener('click', () => { $('iosNudge').classList.remove('show'); OL.store.set('reelloop_ios_nudge_dismissed', '1'); });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) { release(); save(); } else { setViewportUnits(); lastNow = 0; }
@@ -1154,13 +1158,14 @@
     attachInput();
     resizeCanvas();
     updateHud(false);
+    OL.game.loadingDone();
     enterReady();
     save();
     track('session_start', { migrated: !!S.migratedFrom, standalone: !!IS_STANDALONE, ios: IS_IOS, embedded: window.parent !== window });
     if (S.migratedFrom) { delete S.migratedFrom; save(); setTimeout(() => toast('ReelLoop 5.0 · your progress carried over'), 800); }
     if (!S.tutorialDone) setTimeout(() => callout('LET’S FISH!', 'blue', 1200), 300);
     if (IS_IOS && !IS_STANDALONE && window.parent === window) {
-      let dismissed = false; try { dismissed = !!localStorage.getItem('reelloop_ios_nudge_dismissed'); } catch (e) {}
+      const dismissed = !!OL.store.get('reelloop_ios_nudge_dismissed');
       if (!dismissed) setTimeout(() => $('iosNudge').classList.add('show'), 4000);
     }
     requestAnimationFrame(loop);

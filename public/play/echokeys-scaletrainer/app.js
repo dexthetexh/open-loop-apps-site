@@ -60,12 +60,8 @@ const CONFIG = Object.freeze({
 });
 
 const storage = {
-  get(key, fallback = null) {
-    try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; }
-  },
-  set(key, val) {
-    try { localStorage.setItem(key, val); } catch {}
-  }
+  get(key, fallback = null) { return OL.store.get(key, fallback); },
+  set(key, val) { OL.store.set(key, val); }
 };
 
 const state = {
@@ -113,8 +109,8 @@ function setStatus(message, className = '') {
 function ensureAudio() {
   if (state.audioContext) return;
 
-  const Ctx = window.AudioContext || window.webkitAudioContext;
-  state.audioContext = new Ctx();
+  state.audioContext = OL.audio.context();
+  if (!state.audioContext) return;
   state.masterGain = state.audioContext.createGain();
   state.masterGain.gain.value = CONFIG.MASTER_VOLUME;
   state.masterGain.connect(state.audioContext.destination);
@@ -168,8 +164,7 @@ function playFeedback(success) {
 
 function vibrate(pattern) {
   if (!state.vibrationEnabled) return;
-  if (!navigator.vibrate) return;
-  try { navigator.vibrate(pattern); } catch {}
+  OL.haptics.vibrate(pattern);
 }
 
 const haptics = {
@@ -319,7 +314,8 @@ function advance() {
     updateHeader();
 
     // Natural break between levels; the next level starts after the timeout
-    if (window.OLAds) window.OLAds.gameBreak("level_end");
+    OL.game.gameplayStop();
+    OL.ads.break("level_end");
 
     setTimeout(() => {
       state.questionNumber = 1;
@@ -327,6 +323,7 @@ function advance() {
       pickQuestion();
       showQuestion();
       updateProgress();
+      OL.game.gameplayStart();
     }, 1200);
 
     return;
@@ -716,6 +713,7 @@ function startGame() {
   pickQuestion();
   showQuestion();
   updateProgress();
+  OL.game.gameplayStart();
 }
 
 function completeTutorialAndStart() {
@@ -789,4 +787,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.soundEnabled = !!e.target.checked;
     saveProgress();
   });
+
+  OL.game.loadingDone();
 });

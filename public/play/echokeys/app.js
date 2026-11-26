@@ -97,7 +97,9 @@ function ensureDailyFresh() {
 }
 
 function initAudio() {
-  gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  gameState.audioContext = OL.audio.context();
+  if (!gameState.audioContext) return;
+  OL.audio.resume();
   gameState.masterGain = gameState.audioContext.createGain();
   gameState.masterGain.gain.value = CONFIG.MASTER_VOLUME;
   gameState.masterGain.connect(gameState.audioContext.destination);
@@ -132,8 +134,7 @@ function playNote(frequency, startTime, duration = CONFIG.NOTE_DURATION) {
 
 function vibrate(pattern) {
   if (!gameState.vibrationEnabled) return;
-  if (!navigator.vibrate) return;
-  try { navigator.vibrate(pattern); } catch {}
+  OL.haptics.vibrate(pattern);
 }
 
 function vibrateKeyPress() { vibrate(50); }
@@ -321,6 +322,8 @@ function renderKeys() {
 
 function setState(state) {
   gameState.currentState = state;
+  if (state === STATES.PLAYBACK || state === STATES.INPUT) OL.game.gameplayStart();
+  if (state === STATES.RESULT) OL.game.gameplayStop();
   if (state === STATES.PLAYBACK) startPlayback();
   if (state === STATES.INPUT) startInput();
   if (state === STATES.RESULT) showResult();
@@ -371,7 +374,7 @@ function showResult() {
     setTimeout(() => {
       showButtons(["replay", "retry"]);
       // Natural break after a missed sequence (round over)
-      if (window.OLAds) window.OLAds.gameBreak("round_missed");
+      OL.ads.break("round_missed");
     }, 450);
   }
 }
@@ -409,26 +412,24 @@ function handleKeyPress(index) {
 }
 
 function saveProgress() {
-  try {
-    localStorage.setItem(STORE.BEST, String(gameState.bestScore));
-    localStorage.setItem(STORE.VIBRATION, String(gameState.vibrationEnabled));
-    localStorage.setItem(STORE.DAILY_BEST, String(gameState.dailyBest));
-    localStorage.setItem(STORE.DAILY_DATE, String(gameState.dailyDate));
-  } catch {}
+  OL.store.set(STORE.BEST, gameState.bestScore);
+  OL.store.set(STORE.VIBRATION, gameState.vibrationEnabled);
+  OL.store.set(STORE.DAILY_BEST, gameState.dailyBest);
+  OL.store.set(STORE.DAILY_DATE, gameState.dailyDate);
 }
 
 function loadProgress() {
   try {
-    const savedBest = localStorage.getItem(STORE.BEST);
+    const savedBest = OL.store.get(STORE.BEST);
     if (savedBest) gameState.bestScore = parseInt(savedBest, 10) || 0;
 
-    const vib = localStorage.getItem(STORE.VIBRATION);
+    const vib = OL.store.get(STORE.VIBRATION);
     if (vib !== null) gameState.vibrationEnabled = vib === "true";
 
-    const savedDaily = localStorage.getItem(STORE.DAILY_BEST);
+    const savedDaily = OL.store.get(STORE.DAILY_BEST);
     if (savedDaily) gameState.dailyBest = parseInt(savedDaily, 10) || 0;
 
-    const savedDate = localStorage.getItem(STORE.DAILY_DATE);
+    const savedDate = OL.store.get(STORE.DAILY_DATE);
     if (savedDate) gameState.dailyDate = String(savedDate);
 
     const toggle = document.getElementById("vibration-toggle");
@@ -470,6 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProgress();
   ensureDailyFresh();
   updateDisplay();
+  OL.game.loadingDone();
 
   window.addEventListener("keydown", (e) => {
     if (e.code === "Escape") toggleSettings(false);
