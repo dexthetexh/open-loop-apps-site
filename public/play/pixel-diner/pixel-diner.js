@@ -22,7 +22,7 @@
   installClose?.addEventListener("click", () => installPrompt?.classList.remove("visible"));
 
   function vibrate(pattern = 10) {
-    if ("vibrate" in navigator) navigator.vibrate(pattern);
+    OL.haptics.vibrate(pattern);
   }
 
   // ---------------- Daily key helpers ----------------
@@ -95,9 +95,8 @@
   // ---------------- Persistence ----------------
   function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw);
+      const data = OL.store.getJSON(STORAGE_KEY);
+      if (!data) return;
 
       gameState.highScore = Number(data.highScore || 0);
 
@@ -119,14 +118,11 @@
 
   function saveState() {
     try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          highScore: gameState.highScore,
-          dailyBest: gameState.dailyBest,
-          dailyStamp: gameState.dailyStamp
-        })
-      );
+      OL.store.setJSON(STORAGE_KEY, {
+        highScore: gameState.highScore,
+        dailyBest: gameState.dailyBest,
+        dailyStamp: gameState.dailyStamp
+      });
     } catch {
       // ignore
     }
@@ -212,6 +208,7 @@
   function endGame() {
     vibrate([100, 50, 100]);
     gameState.isPlaying = false;
+    OL.game.gameplayStop();
 
     cancelAnimationFrame(gameState.raf);
 
@@ -230,7 +227,7 @@
     bestComboEl.textContent = String(gameState.bestCombo);
     gameOverScreen.classList.add("active");
     // Natural break on the game-over screen
-    if (window.OLAds) window.OLAds.gameBreak("game_over");
+    OL.ads.break("game_over");
   }
 
   function tick() {
@@ -352,6 +349,7 @@
     gameState.difficulty = 1;
 
     gameState.isPlaying = true;
+    OL.game.gameplayStart();
 
     startScreen.classList.add("hidden");
     gameOverScreen.classList.remove("active");
@@ -387,6 +385,7 @@
   initCookingStation();
   updateScore();
   updateCombo();
+  OL.game.loadingDone();
 
   // Optional: service worker omitted here on purpose (Cloudflare Pages + data-URI SW is not worth the confusion).
   // If you want offline caching, do it as a real file later.

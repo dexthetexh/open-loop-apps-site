@@ -15,21 +15,8 @@
 
   // ====== Persistence ======
   const BEST_KEY = "ola_flappy_best_v1";
-  const getBest = () => {
-    try {
-      const v = parseInt(localStorage.getItem(BEST_KEY) || "0", 10);
-      return Number.isFinite(v) ? v : 0;
-    } catch {
-      return 0;
-    }
-  };
-  const setBest = (v) => {
-    try {
-      localStorage.setItem(BEST_KEY, String(v));
-    } catch {
-      // ignore (private mode, storage disabled)
-    }
-  };
+  const getBest = () => Math.max(0, Math.floor(OL.store.getNumber(BEST_KEY, 0)));
+  const setBest = (v) => OL.store.set(BEST_KEY, v);
 
   let best = getBest();
   bestEl.textContent = String(best);
@@ -114,17 +101,20 @@
     if (mode === GameMode.Running) return;
     if (mode === GameMode.Over) reset();
     setMode(GameMode.Running);
+    OL.game.gameplayStart();
   }
 
   function gameOver() {
     setMode(GameMode.Over);
+    OL.game.gameplayStop();
+    OL.haptics.error();
     if (score > best) {
       best = score;
       bestEl.textContent = String(best);
       setBest(best);
     }
     // Natural break after a crash; the board is already stopped
-    if (window.OLAds) window.OLAds.gameBreak("game_over");
+    OL.ads.break("game_over");
   }
 
   function flap() {
@@ -134,8 +124,8 @@
   }
 
   function togglePause() {
-    if (mode === GameMode.Running) setMode(GameMode.Paused);
-    else if (mode === GameMode.Paused) setMode(GameMode.Running);
+    if (mode === GameMode.Running) { setMode(GameMode.Paused); OL.game.gameplayStop(); }
+    else if (mode === GameMode.Paused) { setMode(GameMode.Running); OL.game.gameplayStart(); }
   }
 
   function currentGap() {
@@ -422,6 +412,7 @@
 
   // ====== Initialize ======
   reset();
+  OL.game.loadingDone();
   requestAnimationFrame((t) => {
     lastT = t;
     requestAnimationFrame(loop);

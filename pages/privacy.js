@@ -21,10 +21,11 @@ export default function Privacy() {
           are never sent to us. Clearing site data in your browser deletes them.
         </p>
 
-        <h2 className="h2">Hosting logs</h2>
+        <h2 className="h2">Hosting and analytics</h2>
         <p>
           The site is served by Cloudflare. Like any web host, it processes standard request data (such as IP
-          address and user agent) for security and performance.
+          address and user agent) for security and performance. We use Cloudflare Web Analytics to count page
+          views. It sets no cookies and does not track you across sites.
         </p>
 
         <h2 className="h2">Advertising</h2>

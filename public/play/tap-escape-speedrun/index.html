@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="Tap Escape Speedrun: tap to escape before time runs out. Earn shards, upgrade strength and efficiency.">
   <meta name="theme-color" content="#050510">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
   <title>Tap Escape Speedrun | Open Loop Apps</title>
   <style>
     * {
@@ -367,7 +367,7 @@
       display: none;
     }
   </style>
-  <script src="/ads/games.js" defer></script>
+  <script src="../../kit/ol-kit.js"></script>
 </head>
 <body>
   <div id="game">
@@ -600,33 +600,24 @@
 
     // ==================== PERSISTENCE ====================
     function loadProgress() {
-      try {
-        const saved = localStorage.getItem('tap_escape_speedrun_progress');
-        if (saved) {
-          const data = JSON.parse(saved);
-          gameState.shards = data.shards || 0;
-          gameState.level = data.level || 1;
-          gameState.strengthLevel = data.strengthLevel || 0;
-          gameState.efficiencyLevel = data.efficiencyLevel || 0;
-        }
-      } catch (e) {
-        console.error('Failed to load progress:', e);
+      const data = OL.store.getJSON('tap_escape_speedrun_progress');
+      if (data) {
+        gameState.shards = data.shards || 0;
+        gameState.level = data.level || 1;
+        gameState.strengthLevel = data.strengthLevel || 0;
+        gameState.efficiencyLevel = data.efficiencyLevel || 0;
       }
     }
 
     function saveProgress() {
       if (gameState.isRunning) return;
       
-      try {
-        localStorage.setItem('tap_escape_speedrun_progress', JSON.stringify({
-          shards: gameState.shards,
-          level: gameState.level,
-          strengthLevel: gameState.strengthLevel,
-          efficiencyLevel: gameState.efficiencyLevel
-        }));
-      } catch (e) {
-        console.error('Failed to save progress:', e);
-      }
+      OL.store.setJSON('tap_escape_speedrun_progress', {
+        shards: gameState.shards,
+        level: gameState.level,
+        strengthLevel: gameState.strengthLevel,
+        efficiencyLevel: gameState.efficiencyLevel
+      });
     }
 
     // ==================== GAME LOOP ====================
@@ -667,6 +658,7 @@
       gameState.lastTimestamp = null;
 
       updateUI();
+      OL.game.gameplayStart();
       gameState.animationFrame = requestAnimationFrame(gameLoop);
     }
 
@@ -694,8 +686,10 @@
 
       saveProgress();
       updateUI();
+      OL.game.gameplayStop();
+      if (won) { OL.haptics.success(); OL.game.happyTime(); } else { OL.haptics.error(); }
       // Natural break: between runs, never during one
-      if (window.OLAds) OLAds.gameBreak(won ? 'run_won' : 'run_lost');
+      OL.ads.break(won ? 'run_won' : 'run_lost');
     }
 
     function stopRun() {
@@ -923,6 +917,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadProgress();
       updateUI();
+      OL.game.loadingDone();
     });
   </script>
 </body>
